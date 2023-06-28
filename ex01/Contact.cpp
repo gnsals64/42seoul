@@ -28,6 +28,10 @@ std::string	Contact::GetDarkestSecret(){
 	return this->darkestSecret;
 }
 
+std::string	Contact::GetIndex(){
+	return this->index;
+}
+
 void	Contact::WriteFirstName(std::string input){
 	this->firstName = input;
 }
@@ -47,3 +51,8 @@ void	Contact::WritePhoneNumber(std::string input){
 void	Contact::WriteDarkestSecret(std::string input){
 	this->darkestSecret = input;
 }
+
+void	Contact::SetIndex(int index){
+	this->index = std::to_string(index);
+}
+

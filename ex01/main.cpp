@@ -23,15 +23,19 @@ int main()
 	{
 		std::cout << "command> ";
 		std::getline(std::cin, cmd);
+		if (std::cin.eof() == 1)
+			break ;
 		if (cmd == "ADD" || cmd == "add")
 		{
 			phoneBook.AddContact();
+			std::cin.ignore();
 		}
 		else if (cmd == "SEARCH" || cmd == "search")
 		{
-			continue ;
+			phoneBook.SearchContact();
+			std::cin.ignore();
 		}
-		else if (cmd == "EXIT" || cmd == "exit")
+		else if (cmd == "EXIT" || cmd == "exit" )
 		{
 			std::cout << "goodbye" << std::endl;
 			break ;

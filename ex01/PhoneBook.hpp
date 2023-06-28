@@ -12,6 +12,11 @@ class PhoneBook{
 		PhoneBook();
 		~PhoneBook();
 		void	AddContact();
+		void	SearchContact();
+		void	PrintHead();
+		void	PrintTable();
+		void	PrintRow(Contact table);
+		void	PrintIndexInfo();
 };
 
 #endif

@@ -16,7 +16,8 @@ class PhoneBook{
 		void	PrintHead();
 		void	PrintTable();
 		void	PrintRow(Contact table);
-		void	PrintIndexInfo();
+		void	GetIndexInfo();
+		void	PrintIndexInfo(int i);
 };
 
 #endif

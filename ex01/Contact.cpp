@@ -28,7 +28,7 @@ std::string	Contact::GetDarkestSecret(){
 	return this->darkestSecret;
 }
 
-std::string	Contact::GetIndex(){
+int	Contact::GetIndex(){
 	return this->index;
 }
 
@@ -53,6 +53,10 @@ void	Contact::WriteDarkestSecret(std::string input){
 }
 
 void	Contact::SetIndex(int index){
-	this->index = std::to_string(index);
+	if (index > 25000){
+		std::cout << "index full" << std::endl;
+		exit(1);
+	}
+	this->index = index;
 }
 

@@ -1,6 +1,6 @@
 NAME = PhoneBook
-CC = g++
-FLAG = -Wall -Werror -Wextra #-std=c++98
+CC = c++
+FLAG = -Wall -Werror -Wextra -std=c++98
 SRC_FILE = $(addprefix , Contact PhoneBook main)
 SRCS = ${SRC_FILE:=.cpp}
 OBJS = ${SRC_FILE:=.o}
@@ -8,7 +8,7 @@ OBJS = ${SRC_FILE:=.o}
 all : ${NAME}
 
 ${NAME} : ${OBJS}
-	@${CC} -g ${FLAG} ${SRCS} -o ${NAME}
+	@${CC} ${FLAG} ${SRCS} -o ${NAME}
 
 clean :
 	@rm -f ${OBJS}

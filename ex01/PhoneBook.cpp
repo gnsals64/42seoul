@@ -31,9 +31,14 @@ void	PhoneBook::AddContact(){
 }
 
 void	PhoneBook::SearchContact(){
+	if (this->index == 0)
+	{
+		std::cout << "Info does not exist" << std::endl;
+		return ;
+	}
 	PhoneBook::PrintHead();
 	PhoneBook::PrintTable();
-	PhoneBook::PrintIndexInfo();
+	PhoneBook::GetIndexInfo();
 };
 
 void	PhoneBook::PrintHead(){
@@ -56,10 +61,7 @@ void	PhoneBook::PrintTable(){
 
 void	PhoneBook::PrintRow(Contact table){
 	std::cout << "|";
-	if (table.GetIndex().length() > 10)
-		std::cout << std::setw(10) << table.GetIndex().substr(0, 9) + "." << "|";
-	else
-		std::cout << std::setw(10) << table.GetIndex() << "|";
+	std::cout << std::setw(10) << table.GetIndex() << "|";
 	if (table.GetFirstName().length() > 10)
 		std::cout << std::setw(10) << table.GetFirstName().substr(0, 9) + "." << "|";
 	else
@@ -75,6 +77,41 @@ void	PhoneBook::PrintRow(Contact table){
 	std::cout << std::endl;
 }
 
-void PhoneBook::PrintIndexInfo(){
-	
+void PhoneBook::GetIndexInfo(){
+	std::string			index;
+	std::stringstream	stream;
+	int					i;
+	int					min;
+
+	min = 1;
+	std::cout << "You can choose index\n";
+	while(true)
+	{
+		std::cout << "index > ";
+		std::getline(std::cin, index);
+		stream.str(index);
+		stream >> i;
+		stream.clear();
+		if (this->index > 8)
+			min = this->index - 7;
+		if (std::cin.eof() == 1)
+			exit(1);
+		if (index == "")
+			continue ;
+		else if (i < min || i > this->index)
+			std::cout << "wrong index\n";
+		else
+		{
+			PhoneBook::PrintIndexInfo(i);
+			break ;
+		}
+	}
+}
+
+void	PhoneBook::PrintIndexInfo(int i){
+	std::cout << "Firstname : " << PhoneBook::table_contact[(i - 1) % 8].GetFirstName() << "\n";
+	std::cout << "Lastname : " << PhoneBook::table_contact[(i - 1) % 8].GetLastName() << "\n";
+	std::cout << "Nickname : " << PhoneBook::table_contact[(i - 1) % 8].GetNickName() << "\n";
+	std::cout << "PhoneNumber : " << PhoneBook::table_contact[(i - 1) % 8].GetPhoneNumber() << "\n";
+	std::cout << "DarkestSecret : " << PhoneBook::table_contact[(i - 1) % 8].GetDarkestSecret() << std::endl;
 }

@@ -28,12 +28,12 @@ int main()
 		if (cmd == "ADD" || cmd == "add")
 		{
 			phoneBook.AddContact();
-			std::cin.ignore();
+			continue ;
 		}
 		else if (cmd == "SEARCH" || cmd == "search")
 		{
 			phoneBook.SearchContact();
-			std::cin.ignore();
+			continue ;
 		}
 		else if (cmd == "EXIT" || cmd == "exit" )
 		{

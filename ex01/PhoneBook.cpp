@@ -12,19 +12,29 @@ void	PhoneBook::AddContact(){
 	std::string	buf;
 
 	std::cout << "Firstname : ";
-	std::cin >> buf;
+	std::getline(std::cin, buf);
+	if (std::cin.eof() == 1)
+		exit(1);
 	this->table_contact[this->index % 8].WriteFirstName(buf);
 	std::cout << "Lastname : ";
-	std::cin >> buf;
+	std::getline(std::cin, buf);
+	if (std::cin.eof() == 1)
+		exit(1);
 	this->table_contact[this->index % 8].WriteLastName(buf);
 	std::cout << "Nickname : ";
-	std::cin >> buf;
+	std::getline(std::cin, buf);
+	if (std::cin.eof() == 1)
+		exit(1);
 	this->table_contact[this->index % 8].WriteNickName(buf);
 	std::cout << "Phonenumber : ";
-	std::cin >> buf;
+	std::getline(std::cin, buf);
+	if (std::cin.eof() == 1)
+		exit(1);
 	this->table_contact[this->index % 8].WritePhoneNumber(buf);
 	std::cout << "Darkestsecret : ";
-	std::cin >> buf;
+	std::getline(std::cin, buf);
+	if (std::cin.eof() == 1)
+		exit(1);
 	this->table_contact[this->index % 8].WriteDarkestSecret(buf);
 	PhoneBook::table_contact[this->index % 8].SetIndex(this->index + 1);
 	this->index++;

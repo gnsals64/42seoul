@@ -1,4 +1,4 @@
-NAME = harl
+NAME = harlFilter
 CC = c++
 FLAG = -Wall -Werror -Wextra -std=c++98
 SRC_FILE = $(addprefix , main Harl)

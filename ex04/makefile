@@ -1,4 +1,4 @@
-NAME = Sed_is_for_losers
+NAME = Sed
 CC = c++
 FLAG = -Wall -Werror -Wextra -std=c++98
 SRC_FILE = $(addprefix , main)

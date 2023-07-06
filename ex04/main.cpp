@@ -44,5 +44,7 @@ int	main(int ac, char **av)
 		}
 		ofs << tmp << std::endl;
 	}
+	ifs.close();
+	ofs.close();
 	return (0);
 }

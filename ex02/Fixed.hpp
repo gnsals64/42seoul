@@ -31,10 +31,10 @@ class Fixed{
 		Fixed	operator/(const Fixed& obj);
 		Fixed&	operator++();
 		Fixed	operator++(int a);
-		Fixed	max(Fixed &a, Fixed &b);
-		Fixed	max(const Fixed &a, const Fixed &b);
+		Fixed 	max(Fixed &a, Fixed &b);
 		Fixed	min(Fixed &a, Fixed &b);
-		Fixed	min(const Fixed &a, const Fixed &b);
+		static Fixed	max(const Fixed &a, const Fixed &b);
+		static Fixed	min(const Fixed &a, const Fixed &b);
 };
 
 std::ostream& operator<<(std::ostream& out, const Fixed& obj);

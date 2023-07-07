@@ -116,5 +116,25 @@ Fixed	Fixed::operator++(int a){
 }
 
 Fixed	Fixed::max(Fixed &a, Fixed &b){
+	if (a >= b)
+		return a;
+	return b;
+}
 
+Fixed	Fixed::max(const Fixed &a, const Fixed &b){
+	if (a.value >= b.value)
+		return a;
+	return b;
+}
+
+Fixed	Fixed::min(Fixed &a, Fixed &b){
+	if (a <= b)
+		return a;
+	return b;
+}
+
+Fixed	Fixed::min(const Fixed &a, const Fixed &b){
+	if (a.value <= b.value)
+		return a;
+	return b;
 }

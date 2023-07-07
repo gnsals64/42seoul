@@ -61,6 +61,12 @@
 		"ratio": "cpp",
 		"stdexcept": "cpp",
 		"type_traits": "cpp",
-		"typeinfo": "cpp"
+		"typeinfo": "cpp",
+		"random": "cpp",
+		"*.tcc": "cpp",
+		"clocale": "cpp",
+		"deque": "cpp",
+		"numeric": "cpp",
+		"fstream": "cpp"
 	}
 }

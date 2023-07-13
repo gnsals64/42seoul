@@ -18,6 +18,7 @@ class PhoneBook{
 		void	PrintRow(Contact table);
 		void	GetIndexInfo();
 		void	PrintIndexInfo(int i);
+		void	AddControl(std::string *buf);
 };
 
 #endif

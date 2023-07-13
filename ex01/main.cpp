@@ -24,7 +24,13 @@ int main()
 		std::cout << "command> ";
 		std::getline(std::cin, cmd);
 		if (std::cin.eof() == 1)
-			break ;
+		{
+			std::cin.ignore();
+			std::cin.clear();
+			clearerr(stdin);
+			std::cout << "\n";
+			continue ;
+		}
 		if (cmd == "ADD" || cmd == "add")
 		{
 			phoneBook.AddContact();

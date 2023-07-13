@@ -1,7 +1,7 @@
 NAME = ClapTrap
 CC = c++
 FLAG = -Wall -Werror -Wextra -std=c++98
-SRC_FILE = $(addprefix , main Fixed)
+SRC_FILE = $(addprefix , main ClapTrap)
 SRCS = ${SRC_FILE:=.cpp}
 OBJS = ${SRC_FILE:=.o}
 

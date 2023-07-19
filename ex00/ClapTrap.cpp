@@ -16,11 +16,11 @@ ClapTrap::ClapTrap(std::string name) {
 	this->Attack_damage = 0;
 }
 
-ClapTrap::~ClapTrap(){
+ClapTrap::~ClapTrap() {
 	std::cout << "Destructor called" << std::endl;
 }
 
-ClapTrap::ClapTrap(const ClapTrap& cpy){
+ClapTrap::ClapTrap(const ClapTrap& cpy) {
 	std::cout << "Copy constructor called" << std::endl;
 	this->name = cpy.name;
 	this->Hit_points = cpy.Hit_points;
@@ -39,14 +39,22 @@ ClapTrap& ClapTrap::operator=(const ClapTrap& cpy) {
 	return *this;
 }
 
+<<<<<<< HEAD
 void	ClapTrap::attack(const std::string &target) {
 	if (this->Energy_points > 0 && this->Hit_points > 0) {
 		std::cout << "ClapTrap " << this->name << " attacks " << target
 		<< " , causing " << this->Attack_damage << " points of damage!" << std::endl;
+=======
+void	ClapTrap::attack(const std::string& target) {
+	if (this->Energy_points > 0 && this->Hit_points > 0) {
+		std::cout << "ClapTrap " << this->name << " attacks " << target << ", causing "
+			<< this->Attack_damage << " points of damage!" << std::endl;
+>>>>>>> abd886be1a70202cec27662e26718dbae19c9a19
 		this->Hit_points -= this->Attack_damage;
 		this->Energy_points--;
 	}
 	else
+<<<<<<< HEAD
 		std::cout << "ClapTrap can't do anything" << std::endl;
 }
 
@@ -68,4 +76,27 @@ void	ClapTrap::beRepaired(unsigned int amount) {
 	}
 	else
 		std::cout << "ClapTrap can't do anything" << std::endl;
+=======
+		std::cout << "not enough energy or hitpoint" << std::endl;
+}
+
+void	ClapTrap::beRepaired(unsigned int amount) {
+	if (this->Energy_points > 0 && this->Hit_points > 0) {
+		std::cout << this->name << " has recovered " << amount << std::endl;
+		this->Hit_points += amount;
+		this->Energy_points--;
+	}
+	else
+		std::cout << "not enough energy or hitpoint" << std::endl;
+}
+
+void	ClapTrap::takeDamage(unsigned int amount) {
+	if (this->Energy_points > 0 && this->Hit_points > 0) {
+		std::cout << this->name << " was damaged " << amount << std::endl;
+		this->Hit_points -= amount;
+		this->Energy_points--;
+	}
+	else
+		std::cout << "not enough energy or hitpoint" << std::endl;
+>>>>>>> abd886be1a70202cec27662e26718dbae19c9a19
 }

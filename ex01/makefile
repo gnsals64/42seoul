@@ -1,14 +1,14 @@
-NAME = a.out
+NAME = ScavTrap
 CC = c++
 FLAG = -Wall -Werror -Wextra -std=c++98
-SRC_FILE = $(addprefix , main Fixed)
+SRC_FILE = $(addprefix , main ClapTrap ScavTrap)
 SRCS = ${SRC_FILE:=.cpp}
 OBJS = ${SRC_FILE:=.o}
 
 all : ${NAME}
 
 ${NAME} : ${OBJS}
-	@${CC} ${FLAG} ${SRCS} -o ${NAME}
+	@${CC} ${FLAG} ${OBJS} -o ${NAME}
 
 clean :
 	@rm -f ${OBJS}

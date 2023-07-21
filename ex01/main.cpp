@@ -2,7 +2,7 @@
 
 int main()
 {
-	int		num = 5;
+	int		num = -1;
 	Zombie *array = zombieHorde(num, "hunpark");
 
 	for (int i = 0; i < num; i++){

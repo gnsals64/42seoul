@@ -8,6 +8,6 @@ int main()
 	ha.complain("INFO");
 	ha.complain("WARNING");
 	ha.complain("ERROR");
-	ha.complain("df");
+	ha.complain(NULL);
 	return (0);
 }

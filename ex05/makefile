@@ -8,7 +8,7 @@ OBJS = ${SRC_FILE:=.o}
 all : ${NAME}
 
 ${NAME} : ${OBJS}
-	@${CC} ${FLAG} ${SRCS} -o ${NAME}
+	@${CC} -g ${FLAG} ${SRCS} -o ${NAME}
 
 clean :
 	@rm -f ${OBJS}

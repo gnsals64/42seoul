@@ -1,7 +1,7 @@
 #include "ClapTrap.hpp"
 
 ClapTrap::ClapTrap() {
-	std::cout << "ClapTrap Default constructor called" << std::endl;
+	std::cout << "ClapTrap default constructor called" << std::endl;
 	this->name = "default";
 	this->Hit_points = 10;
 	this->Energy_points = 10;
@@ -39,7 +39,7 @@ ClapTrap& ClapTrap::operator=(const ClapTrap& cpy) {
 	return *this;
 }
 
-void	ClapTrap::attack(const std::string &target) {
+ void	ClapTrap::attack(const std::string &target) {
 	if (this->Energy_points > 0 && this->Hit_points > 0) {
 		std::cout << "ClapTrap " << this->name << " attacks " << target
 		<< " , causing " << this->Attack_damage << " points of damage!" << std::endl;

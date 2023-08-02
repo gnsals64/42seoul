@@ -2,7 +2,6 @@
 # define MATERIASOURCE_HPP
 
 #include "IMateriaSource.hpp"
-#include "AMateria.hpp"
 
 class MateriaSource : public IMateriaSource{
 	public:
@@ -10,8 +9,9 @@ class MateriaSource : public IMateriaSource{
 		~MateriaSource(void);
 		MateriaSource(const MateriaSource& cpy);
 		MateriaSource& operator=(const MateriaSource& cpy);
-		void	learnMateria(AMateria*);
+		void	learnMateria(AMateria* a);
 		AMateria*	createMateria(std::string const & type);
+
 	private:
 		AMateria *slots[4];
 };

@@ -1,14 +1,14 @@
-NAME = Animal
+NAME = Materia
 CC = c++
 FLAG = -Wall -Werror -Wextra -std=c++98
-SRC_FILE = $(addprefix , main Animal)
+SRC_FILE = $(addprefix , main AMateria Character Cure Ice MateriaSource)
 SRCS = ${SRC_FILE:=.cpp}
 OBJS = ${SRC_FILE:=.o}
 
 all : ${NAME}
 
 ${NAME} : ${OBJS}
-	@${CC} ${FLAG} ${OBJS} -o ${NAME}
+	@${CC} ${FLAG} ${SRCS} -o ${NAME}
 
 clean :
 	@rm -f ${OBJS}

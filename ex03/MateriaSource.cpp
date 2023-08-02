@@ -14,6 +14,21 @@ MateriaSource& MateriaSource::operator=(const MateriaSource& cpy) {
 	return *this;
 }
 
-void	MateriaSource::learnMateria(AMateria*){}
+void	MateriaSource::learnMateria(AMateria* a) {
+	for (int i = 0; i < 4; i++){
+		if (!this->slots[i]) {
+			this->slots[i] = a;
+			return ;
+		}
+	}
+}
 
-AMateria*	MateriaSource::createMateria(std::string const & type){}
+AMateria*	MateriaSource::createMateria(std::string const & type) {
+	for (int i = 0; i < 4; i++) {
+		if (this->slots[i]->getype() == type) {
+			AMateria *tmp = this->slots[i]->clone();
+			return tmp;
+		}
+	}
+	return NULL;
+}

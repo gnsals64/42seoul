@@ -3,10 +3,8 @@
 
 # include <iostream>
 # include "ICharacter.hpp"
-# include "IMateriaSource.hpp"
 
 class ICharacter;
-class IMateriaSource;
 
 class AMateria {
 	protected:
@@ -22,4 +20,4 @@ class AMateria {
 		virtual void use(ICharacter& target);
 };
 
-#endif;
+#endif

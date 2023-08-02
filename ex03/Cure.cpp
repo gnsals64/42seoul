@@ -1,4 +1,5 @@
 #include "Cure.hpp"
+#include "ICharacter.hpp"
 
 Cure::Cure(void) {
 	this->type = "Cure";

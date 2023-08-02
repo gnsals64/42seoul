@@ -1,4 +1,5 @@
 #include "Character.hpp"
+#include "AMateria.hpp"
 
 Character::Character(void) {}
 
@@ -6,7 +7,8 @@ Character::~Character(void) {}
 
 Character::Character(std::string name) {
 	for (int i = 0; i < 4; i++)
-		this->slots[i] = NULL;
+		this->slots[i] = NUake
+		LL;
 	this->name = name;
 }
 

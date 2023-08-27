@@ -22,7 +22,7 @@ void send_response(int client_socket, int status_code, const std::string &conten
 	response << "Content-Length: " << content.size() << CRLF;
 	response << CRLF;
 	response << content;
-	std::cout << (char *)response.str().c_str() << std::endl;
+	// std::cout << (char *)response.str().c_str() << std::endl;
 
 	send(client_socket, response.str().c_str(), response.str().size(), 0);
 	// close (client_socket);
@@ -52,7 +52,7 @@ void	init(std::vector<Worker> &workers, int &kq, std::vector <struct kevent> &ch
 		server_address.sin_family = AF_INET;
 		server_address.sin_addr.s_addr = INADDR_ANY;
 		// server_address.sin_port = htons(workers[i].get_port());
-		server_address.sin_port = htons(8000);
+		server_address.sin_port = htons(8080);
 		if (bind(workers[i].get_server_socket(), (struct sockaddr *)&server_address, sizeof(server_address)) == -1)
 		{
 			for (int j = 0; j < workers.size(); j++)
@@ -134,6 +134,7 @@ void	run(std::vector<Worker> &workers, int &kq, std::vector <struct kevent> &cha
 				{
 					char buf[1024];
 					int n = read(events[i].ident, buf, sizeof(buf));
+					std::cout << "buf = " << buf << std::endl;
 					if (n <= 0)
 					{
 						if (n < 0)

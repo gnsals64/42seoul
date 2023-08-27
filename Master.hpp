@@ -8,7 +8,7 @@
 
 void	conf_parse(char *conf_file)
 {
-
+    "hi";
 }
 
 const std::string CRLF = "\r\n";

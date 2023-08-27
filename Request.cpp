@@ -10,7 +10,17 @@ Request::~Request()
 
 }
 
-std::string Request::getPath() const
+void	Request::setMethod(std::string method)
 {
-    return this->path;
+	this->httpMethod = method;
+}
+
+void	Request::setPath(std::string path)
+{
+	this->path = path;
+}
+
+void	Request::setScheme(std::string scheme)
+{
+	this->scheme = scheme;
 }

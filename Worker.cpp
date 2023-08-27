@@ -10,6 +10,8 @@
 Worker::Worker() : server_socket(0), port(80), root("default"), index("index.html"), server_names(0), client_max_body_size(0)
 {
 	server_socket = socket(AF_INET, SOCK_STREAM, 0);
+	const int value = 1;
+	setsockopt(server_socket, SOL_SOCKET, SO_REUSEADDR, &value, sizeof(value));
 	//default error page setting
 	// this->error_pages.insert({404, "404.html"});
 }
@@ -108,4 +110,55 @@ size_t Worker::get_client_max_body_size() const {
 const	std::map<int, std::string>& Worker::get_error_page() const
 {
 	return this->error_pages;
+}
+
+std::vector <std::string> Worker::split(std::string input, char dlim, int &result_cnt)
+{
+	std::vector<std::string> result;
+
+	std::stringstream ss;
+	std::string stringBuffer;
+	ss.str(input);
+
+	while (getline(ss, stringBuffer, dlim))
+	{
+		result.push_back(stringBuffer);
+		result_cnt++;
+	}
+	return result;
+}
+
+void	Worker::reqFirstLineParse(std::string first_line)
+{
+	int	tmp = 0;
+	std::vector <std::string> fir_line_parse;
+	fir_line_parse = this->split(first_line, ' ', tmp);
+	this->request.setMethod(fir_line_parse[0]);
+	this->request.setPath(fir_line_parse[1]);
+	this->request.setScheme(fir_line_parse[2]);
+}
+
+void	Worker::parseOther(std::vector<std::string> line_parse, int line_cnt)
+{
+	int tmp;
+	for (int i = 1; i < line_cnt; i++)
+	{
+		tmp = 0;
+		std::vector <std::string> colon_parse;
+		colon_parse = this->split(line_parse[i], ':', tmp);
+		//여기서부터 앞에 key값 찾아서 파싱
+	}
+}
+
+void	Worker::requestParse(std::string request)
+{
+	int	line_cnt = 0;
+	std::vector <std::string> line_parse;
+	line_parse = this->split(request, '\n', line_cnt);
+	// for (int i = 0; i < line_cnt; i++)
+	// {
+	// 	std::cout << "line_parse = " << line_parse[i] << std::endl;
+	// }
+	this->reqFirstLineParse(line_parse[0]);
+	this->parseOther(line_parse, line_cnt);
 }

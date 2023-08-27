@@ -6,6 +6,7 @@
 #include <vector>
 #include <map>
 #include "Location.hpp"
+#include "Request.hpp"
 
 class Worker {
 private:
@@ -16,6 +17,8 @@ private:
     std::vector<std::string> server_names;
     std::map<int, std::string> error_pages;
     size_t client_max_body_size;
+	Request	request;
+
     // std::vector<Location> locations;
 
 public:
@@ -39,6 +42,10 @@ public:
     // const	std::vector<Location>& get_locations() const;
 		void	add_error_page(int error_code, std::string& error_page);
     const	std::map<int, std::string>& get_error_page() const;
+	std::vector<std::string> split(std::string input, char dlim, int &result_cnt);
+	void	reqFirstLineParse(std::string first_line);
+	void	parseOther(std::vector <std::string> line_parse, int line_cnt);
+	void	requestParse(std::string request);
 	class	bindError: public std::exception
 	{
 		public:

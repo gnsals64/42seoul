@@ -2,6 +2,8 @@
 # define MASTER_HPP
 
 #include "Worker.hpp"
+#include "Transaction.hpp"
+#include "Request.hpp"
 
 # define RED "\033[31m"
 # define RESET "\033[0m"
@@ -150,6 +152,11 @@ void	run(std::vector<Worker> &workers, int &kq, std::vector <struct kevent> &cha
 					{
 						buf[n] = '\0';
 						clients_buf[events[i].ident] += buf;
+					}
+					for (std::vector<Worker>::iterator wit = workers.begin(); wit != workers.end(); ++wit) {
+						if (wit->get_server_socket() == *it) {
+							wit->requestParse(buf);
+						}
 					}
 					change_events(change_list, tmp_cli_sock, EVFILT_READ, EV_ADD | EV_DISABLE, 0, 0, NULL);
 					change_events(change_list, tmp_cli_sock, EVFILT_WRITE, EV_ADD | EV_ENABLE, 0, 0, NULL);

@@ -138,16 +138,66 @@ void	Worker::reqFirstLineParse(std::string first_line)
 	this->request.setScheme(fir_line_parse[2]);
 }
 
+void	Worker::parseHost(std::vector<std::string> colon_parse)
+{
+	int	i = 1;
+	std::string	tmp;
+	while (colon_parse[1][i])
+	{
+		if (colon_parse[1][i] == ' ')
+			break ;
+		tmp += colon_parse[1][i];
+		i++;
+	}
+	this->request.pushBackHost(tmp);
+	this->request.pushBackHost(colon_parse[2]);
+}
+
+void	Worker::parseConnection(std::vector<std::string> colon_parse)
+{
+	int	i = 1;
+	std::string	tmp;
+	while (colon_parse[1][i])
+	{
+		if (colon_parse[1][i] == ' ')
+			break ;
+		tmp += colon_parse[1][i];
+		i++;
+	}
+	this->request.setConnection(tmp);
+}
+
+void	Worker::parseContentLength(std::vector<std::string> colon_parse)
+{
+	int	i = 1;
+	std::string tmp;
+	while (colon_parse[1][i])
+	{
+		if (colon_parse[1][i] == ' ')
+			break ;
+		tmp += colon_parse[1][i];
+		i++;
+	}
+	this->request.setContentLength(tmp);
+}
+
 void	Worker::parseOther(std::vector<std::string> line_parse, int line_cnt)
 {
 	int tmp;
+	std::vector <std::string> colon_parse;
 	for (int i = 1; i < line_cnt; i++)
 	{
 		tmp = 0;
-		std::vector <std::string> colon_parse;
 		colon_parse = this->split(line_parse[i], ':', tmp);
-		//여기서부터 앞에 key값 찾아서 파싱
+		std::cout << "parse = " << colon_parse[0] << std::endl;
+		if (colon_parse[0] == "Host")
+			this->parseHost(colon_parse);
+		else if (colon_parse[0] == "Connection")
+			this->parseConnection(colon_parse);
+		else if (colon_parse[0] == "Content-Length")
+			this->parseContentLength(colon_parse);
 	}
+	this->request.setBody(colon_parse[0]);
 }
 
 void	Worker::requestParse(std::string request)

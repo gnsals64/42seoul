@@ -44,6 +44,9 @@ public:
     const	std::map<int, std::string>& get_error_page() const;
 	std::vector<std::string> split(std::string input, char dlim, int &result_cnt);
 	void	reqFirstLineParse(std::string first_line);
+	void	parseHost(std::vector<std::string> colon_parse);
+	void	parseConnection(std::vector<std::string> colon_parse);
+	void	parseContentLength(std::vector<std::string> colon_parse);
 	void	parseOther(std::vector <std::string> line_parse, int line_cnt);
 	void	requestParse(std::string request);
 	class	bindError: public std::exception

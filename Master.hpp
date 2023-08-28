@@ -136,7 +136,7 @@ void	run(std::vector<Worker> &workers, int &kq, std::vector <struct kevent> &cha
 				{
 					char buf[1024];
 					int n = read(events[i].ident, buf, sizeof(buf));
-					std::cout << "buf = " << buf << std::endl;
+					std::cout << "count = " << n << std::endl;
 					if (n <= 0)
 					{
 						if (n < 0)
@@ -153,11 +153,16 @@ void	run(std::vector<Worker> &workers, int &kq, std::vector <struct kevent> &cha
 						buf[n] = '\0';
 						clients_buf[events[i].ident] += buf;
 					}
+					// Request를 다 읽었는지에 대한 검증 필요
+					// 1. \r\n\r\n 을 찾을 수 있는가?(못 찾을 경우 헤더 덜 읽음)
+					// 2.
+					// 다 읽었을 경우 헤더 파싱
 					for (std::vector<Worker>::iterator wit = workers.begin(); wit != workers.end(); ++wit) {
 						if (wit->get_server_socket() == *it) {
 							wit->requestParse(buf);
 						}
 					}
+					//파싱 완료 후 이벤트 변경
 					change_events(change_list, tmp_cli_sock, EVFILT_READ, EV_ADD | EV_DISABLE, 0, 0, NULL);
 					change_events(change_list, tmp_cli_sock, EVFILT_WRITE, EV_ADD | EV_ENABLE, 0, 0, NULL);
 				}

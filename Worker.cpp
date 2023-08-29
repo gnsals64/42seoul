@@ -112,6 +112,11 @@ const	std::map<int, std::string>& Worker::get_error_page() const
 	return this->error_pages;
 }
 
+Request	Worker::getRequest()
+{
+	return this->request;
+}
+
 std::vector <std::string> Worker::split(std::string input, char dlim, int &result_cnt)
 {
 	std::vector<std::string> result;
@@ -197,7 +202,7 @@ void	Worker::parseOther(std::vector<std::string> line_parse, int line_cnt)
 		else if (colon_parse[0] == "Content-Length")
 			this->parseContentLength(colon_parse);
 	}
-	this->request.setBody(colon_parse[0]);
+	// this->request.setBody(colon_parse[0]);
 }
 
 void	Worker::requestParse(std::string request)
@@ -211,4 +216,13 @@ void	Worker::requestParse(std::string request)
 	// }
 	this->reqFirstLineParse(line_parse[0]);
 	this->parseOther(line_parse, line_cnt);
+	std::cout << "headers : " << this->request.getHeaders() << std::endl;
+	std::cout << "method : " << this->request.getMethod() << std::endl;
+	std::cout << "path : " << this->request.getPath() << std::endl;
+	std::cout << "scheme : " << this->request.getScheme() << std::endl;
+	std::cout << "host[0] : " << this->request.getHost()[0] << std::endl;
+	std::cout << "host[1] : " << this->request.getHost()[1] << std::endl;
+	std::cout << "connection : " << this->request.getConnection() << std::endl;
+	std::cout << "content-length : " << this->request.getContentLength() << std::endl;
+	std::cout << "body : " << this->request.getBody() << std::endl;
 }

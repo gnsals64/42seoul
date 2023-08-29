@@ -2,7 +2,15 @@
 
 Request::Request()
 {
-
+	// this->httpMethod = "";
+	// this->path = "";
+	// this->scheme = "";
+	// this->host[0] = "";
+	// this->host[1] = "";
+	// this->connection = "";
+	// this->contentLength = "";
+	// this->body = "";
+	this->state = HEADER_READ;
 }
 
 Request::~Request()
@@ -40,9 +48,14 @@ void	Request::setContentLength(std::string contentLength)
 	this->contentLength = contentLength;
 }
 
-void	Request::setBody(std::string body)
+// void	Request::setBody(std::string body)
+// {
+// 	this->body = body;
+// }
+
+void	Request::setState(int data)
 {
-	this->body = body;
+	this->state = data;
 }
 
 std::string	Request::getMethod()
@@ -78,4 +91,24 @@ std::string	Request::getContentLength()
 std::string Request::getBody()
 {
 	return (this->body);
+}
+
+std::string Request::getHeaders()
+{
+	return (this->headers);
+}
+
+int	Request::getState()
+{
+	return (this->state);
+}
+
+void	Request::appendHeader(std::string data)
+{
+	this->headers.append(data);
+}
+
+void	Request::appendBody(std::string data)
+{
+	this->body.append(data);
 }

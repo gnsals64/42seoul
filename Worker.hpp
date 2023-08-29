@@ -42,6 +42,7 @@ public:
     // const	std::vector<Location>& get_locations() const;
 		void	add_error_page(int error_code, std::string& error_page);
     const	std::map<int, std::string>& get_error_page() const;
+	Request	getRequest();
 	std::vector<std::string> split(std::string input, char dlim, int &result_cnt);
 	void	reqFirstLineParse(std::string first_line);
 	void	parseHost(std::vector<std::string> colon_parse);

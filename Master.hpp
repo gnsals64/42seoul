@@ -79,12 +79,50 @@ void	init(std::vector<Worker> &workers, int &kq, std::vector <struct kevent> &ch
 		change_events(change_list, workers[i].get_server_socket(), EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, NULL);
 }
 
+std::vector<std::string> splitArgs(std::string line, std::string sep)
+{
+	std::vector<std::string> str;
+	size_t	start = 0;
+	size_t	end = 0;
+
+	while (1)
+	{
+		end = line.find_first_of(sep, start);
+		if (end == std::string::npos)
+			break ;
+		std::string parsed = line.substr(start, end - start);
+		str.push_back(parsed);
+		start = line.find_first_not_of(sep, end);
+		if (start == std::string::npos)
+			break ;
+	}
+	return (str);
+}
+
+size_t	checkContentLength(std::string headers)
+{
+	size_t	len = 0;
+	std::string length = "";
+	std::vector <std::string> tmp = splitArgs(headers, "\r\n");
+	for (size_t i = 0; i < tmp.size(); i++)
+	{
+		if (tmp[i].find("Content-Length: ") != std::string::npos)
+		{
+			length = tmp[i].substr(tmp[i].find(':') + 2);
+		}
+	}
+	if (length != "")
+		len = std::stoi(length);
+	return (len);
+}
+
 void	run(std::vector<Worker> &workers, int &kq, std::vector <struct kevent> &change_list)
 {
 	std::map <int, std::string> clients_buf;
 	std::vector<int> client_socket;
 	std::vector<int> server_sockets;
 	std::vector<int>::iterator it;
+	std::vector<Worker>::iterator wit;
 	int	tmp_cli_sock;
 	struct kevent events[32];
 
@@ -104,14 +142,15 @@ void	run(std::vector<Worker> &workers, int &kq, std::vector <struct kevent> &cha
 		{
 			if (events[i].flags & EV_ERROR)
 			{
-				if (find(server_sockets.begin(), server_sockets.end(), events[i].ident) != server_sockets.end())
-					throw Worker::unkownError();
-				else
-				{
-					std::cerr << "client socket error" << std::endl;
-					close(events[i].ident);
-					clients_buf.erase(events[i].ident);
-				}
+				// if (find(server_sockets.begin(), server_sockets.end(), events[i].ident) != server_sockets.end())
+				// 	throw Worker::unkownError();
+				// else
+				// {
+				// 	std::cerr << "client socket error" << std::endl;
+				// 	close(events[i].ident);
+				// 	clients_buf.erase(events[i].ident);
+				// }
+				continue ;
 			}
 			if (events[i].filter == EVFILT_READ)
 			{
@@ -134,37 +173,63 @@ void	run(std::vector<Worker> &workers, int &kq, std::vector <struct kevent> &cha
 				}
 				else if (find(server_sockets.begin(), server_sockets.end(), events[i].ident) == server_sockets.end())
 				{
-					char buf[1024];
+					char buf[20];
 					int n = read(events[i].ident, buf, sizeof(buf));
-					std::cout << "count = " << n << std::endl;
-					if (n <= 0)
+					std::cout << "buf = " << buf << std::endl;
+					std::string temp_data(buf);
+					size_t pos = temp_data.find("\r\n\r\n");
+					for (wit = workers.begin(); wit != workers.end(); ++wit)
+						if (wit->get_server_socket() == *it)
+							break ;
+					// std::cout << "count = " << n << std::endl;
+					if (n > 0)
 					{
-						if (n < 0)
+						if (wit->getRequest().getState() == HEADER_READ)
 						{
-							std::cerr << "client read error!" << std::endl;
-							continue ;
+							std::string temp_data (buf);
+							size_t pos = temp_data.find("\r\n\r\n");
+							if (pos == std::string::npos)
+								wit->getRequest().appendHeader(temp_data);
+							else
+							{
+								wit->getRequest().appendHeader(temp_data.substr(0, pos));
+								size_t body_size = checkContentLength(wit->getRequest().getHeaders());
+								std::string temp_body = temp_data.substr(pos + 4);
+								wit->getRequest().appendBody(temp_body);
+								if (body_size == temp_body.size())	//본문을 다 읽으면
+									wit->getRequest().setState(READ_FINISH);
+								else	//다 못 읽었으면
+									wit->getRequest().setState(BODY_READ);
+							}
 						}
-							close(events[i].ident);
-							clients_buf.erase(events[i].ident);
-							client_socket.pop_back();
+						else if (wit->getRequest().getState() == BODY_READ)
+						{
+							size_t body_size = checkContentLength(wit->getRequest().getHeaders());
+							std::string temp_body(buf);
+							wit->getRequest().appendBody(temp_body);
+							if (body_size == wit->getRequest().getBody().size())
+								wit->getRequest().setState(READ_FINISH);
+						}
+					}
+					else if (n == 0)
+					{
+						std::cout << "Client " << events[i].ident << " disconnected." << std::endl;
+						close (events[i].ident);
 					}
 					else
+						continue ;
+					if (wit->getRequest().getState() == READ_FINISH)
 					{
-						buf[n] = '\0';
-						clients_buf[events[i].ident] += buf;
+						// for (std::vector<Worker>::iterator wit = workers.begin(); wit != workers.end(); ++wit) {
+						// 	if (wit->get_server_socket() == *it) {
+								wit->requestParse(buf);
+							// }
+						// }
+						std::cout << "hi" << std::endl;
+						//파싱 완료 후 이벤트 변경
+						change_events(change_list, tmp_cli_sock, EVFILT_READ, EV_ADD | EV_DISABLE, 0, 0, NULL);
+						change_events(change_list, tmp_cli_sock, EVFILT_WRITE, EV_ADD | EV_ENABLE, 0, 0, NULL);
 					}
-					// Request를 다 읽었는지에 대한 검증 필요
-					// 1. \r\n\r\n 을 찾을 수 있는가?(못 찾을 경우 헤더 덜 읽음)
-					// 2.
-					// 다 읽었을 경우 헤더 파싱
-					for (std::vector<Worker>::iterator wit = workers.begin(); wit != workers.end(); ++wit) {
-						if (wit->get_server_socket() == *it) {
-							wit->requestParse(buf);
-						}
-					}
-					//파싱 완료 후 이벤트 변경
-					change_events(change_list, tmp_cli_sock, EVFILT_READ, EV_ADD | EV_DISABLE, 0, 0, NULL);
-					change_events(change_list, tmp_cli_sock, EVFILT_WRITE, EV_ADD | EV_ENABLE, 0, 0, NULL);
 				}
 			}
 			else if (events[i].filter == EVFILT_WRITE)

@@ -1,10 +1,14 @@
 #ifndef REQUEST_HPP
 #define REQUEST_HPP
 
+# define HEADER_READ 0
+# define BODY_READ 1
+# define READ_FINISH 2
 #include "Transaction.hpp"
 
 class Request : public Transaction{
 private:
+	std::string headers;
 	std::string httpMethod;
 	std::string path;
 	std::string	scheme;
@@ -12,6 +16,7 @@ private:
 	std::string	connection;
 	std::string	contentLength;
 	std::string	body;
+	int	state;
 
 public:
     Request();
@@ -22,7 +27,8 @@ public:
 	void	pushBackHost(std::string host);
 	void	setConnection(std::string connection);
 	void	setContentLength(std::string contentLength);
-	void	setBody(std::string body);
+	// void	setBody(std::string body);
+	void	setState(int setstate);
 
 	std::string	getMethod();
 	std::string	getPath();
@@ -31,6 +37,11 @@ public:
 	std::string	getConnection();
 	std::string getContentLength();
 	std::string getBody();
+	std::string getHeaders();
+	int	getState();
+
+	void	appendHeader(std::string data);
+	void	appendBody(std::string data);
 };
 
 #endif

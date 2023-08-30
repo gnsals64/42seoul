@@ -42,6 +42,7 @@ public:
 
 	void	appendHeader(std::string data);
 	void	appendBody(std::string data);
+	void	clearAll();
 };
 
 #endif

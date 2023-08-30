@@ -112,7 +112,7 @@ const	std::map<int, std::string>& Worker::get_error_page() const
 	return this->error_pages;
 }
 
-Request	Worker::getRequest()
+Request	&Worker::getRequest()
 {
 	return this->request;
 }
@@ -194,7 +194,6 @@ void	Worker::parseOther(std::vector<std::string> line_parse, int line_cnt)
 	{
 		tmp = 0;
 		colon_parse = this->split(line_parse[i], ':', tmp);
-		std::cout << "parse = " << colon_parse[0] << std::endl;
 		if (colon_parse[0] == "Host")
 			this->parseHost(colon_parse);
 		else if (colon_parse[0] == "Connection")

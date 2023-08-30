@@ -112,3 +112,16 @@ void	Request::appendBody(std::string data)
 {
 	this->body.append(data);
 }
+
+void	Request::clearAll()
+{
+	this->headers = "";
+	this->httpMethod = "";
+	this->path = "";
+	this->scheme = "";
+	this->host.clear();
+	this->connection = "";
+	this->contentLength = "";
+	this->body = "";
+	this->state = HEADER_READ;
+}

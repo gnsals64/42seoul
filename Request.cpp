@@ -2,14 +2,12 @@
 
 Request::Request()
 {
-	// this->httpMethod = "";
-	// this->path = "";
-	// this->scheme = "";
-	// this->host[0] = "";
-	// this->host[1] = "";
-	// this->connection = "";
-	// this->contentLength = "";
-	// this->body = "";
+	this->httpMethod = "";
+	this->path = "";
+	this->scheme = "";
+	this->connection = "";
+	this->contentLength = "";
+	this->body = "";
 	this->state = HEADER_READ;
 }
 
@@ -48,10 +46,10 @@ void	Request::setContentLength(std::string contentLength)
 	this->contentLength = contentLength;
 }
 
-// void	Request::setBody(std::string body)
-// {
-// 	this->body = body;
-// }
+void	Request::setBody(std::string body)
+{
+	this->body = body;
+}
 
 void	Request::setState(int data)
 {
@@ -103,6 +101,11 @@ int	Request::getState()
 	return (this->state);
 }
 
+std::vector<char> Request::getPostBody()
+{
+	return (this->post_body);
+}
+
 void	Request::appendHeader(std::string data)
 {
 	this->headers.append(data);
@@ -111,6 +114,11 @@ void	Request::appendHeader(std::string data)
 void	Request::appendBody(std::string data)
 {
 	this->body.append(data);
+}
+
+void	Request::pushPostBody(char data)
+{
+	this->post_body.push_back(data);
 }
 
 void	Request::clearAll()

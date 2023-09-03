@@ -7,6 +7,14 @@ SRCS		:=	main.cpp\
 				Worker.cpp\
 				Transaction.cpp\
 				Request.cpp\
+				Location.cpp\
+				LocationLexer.cpp\
+				WorkerLexer.cpp\
+				block_parser.cpp\
+				token_parse_error.cpp\
+				token_utils.cpp\
+				tokenizer.cpp\
+				Response.cpp\
 
 OBJS		:=	$(SRCS:.cpp=.o)
 

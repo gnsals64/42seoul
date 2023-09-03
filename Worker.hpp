@@ -1,12 +1,18 @@
 #ifndef WORKER_HPP
 #define WORKER_HPP
 
+#define PORT_NUM_MAX 65535
+
 #include <iostream>
 #include <string.h>
 #include <vector>
 #include <map>
 #include "Location.hpp"
 #include "Request.hpp"
+#include "Response.hpp"
+
+class Location;
+// class Response;
 
 class Worker {
 private:
@@ -17,39 +23,43 @@ private:
     std::vector<std::string> server_names;
     std::map<int, std::string> error_pages;
     size_t client_max_body_size;
-	Request	request;
-
-    // std::vector<Location> locations;
+	std::map<int, Request>	request;
+	std::map<int, Response> response;
+	std::vector<Location> locations;
 
 public:
     Worker();
     ~Worker();
-    // Worker(const Worker& worker);
-    // Worker& operator=(const Worker& worker);
     void	set_server_socket(int server_socket);
     int		get_server_socket();
     void	set_port(int port);
     int		get_port();
-		void	set_root(std::string& root);
+	void	set_root(std::string& root);
     const	std::string& get_root() const;
-		void	set_index(std::string& index);
+	void	set_index(std::string& index);
     const	std::string& get_index() const;
     void	add_server_name(std::string& server_name);
     const	std::vector<std::string>& get_server_names() const;
     void	set_client_max_body_size(size_t size);
     size_t	get_client_max_body_size() const;
-    // void	add_locations(const Location& location);
-    // const	std::vector<Location>& get_locations() const;
-		void	add_error_page(int error_code, std::string& error_page);
+    void	add_locations(const Location& location);
+    const	std::vector<Location>& get_locations() const;
+	void	add_error_page(int error_code, std::string& error_page);
     const	std::map<int, std::string>& get_error_page() const;
-	Request	&getRequest();
+	std::map<int, Request>	getRequest();
+	std::map<int, Response> getResponse();
+	size_t	myStoi(std::string str);
+	std::vector<std::string> splitArgs(std::string line, std::string sep);
+	size_t	checkContentLength(std::string headers);
 	std::vector<std::string> split(std::string input, char dlim, int &result_cnt);
-	void	reqFirstLineParse(std::string first_line);
-	void	parseHost(std::vector<std::string> colon_parse);
-	void	parseConnection(std::vector<std::string> colon_parse);
-	void	parseContentLength(std::vector<std::string> colon_parse);
-	void	parseOther(std::vector <std::string> line_parse, int line_cnt);
-	void	requestParse(std::string request);
+	void	reqFirstLineParse(std::string first_line, int event_fd);
+	void	parseHost(std::vector<std::string> colon_parse, int event_fd);
+	void	parseConnection(std::vector<std::string> colon_parse, int event_fd);
+	void	parseContentLength(std::vector<std::string> colon_parse, int event_fd);
+	void	parseOther(std::vector <std::string> line_parse, int line_cnt, int event_fd);
+	void	requestParse(std::string request, int event_fd);
+	void	urlSearch(int event_fd);
+	// std::string checkReturnVal();
 	class	bindError: public std::exception
 	{
 		public:
@@ -107,5 +117,12 @@ public:
 			}
 	};
 };
+
+void	exit_error(std::string msg);
+std::vector<std::string>::iterator set_worker(Worker& worker, std::vector<std::string> lines, std::vector<std::string>::iterator& lineIt);
+Worker set_worker_info(std::vector<std::string>& lines);
+void parse_listen(Worker& worker, const std::string& line);
+void parse_error_page(Worker& worker, std::vector<std::string>& lines, std::vector<std::string>::iterator& lineIt);
+void parse_client_max_body_size(Worker& worker, const std::string& line);
 
 #endif

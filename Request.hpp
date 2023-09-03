@@ -5,6 +5,7 @@
 # define BODY_READ 1
 # define READ_FINISH 2
 #include "Transaction.hpp"
+#include <sys/time.h>
 
 class Request : public Transaction{
 private:
@@ -16,6 +17,7 @@ private:
 	std::string	connection;
 	std::string	contentLength;
 	std::string	body;
+	std::vector<char> post_body;
 	int	state;
 
 public:
@@ -27,7 +29,7 @@ public:
 	void	pushBackHost(std::string host);
 	void	setConnection(std::string connection);
 	void	setContentLength(std::string contentLength);
-	// void	setBody(std::string body);
+	void	setBody(std::string body);
 	void	setState(int setstate);
 
 	std::string	getMethod();
@@ -39,9 +41,11 @@ public:
 	std::string getBody();
 	std::string getHeaders();
 	int	getState();
+	std::vector<char> getPostBody();
 
 	void	appendHeader(std::string data);
 	void	appendBody(std::string data);
+	void	pushPostBody(char data);
 	void	clearAll();
 };
 

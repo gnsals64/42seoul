@@ -4,16 +4,18 @@
 
 int main(int ac, char *av[])
 {
-	if (ac == 2)
+	if (ac == 1 || ac == 2)
 	{
 		int	kqueue;
 		std::vector <struct kevent> change_list;
 		std::vector<Worker>	workers;
-		Worker	first;
-		workers.push_back(first);
+		char a[100] = "bb.conf";
 		try
 		{
-			conf_parse(av[1]);
+			if (ac == 1)
+				conf_parse(a, workers);
+			else if (ac == 2)
+				conf_parse(av[1], workers);
 			init(workers, kqueue, change_list);
 			run(workers, kqueue, change_list);
 			clean(workers);

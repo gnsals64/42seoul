@@ -1,0 +1,56 @@
+////////////Worker////////////
+port : 8080
+server_name : example.com
+error_page : Key: 404, Value: /404.html
+Key: 405, Value: /405.html
+Key: 500, Value: /500.html
+client_max_body_size : 10000000
+root : /tmp/www
+index : index.html
+////////////Location////////////
+uri : /
+method get : 1
+method post : 1
+method put : 1
+method delete : 0
+root : /tmp/www2
+index : index2.html
+autoindex : 1
+redirect status code : 301
+redirect uri : www.naver.com/new
+///////////////end Location/////////////////
+////////////Location////////////
+uri : /hello
+method get : 1
+method post : 1
+method put : 1
+method delete : 0
+root : /tmp/www2
+index : index2.html
+autoindex : 1
+redirect status code : 404
+redirect uri : www.naver.com/new
+///////////////end Location/////////////////
+///////////////end Worker/////////////////
+////////////Worker////////////
+port : 8000
+server_name : example.com
+error_page : Key: 404, Value: /404.html
+Key: 405, Value: /405.html
+Key: 500, Value: /500.html
+client_max_body_size : 10000000
+root : /tmp/www
+index : index.html
+////////////Location////////////
+uri : /
+method get : 1
+method post : 1
+method put : 1
+method delete : 0
+root : /tmp/www2
+index : index2.html
+autoindex : 1
+redirect status code : 301
+redirect uri : www.naver.com/webserv
+///////////////end Location/////////////////
+///////////////end Worker/////////////////

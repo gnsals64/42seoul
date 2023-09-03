@@ -6,7 +6,7 @@
 #include "Request.hpp"
 #include "block_parser.hpp"
 
-# define BUFFER_SIZE 7
+# define BUFFER_SIZE 5
 # define RED "\033[31m"
 # define RESET "\033[0m"
 
@@ -153,11 +153,12 @@ void	run(std::vector<Worker> &workers, int &kq, std::vector <struct kevent> &cha
 				}
 				else if (find(server_sockets.begin(), server_sockets.end(), curr_event->ident) == server_sockets.end())
 				{
+					std::cout << "2 = " << curr_event->ident << std::endl;
 					std::vector<char> buffer(BUFFER_SIZE);
 					ssize_t len = readData(curr_event->ident, buffer.data(), BUFFER_SIZE);
 					mapter = find_fd.find(curr_event->ident);
 					for (wit = workers.begin(); wit != workers.end(); ++wit)
-						if (wit->get_server_socket() == mapter->first)
+						if (wit->get_server_socket() == mapter->second)
 							break ;
 					if (len > 0)
 					{
@@ -250,8 +251,8 @@ void	run(std::vector<Worker> &workers, int &kq, std::vector <struct kevent> &cha
 				// 	{
 							int	client_sock = curr_event->ident;
 							handle_request(client_sock);
-							// change_events(change_list, tmp_cli_sock, EVFILT_READ, EV_ENABLE, 0, 0, NULL);
-							// change_events(change_list, tmp_cli_sock, EVFILT_WRITE, EV_DISABLE, 0, 0, NULL);
+							change_events(change_list, curr_event->ident, EVFILT_READ, EV_ENABLE, 0, 0, NULL);
+							change_events(change_list, curr_event->ident, EVFILT_WRITE, EV_DISABLE, 0, 0, NULL);
 							wit->getRequest()[curr_event->ident].clearAll();
 					// }
 				// }

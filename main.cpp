@@ -9,6 +9,7 @@ int main(int ac, char *av[])
 		int	kqueue;
 		std::vector <struct kevent> change_list;
 		std::vector<Worker>	workers;
+		std::map<int, int> find_fd;
 		char a[100] = "bb.conf";
 		try
 		{
@@ -17,7 +18,7 @@ int main(int ac, char *av[])
 			else if (ac == 2)
 				conf_parse(av[1], workers);
 			init(workers, kqueue, change_list);
-			run(workers, kqueue, change_list);
+			run(workers, kqueue, change_list, find_fd);
 			clean(workers);
 		}
 		catch(std::exception &e)

@@ -107,12 +107,13 @@ ssize_t readData(int fd, char *buffer, size_t buffer_size) {
     return -1;
 }
 
-void	run(std::vector<Worker> &workers, int &kq, std::vector <struct kevent> &change_list)
+void	run(std::vector<Worker> &workers, int &kq, std::vector <struct kevent> &change_list, std::map<int, int>find_fd)
 {
 	struct kevent *curr_event;
 	std::vector<int> server_sockets;
 	std::vector<int>::iterator it;
 	std::vector<Worker>::iterator wit;
+	std::map<int, int>::iterator mapter;
 	struct kevent events[1024];
 
 	for (int i = 0; i < workers.size(); i++)
@@ -134,9 +135,9 @@ void	run(std::vector<Worker> &workers, int &kq, std::vector <struct kevent> &cha
 				continue ;
 			if (curr_event->filter == EVFILT_READ)
 			{
-				if (find(server_sockets.begin(), server_sockets.end(), events[i].ident) != server_sockets.end())
+				if (find(server_sockets.begin(), server_sockets.end(), curr_event->ident) != server_sockets.end())
 				{
-					it = find(server_sockets.begin(), server_sockets.end(), events[i].ident);
+					it = find(server_sockets.begin(), server_sockets.end(), curr_event->ident);
 					int tmp_cli_sock = accept(*it, NULL, NULL);
 					if (tmp_cli_sock== -1)
 						continue ;
@@ -148,108 +149,110 @@ void	run(std::vector<Worker> &workers, int &kq, std::vector <struct kevent> &cha
 					change_events(change_list, tmp_cli_sock, EVFILT_WRITE, EV_ADD | EV_DISABLE, 0, 0, NULL);
 					Request req;
 					wit->getRequest()[tmp_cli_sock] = req;
+					find_fd[tmp_cli_sock] = curr_event->ident;
 				}
-				else if (find(server_sockets.begin(), server_sockets.end(), events[i].ident) == server_sockets.end())
+				else if (find(server_sockets.begin(), server_sockets.end(), curr_event->ident) == server_sockets.end())
 				{
 					std::vector<char> buffer(BUFFER_SIZE);
-					ssize_t len = readData(events[i].ident, buffer.data(), BUFFER_SIZE);
+					ssize_t len = readData(curr_event->ident, buffer.data(), BUFFER_SIZE);
+					mapter = find_fd.find(curr_event->ident);
 					for (wit = workers.begin(); wit != workers.end(); ++wit)
-						if (wit->get_server_socket() == *it)
+						if (wit->get_server_socket() == mapter->first)
 							break ;
 					if (len > 0)
 					{
 						buffer.resize(len);
-						if (wit->getRequest()[events[i].ident].getState() == HEADER_READ)
+						if (wit->getRequest()[curr_event->ident].getState() == HEADER_READ)
 						{
 							std::string temp_data(buffer.begin(), buffer.end());
 							size_t pos = temp_data.find("\r\n\r\n");
 							if (pos == std::string::npos)
-								wit->getRequest()[events[i].ident].appendHeader(temp_data);
+								wit->getRequest()[curr_event->ident].appendHeader(temp_data);
 							else
 							{
-								wit->getRequest()[events[i].ident].appendHeader(temp_data.substr(0, pos));
-								wit->getRequest()[events[i].ident].appendHeader("\n");
-								if (wit->getRequest()[events[i].ident].getHeaders().find("POST") != std::string::npos)
+								wit->getRequest()[curr_event->ident].appendHeader(temp_data.substr(0, pos));
+								wit->getRequest()[curr_event->ident].appendHeader("\n");
+								if (wit->getRequest()[curr_event->ident].getHeaders().find("POST") != std::string::npos)
 								{
 									for (int i = pos + 4; i < len; i++)
-										wit->getRequest()[events[i].ident].pushPostBody(buffer[i]);
+										wit->getRequest()[curr_event->ident].pushPostBody(buffer[i]);
 								}
-								size_t body_size = wit->checkContentLength(wit->getRequest()[events[i].ident].getHeaders());
+								size_t body_size = wit->checkContentLength(wit->getRequest()[curr_event->ident].getHeaders());
 								std::string temp_body = temp_data.substr(pos + 4);
-								wit->getRequest()[events[i].ident].appendBody(temp_body);
+								wit->getRequest()[curr_event->ident].appendBody(temp_body);
 								if (body_size == temp_body.size())	//본문을 다 읽으면
 								{
-									wit->getRequest()[events[i].ident].setState(READ_FINISH);
+									wit->getRequest()[curr_event->ident].setState(READ_FINISH);
 								}
 								else	//다 못 읽었으면
 								{
-									wit->getRequest()[events[i].ident].setState(BODY_READ);
+									wit->getRequest()[curr_event->ident].setState(BODY_READ);
 								}
 							}
 						}
-						else if (wit->getRequest()[events[i].ident].getState() == BODY_READ)
+						else if (wit->getRequest()[curr_event->ident].getState() == BODY_READ)
 						{
-							if (wit->getRequest()[events[i].ident].getHeaders().find("POST") != std::string::npos)
+							if (wit->getRequest()[curr_event->ident].getHeaders().find("POST") != std::string::npos)
 								for (int i = 0; i < len; i++)
-									wit->getRequest()[events[i].ident].pushPostBody(buffer[i]);
-							size_t body_size = wit->checkContentLength(wit->getRequest()[events[i].ident].getHeaders());
+									wit->getRequest()[curr_event->ident].pushPostBody(buffer[i]);
+							size_t body_size = wit->checkContentLength(wit->getRequest()[curr_event->ident].getHeaders());
 							std::string temp_body(buffer.begin(), buffer.end());
-							wit->getRequest()[events[i].ident].appendBody(temp_body);
-							if (body_size == wit->getRequest()[events[i].ident].getBody().size())
-								wit->getRequest()[events[i].ident].setState(READ_FINISH);
+							wit->getRequest()[curr_event->ident].appendBody(temp_body);
+							if (body_size == wit->getRequest()[curr_event->ident].getBody().size())
+								wit->getRequest()[curr_event->ident].setState(READ_FINISH);
 						}
 					}
 					else if (len == 0)
 					{
-						std::cout << "Client " << events[i].ident << " disconnected." << std::endl;
-						close (events[i].ident);
+						std::cout << "Client " << curr_event->ident << " disconnected." << std::endl;
+						close (curr_event->ident);
 					}
 					else
 						continue ;
-					if (wit->getRequest()[events[i].ident].getState() == READ_FINISH)
+					if (wit->getRequest()[curr_event->ident].getState() == READ_FINISH)
 					{
 						std::string tmp_buf;
 						std::string return_val;
 						size_t	contentLength;
-						tmp_buf += wit->getRequest()[events[i].ident].getHeaders();
-						tmp_buf += wit->getRequest()[events[i].ident].getBody();
+						tmp_buf += wit->getRequest()[curr_event->ident].getHeaders();
+						tmp_buf += wit->getRequest()[curr_event->ident].getBody();
 						for (std::vector<Worker>::iterator wit = workers.begin(); wit != workers.end(); ++wit) {
 							if (wit->get_server_socket() == *it) {
-								wit->requestParse(tmp_buf, events[i].ident);
+								wit->requestParse(tmp_buf, curr_event->ident);
 							}
 						}
-						contentLength = wit->myStoi(wit->getRequest()[events[i].ident].getContentLength());
-						if (wit->getRequest()[events[i].ident].getMethod() == "POST" && (contentLength != wit->getRequest()[events[i].ident].getPostBody().size()))
+						contentLength = wit->myStoi(wit->getRequest()[curr_event->ident].getContentLength());
+						if (wit->getRequest()[curr_event->ident].getMethod() == "POST" && (contentLength != wit->getRequest()[curr_event->ident].getPostBody().size()))
 						{
 							std::cout << "body size is not matched with content length" << std::endl;
 							continue ;
 						}
-						if (contentLength != wit->getRequest()[events[i].ident].getBody().size())
+						if (contentLength != wit->getRequest()[curr_event->ident].getBody().size())
 						{
 							std::cout << "body size is not matched with content length" << std::endl;
 							continue ;
 						}
 						// return_val = wit->checkReturnVal();
-						if (wit->getRequest()[events[i].ident].getMethod() == "DELETE")
-							wit->urlSearch(events[i].ident);
-						change_events(change_list, events[i].ident, EVFILT_READ, EV_DISABLE, 0, 0, NULL);
-						change_events(change_list, events[i].ident, EVFILT_WRITE, EV_ENABLE, 0, 0, NULL);
-						wit->getRequest()[events[i].ident].clearAll();
+						if (wit->getRequest()[curr_event->ident].getMethod() == "DELETE")
+							wit->urlSearch(curr_event->ident);
+						change_events(change_list, curr_event->ident, EVFILT_READ, EV_DISABLE, 0, 0, NULL);
+						change_events(change_list, curr_event->ident, EVFILT_WRITE, EV_ENABLE, 0, 0, NULL);
+						wit->getRequest()[curr_event->ident].clearAll();
 					}
 				}
 			}
 			else if (events[i].filter == EVFILT_WRITE)
 			{
-				// std::map<int, std::string>::iterator that = clients_buf.find(events[i].ident);
+				// std::map<int, std::string>::iterator that = clients_buf.find(curr_event->ident);
 				// if (that != clients_buf.end())
 				// {
-					// if (clients_buf[events[i].ident] != "")
+					// if (clients_buf[curr_event->ident] != "")
 				// 	{
-							int	client_sock = events[i].ident;
+							int	client_sock = curr_event->ident;
 							handle_request(client_sock);
 							// change_events(change_list, tmp_cli_sock, EVFILT_READ, EV_ENABLE, 0, 0, NULL);
 							// change_events(change_list, tmp_cli_sock, EVFILT_WRITE, EV_DISABLE, 0, 0, NULL);
-							wit->getRequest()[events[i].ident].clearAll();
+							wit->getRequest()[curr_event->ident].clearAll();
 					// }
 				// }
 			}

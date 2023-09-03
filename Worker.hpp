@@ -46,7 +46,7 @@ public:
     const	std::vector<Location>& get_locations() const;
 	void	add_error_page(int error_code, std::string& error_page);
     const	std::map<int, std::string>& get_error_page() const;
-	std::map<int, Request>	getRequest();
+	std::map<int, Request>	&getRequest();
 	std::map<int, Response> getResponse();
 	size_t	myStoi(std::string str);
 	std::vector<std::string> splitArgs(std::string line, std::string sep);

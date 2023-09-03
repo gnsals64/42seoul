@@ -81,7 +81,7 @@ const	std::map<int, std::string>& Worker::get_error_page() const
 	return this->error_pages;
 }
 
-std::map<int, Request>	Worker::getRequest()
+std::map<int, Request>	&Worker::getRequest()
 {
 	return this->request;
 }

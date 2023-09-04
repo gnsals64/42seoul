@@ -6,7 +6,7 @@
 #include "Request.hpp"
 #include "block_parser.hpp"
 
-# define BUFFER_SIZE 5
+# define BUFFER_SIZE 1
 # define RED "\033[31m"
 # define RESET "\033[0m"
 
@@ -153,33 +153,28 @@ void	run(std::vector<Worker> &workers, int &kq, std::vector <struct kevent> &cha
 				}
 				else if (find(server_sockets.begin(), server_sockets.end(), curr_event->ident) == server_sockets.end())
 				{
-					std::cout << "2 = " << curr_event->ident << std::endl;
 					std::vector<char> buffer(BUFFER_SIZE);
-					ssize_t len = readData(curr_event->ident, buffer.data(), BUFFER_SIZE);
 					mapter = find_fd.find(curr_event->ident);
 					for (wit = workers.begin(); wit != workers.end(); ++wit)
 						if (wit->get_server_socket() == mapter->second)
 							break ;
+					ssize_t len = readData(curr_event->ident, buffer.data(), BUFFER_SIZE);
 					if (len > 0)
 					{
 						buffer.resize(len);
 						if (wit->getRequest()[curr_event->ident].getState() == HEADER_READ)
 						{
 							std::string temp_data(buffer.begin(), buffer.end());
-							size_t pos = temp_data.find("\r\n\r\n");
+							wit->getRequest()[curr_event->ident].appendHeader(temp_data);
+							size_t pos = wit->getRequest()[curr_event->ident].getHeaders().find("\r\n\r\n");
 							if (pos == std::string::npos)
-								wit->getRequest()[curr_event->ident].appendHeader(temp_data);
+								continue ;
 							else
 							{
-								wit->getRequest()[curr_event->ident].appendHeader(temp_data.substr(0, pos));
-								wit->getRequest()[curr_event->ident].appendHeader("\n");
-								if (wit->getRequest()[curr_event->ident].getHeaders().find("POST") != std::string::npos)
-								{
-									for (int i = pos + 4; i < len; i++)
-										wit->getRequest()[curr_event->ident].pushPostBody(buffer[i]);
-								}
+								std::string temp = wit->getRequest()[curr_event->ident].getHeaders();
+								wit->getRequest()[curr_event->ident].setHeaders(wit->getRequest()[curr_event->ident].getHeaders().substr(0, pos + 4));
 								size_t body_size = wit->checkContentLength(wit->getRequest()[curr_event->ident].getHeaders());
-								std::string temp_body = temp_data.substr(pos + 4);
+								std::string temp_body = temp.substr(pos + 4);
 								wit->getRequest()[curr_event->ident].appendBody(temp_body);
 								if (body_size == temp_body.size())	//본문을 다 읽으면
 								{
@@ -193,9 +188,9 @@ void	run(std::vector<Worker> &workers, int &kq, std::vector <struct kevent> &cha
 						}
 						else if (wit->getRequest()[curr_event->ident].getState() == BODY_READ)
 						{
-							if (wit->getRequest()[curr_event->ident].getHeaders().find("POST") != std::string::npos)
-								for (int i = 0; i < len; i++)
-									wit->getRequest()[curr_event->ident].pushPostBody(buffer[i]);
+							// if (wit->getRequest()[curr_event->ident].getHeaders().find("POST") != std::string::npos)
+								// for (int i = 0; i < len; i++)
+								// 	wit->getRequest()[curr_event->ident].pushPostBody(buffer[i]);
 							size_t body_size = wit->checkContentLength(wit->getRequest()[curr_event->ident].getHeaders());
 							std::string temp_body(buffer.begin(), buffer.end());
 							wit->getRequest()[curr_event->ident].appendBody(temp_body);
@@ -217,17 +212,13 @@ void	run(std::vector<Worker> &workers, int &kq, std::vector <struct kevent> &cha
 						size_t	contentLength;
 						tmp_buf += wit->getRequest()[curr_event->ident].getHeaders();
 						tmp_buf += wit->getRequest()[curr_event->ident].getBody();
-						for (std::vector<Worker>::iterator wit = workers.begin(); wit != workers.end(); ++wit) {
-							if (wit->get_server_socket() == *it) {
-								wit->requestParse(tmp_buf, curr_event->ident);
-							}
-						}
+						wit->requestParse(tmp_buf, curr_event->ident);
 						contentLength = wit->myStoi(wit->getRequest()[curr_event->ident].getContentLength());
-						if (wit->getRequest()[curr_event->ident].getMethod() == "POST" && (contentLength != wit->getRequest()[curr_event->ident].getPostBody().size()))
-						{
-							std::cout << "body size is not matched with content length" << std::endl;
-							continue ;
-						}
+						// if (wit->getRequest()[curr_event->ident].getMethod() == "POST" && (contentLength != wit->getRequest()[curr_event->ident].getPostBody().size()))
+						// {
+						// 	std::cout << "body size is not matched with content length" << std::endl;
+						// 	continue ;
+						// }
 						if (contentLength != wit->getRequest()[curr_event->ident].getBody().size())
 						{
 							std::cout << "body size is not matched with content length" << std::endl;

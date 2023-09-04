@@ -56,6 +56,11 @@ void	Request::setState(int data)
 	this->state = data;
 }
 
+void	Request::setHeaders(std::string data)
+{
+	this->headers = data;
+}
+
 std::string	Request::getMethod()
 {
 	return (this->httpMethod);

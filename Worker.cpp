@@ -217,6 +217,8 @@ void	Worker::parseOther(std::vector<std::string> line_parse, int line_cnt, int e
 	{
 		tmp = 0;
 		colon_parse = this->split(line_parse[i], ':', tmp);
+		if (colon_parse.size() == 0)
+			continue ;
 		if (colon_parse[0] == "Host")
 			this->parseHost(colon_parse, event_fd);
 		else if (colon_parse[0] == "Connection")
@@ -230,8 +232,9 @@ void	Worker::requestParse(std::string request, int event_fd)
 {
 	int	line_cnt = 0;
 	std::vector <std::string> line_parse;
-	line_parse = this->split(request, '\n', line_cnt);
+	line_parse = this->splitArgs(request, "\r\n");
 	this->reqFirstLineParse(line_parse[0], event_fd);
+	line_cnt = line_parse.size();
 	this->parseOther(line_parse, line_cnt, event_fd);
 	// std::cout << "headers : " << this->request.getHeaders() << std::endl;
 	std::cout << "method : " << this->request[event_fd].getMethod() << std::endl;

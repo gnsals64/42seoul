@@ -31,6 +31,7 @@ public:
 	void	setContentLength(std::string contentLength);
 	void	setBody(std::string body);
 	void	setState(int setstate);
+	void	setHeaders(std::string data);
 
 	std::string	getMethod();
 	std::string	getPath();

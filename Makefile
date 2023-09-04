@@ -1,5 +1,5 @@
 CXX			:=	c++ -fsanitize=address -g
-CXXFLAGS	:= -std=c++98 -g
+# CXXFLAGS	:= -std=c++98 -g
 #-Wall -Wextra -Werror
 LDFLAGS		:=
 

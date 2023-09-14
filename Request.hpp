@@ -20,6 +20,7 @@ private:
 	std::vector<char> post_body;
 	int	state;
 
+
 public:
     Request();
     ~Request();
@@ -47,7 +48,8 @@ public:
 	void	appendHeader(std::string data);
 	void	appendBody(std::string data);
 	void	pushPostBody(char data);
-	void	clearAll();
+	void	postBodyAppendVec(std::vector<char> data);
+	void	removeCRLF();
 };
 
 #endif

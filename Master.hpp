@@ -6,7 +6,7 @@
 #include "Request.hpp"
 #include "block_parser.hpp"
 
-# define BUFFER_SIZE 1
+# define BUFFER_SIZE 1024
 # define RED "\033[31m"
 # define RESET "\033[0m"
 
@@ -148,7 +148,7 @@ void	run(std::vector<Worker> &workers, int &kq, std::vector <struct kevent> &cha
 					change_events(change_list, tmp_cli_sock, EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, NULL);
 					change_events(change_list, tmp_cli_sock, EVFILT_WRITE, EV_ADD | EV_DISABLE, 0, 0, NULL);
 					Request req;
-					wit->getRequest()[tmp_cli_sock] = req;
+					wit->getRequest()[tmp_cli_sock] = req;	//client 소켓
 					find_fd[tmp_cli_sock] = curr_event->ident;
 				}
 				else if (find(server_sockets.begin(), server_sockets.end(), curr_event->ident) == server_sockets.end())
@@ -166,6 +166,8 @@ void	run(std::vector<Worker> &workers, int &kq, std::vector <struct kevent> &cha
 						{
 							std::string temp_data(buffer.begin(), buffer.end());
 							wit->getRequest()[curr_event->ident].appendHeader(temp_data);
+							if (wit->getRequest()[curr_event->ident].getHeaders().find("POST") != std::string::npos)
+								wit->getRequest()[curr_event->ident].postBodyAppendVec(buffer);
 							size_t pos = wit->getRequest()[curr_event->ident].getHeaders().find("\r\n\r\n");
 							if (pos == std::string::npos)
 								continue ;
@@ -173,24 +175,27 @@ void	run(std::vector<Worker> &workers, int &kq, std::vector <struct kevent> &cha
 							{
 								std::string temp = wit->getRequest()[curr_event->ident].getHeaders();
 								wit->getRequest()[curr_event->ident].setHeaders(wit->getRequest()[curr_event->ident].getHeaders().substr(0, pos + 4));
-								size_t body_size = wit->checkContentLength(wit->getRequest()[curr_event->ident].getHeaders());
 								std::string temp_body = temp.substr(pos + 4);
 								wit->getRequest()[curr_event->ident].appendBody(temp_body);
-								if (body_size == temp_body.size())	//본문을 다 읽으면
+								if (wit->getRequest()[curr_event->ident].getHeaders().find("Content-Length") != std::string::npos)
 								{
-									wit->getRequest()[curr_event->ident].setState(READ_FINISH);
+									size_t body_size = wit->checkContentLength(wit->getRequest()[curr_event->ident].getHeaders());
+									if (body_size == temp_body.size())	//본문을 다 읽으면
+										wit->getRequest()[curr_event->ident].setState(READ_FINISH);
+									else	//다 못 읽었으면
+										wit->getRequest()[curr_event->ident].setState(BODY_READ);
 								}
-								else	//다 못 읽었으면
+								else if (wit->getRequest()[curr_event->ident].getHeaders().find("Transfer-Encoding") != std::string::npos)
 								{
-									wit->getRequest()[curr_event->ident].setState(BODY_READ);
+									if (temp_body.find("0\r\n") != std::string::npos)
+										wit->getRequest()[curr_event->ident].setState(READ_FINISH);
+									else
+										wit->getRequest()[curr_event->ident].setState(BODY_READ);
 								}
 							}
 						}
 						else if (wit->getRequest()[curr_event->ident].getState() == BODY_READ)
 						{
-							// if (wit->getRequest()[curr_event->ident].getHeaders().find("POST") != std::string::npos)
-								// for (int i = 0; i < len; i++)
-								// 	wit->getRequest()[curr_event->ident].pushPostBody(buffer[i]);
 							size_t body_size = wit->checkContentLength(wit->getRequest()[curr_event->ident].getHeaders());
 							std::string temp_body(buffer.begin(), buffer.end());
 							wit->getRequest()[curr_event->ident].appendBody(temp_body);
@@ -208,28 +213,23 @@ void	run(std::vector<Worker> &workers, int &kq, std::vector <struct kevent> &cha
 					if (wit->getRequest()[curr_event->ident].getState() == READ_FINISH)
 					{
 						std::string tmp_buf;
-						std::string return_val;
 						size_t	contentLength;
+						if (wit->getRequest()[curr_event->ident].getHeaders().find("POST") != std::string::npos)
+							wit->getRequest()[curr_event->ident].removeCRLF();
 						tmp_buf += wit->getRequest()[curr_event->ident].getHeaders();
 						tmp_buf += wit->getRequest()[curr_event->ident].getBody();
 						wit->requestParse(tmp_buf, curr_event->ident);
 						contentLength = wit->myStoi(wit->getRequest()[curr_event->ident].getContentLength());
-						// if (wit->getRequest()[curr_event->ident].getMethod() == "POST" && (contentLength != wit->getRequest()[curr_event->ident].getPostBody().size()))
-						// {
-						// 	std::cout << "body size is not matched with content length" << std::endl;
-						// 	continue ;
-						// }
 						if (contentLength != wit->getRequest()[curr_event->ident].getBody().size())
 						{
+							//content length랑 body 사이즈랑 다를 경우 처리 필요
 							std::cout << "body size is not matched with content length" << std::endl;
 							continue ;
 						}
-						// return_val = wit->checkReturnVal();
 						if (wit->getRequest()[curr_event->ident].getMethod() == "DELETE")
 							wit->urlSearch(curr_event->ident);
 						change_events(change_list, curr_event->ident, EVFILT_READ, EV_DISABLE, 0, 0, NULL);
-						change_events(change_list, curr_event->ident, EVFILT_WRITE, EV_ENABLE, 0, 0, NULL);
-						wit->getRequest()[curr_event->ident].clearAll();
+						change_events(change_list, curr_event->ident, EVFILT_WRITE, EV_ENABLE, 0, 0, NULL);	//write 이벤트 발생
 					}
 				}
 			}
@@ -242,9 +242,12 @@ void	run(std::vector<Worker> &workers, int &kq, std::vector <struct kevent> &cha
 				// 	{
 							int	client_sock = curr_event->ident;
 							handle_request(client_sock);
+							std::map<int, int>::iterator tmp_fd_iter = find_fd.find(curr_event->ident);
+							find_fd.erase(tmp_fd_iter);
+							std::map<int, Request>::iterator tmp_req_iter = wit->getRequest().find(curr_event->ident);
+							wit->getRequest().erase(tmp_req_iter);
 							change_events(change_list, curr_event->ident, EVFILT_READ, EV_ENABLE, 0, 0, NULL);
 							change_events(change_list, curr_event->ident, EVFILT_WRITE, EV_DISABLE, 0, 0, NULL);
-							wit->getRequest()[curr_event->ident].clearAll();
 					// }
 				// }
 			}

@@ -126,15 +126,29 @@ void	Request::pushPostBody(char data)
 	this->post_body.push_back(data);
 }
 
-void	Request::clearAll()
+void	Request::postBodyAppendVec(std::vector<char> data)
 {
-	this->headers = "";
-	this->httpMethod = "";
-	this->path = "";
-	this->scheme = "";
-	this->host.clear();
-	this->connection = "";
-	this->contentLength = "";
-	this->body = "";
-	this->state = HEADER_READ;
+	this->post_body.insert(this->post_body.end(), data.begin(), data.end());
+}
+
+void	Request::removeCRLF()
+{
+	std::vector <char>::iterator it;
+	for (it = this->post_body.begin(); it != this->post_body.end(); it++)
+	{
+		if (*it == '\r')
+		{
+			if (*(it + 1) == '\n')
+			{
+				if (*(it + 2) == '\r')
+				{
+					if (*(it + 3) == '\n')
+					{
+						this->post_body.erase(this->post_body.begin(), it + 4);
+						break;
+					}
+				}
+			}
+		}
+	}
 }

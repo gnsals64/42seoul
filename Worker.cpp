@@ -228,15 +228,14 @@ void	Worker::parseOther(std::vector<std::string> line_parse, int line_cnt, int e
 	}
 }
 
-void	Worker::requestParse(std::string request, int event_fd)
+void	Worker::requestHeaderParse(std::string header, int event_fd)
 {
 	int	line_cnt = 0;
 	std::vector <std::string> line_parse;
-	line_parse = this->splitArgs(request, "\r\n");
+	line_parse = this->splitArgs(header, "\r\n");
 	this->reqFirstLineParse(line_parse[0], event_fd);
 	line_cnt = line_parse.size();
 	this->parseOther(line_parse, line_cnt, event_fd);
-	// std::cout << "headers : " << this->request.getHeaders() << std::endl;
 	std::cout << "method : " << this->request[event_fd].getMethod() << std::endl;
 	std::cout << "path : " << this->request[event_fd].getPath() << std::endl;
 	std::cout << "scheme : " << this->request[event_fd].getScheme() << std::endl;

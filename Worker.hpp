@@ -57,7 +57,7 @@ public:
 	void	parseConnection(std::vector<std::string> colon_parse, int event_fd);
 	void	parseContentLength(std::vector<std::string> colon_parse, int event_fd);
 	void	parseOther(std::vector <std::string> line_parse, int line_cnt, int event_fd);
-	void	requestParse(std::string request, int event_fd);
+	void	requestHeaderParse(std::string header, int event_fd);
 	void	urlSearch(int event_fd);
 	// std::string checkReturnVal();
 	class	bindError: public std::exception

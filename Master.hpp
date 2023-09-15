@@ -225,9 +225,7 @@ void	run(std::vector<Worker> &workers, int &kq, std::vector <struct kevent> &cha
 							wit->getRequest()[curr_event->ident].removeCRLF();
 						wit->requestHeaderParse(wit->getRequest()[curr_event->ident].getHeaders(), curr_event->ident);
 						if (wit->getRequest()[curr_event->ident].getHeaders().find("Transfer-Encoding") != std::string::npos)
-						{
-							//transfer-encoding일때 바디 파싱
-						}
+							wit->chunkBodyParse(wit->getRequest()[curr_event->ident].getBody(), curr_event->ident);
 						// contentLength = wit->myStoi(wit->getRequest()[curr_event->ident].getContentLength());
 						// if (contentLength != wit->getRequest()[curr_event->ident].getBody().size())
 						// {

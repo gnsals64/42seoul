@@ -18,8 +18,8 @@ class Worker {
 private:
     int server_socket;
     int port;
-		std::string root;
-		std::string index;
+	std::string root;
+	std::string index;
     std::vector<std::string> server_names;
     std::map<int, std::string> error_pages;
     size_t client_max_body_size;
@@ -58,6 +58,7 @@ public:
 	void	parseContentLength(std::vector<std::string> colon_parse, int event_fd);
 	void	parseOther(std::vector <std::string> line_parse, int line_cnt, int event_fd);
 	void	requestHeaderParse(std::string header, int event_fd);
+	void	chunkBodyParse(std::string body, int event_fd);
 	void	urlSearch(int event_fd);
 	// std::string checkReturnVal();
 	class	bindError: public std::exception

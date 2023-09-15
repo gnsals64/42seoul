@@ -251,6 +251,30 @@ void	Worker::requestHeaderParse(std::string header, int event_fd)
 	//여기서 바디랑 길이 맞는지 확인하고 아니면 에러
 }
 
+void	Worker::chunkBodyParse(std::string body, int event_fd)
+{
+	size_t	byte;
+	std::vector <std::string> line_parse;
+	line_parse = this->splitArgs(body, "\r\n");
+	this->request[event_fd].setBody("");
+	for (int i = 0; i < line_parse.size(); i++)
+	{
+		if (i % 2 == 0)
+		{
+			byte = this->myStoi(line_parse[i]);
+			if (byte == 0)
+				break;
+		}
+		else if (i % 2 == 1)
+		{
+			size_t	body_size = line_parse[i].size();
+			if (byte != body_size)
+				this->response[event_fd].setStatusCode(400);
+			this->request[event_fd].appendBody(line_parse[i]);
+			this->request[event_fd].appendBody("\r\n");
+		}
+	}
+}
 // std::string Worker::checkReturnVal()
 // {
 // 	std::string result = "";

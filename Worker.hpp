@@ -23,8 +23,8 @@ private:
     std::vector<std::string> server_names;
     std::map<int, std::string> error_pages;
     size_t client_max_body_size;
-	std::map<int, Request>	request;
-	std::map<int, Response> response;
+	// std::map<int, Request>	request;
+	// std::map<int, Response> response;
 	std::vector<Location> locations;
 
 public:
@@ -46,20 +46,18 @@ public:
     const	std::vector<Location>& get_locations() const;
 	void	add_error_page(int error_code, std::string& error_page);
     const	std::map<int, std::string>& get_error_page() const;
-	std::map<int, Request>	&getRequest();
-	std::map<int, Response> getResponse();
 	size_t	myStoi(std::string str);
 	std::vector<std::string> splitArgs(std::string line, std::string sep);
 	size_t	checkContentLength(std::string headers);
 	std::vector<std::string> split(std::string input, char dlim, int &result_cnt);
-	void	reqFirstLineParse(std::string first_line, int event_fd);
-	void	parseHost(std::vector<std::string> colon_parse, int event_fd);
-	void	parseConnection(std::vector<std::string> colon_parse, int event_fd);
-	void	parseContentLength(std::vector<std::string> colon_parse, int event_fd);
-	void	parseOther(std::vector <std::string> line_parse, int line_cnt, int event_fd);
-	void	requestHeaderParse(std::string header, int event_fd);
-	void	chunkBodyParse(std::string body, int event_fd);
-	void	urlSearch(int event_fd);
+	void	reqFirstLineParse(Request &req, std::string first_line);
+	void	parseHost(Request &req, std::vector<std::string> colon_parse);
+	void	parseConnection(Request &req, std::vector<std::string> colon_parse);
+	void	parseContentLength(Request &req, std::vector<std::string> colon_parse);
+	void	parseOther(Request &req, std::vector <std::string> line_parse, int line_cnt);
+	void	requestHeaderParse(Request &req);
+	void	chunkBodyParse(Request &req, Response &res);
+	// void	urlSearch(int event_fd);
 	// std::string checkReturnVal();
 	class	bindError: public std::exception
 	{

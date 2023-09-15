@@ -81,16 +81,6 @@ const	std::map<int, std::string>& Worker::get_error_page() const
 	return this->error_pages;
 }
 
-std::map<int, Request>	&Worker::getRequest()
-{
-	return this->request;
-}
-
-std::map<int, Response> Worker::getResponse()
-{
-	return this->response;
-}
-
 std::vector<std::string> Worker::splitArgs(std::string line, std::string sep)
 {
 	std::vector<std::string> str;
@@ -156,17 +146,17 @@ std::vector <std::string> Worker::split(std::string input, char dlim, int &resul
 	return result;
 }
 
-void	Worker::reqFirstLineParse(std::string first_line, int event_fd)
+void	Worker::reqFirstLineParse(Request &req, std::string first_line)
 {
 	int	tmp = 0;
 	std::vector <std::string> fir_line_parse;
 	fir_line_parse = this->split(first_line, ' ', tmp);
-	this->request[event_fd].setMethod(fir_line_parse[0]);
-	this->request[event_fd].setPath(fir_line_parse[1]);
-	this->request[event_fd].setScheme(fir_line_parse[2]);
+	req.setMethod(fir_line_parse[0]);
+	req.setPath(fir_line_parse[1]);
+	req.setScheme(fir_line_parse[2]);
 }
 
-void	Worker::parseHost(std::vector<std::string> colon_parse, int event_fd)
+void	Worker::parseHost(Request &req, std::vector<std::string> colon_parse)
 {
 	int	i = 1;
 	std::string	tmp;
@@ -177,11 +167,11 @@ void	Worker::parseHost(std::vector<std::string> colon_parse, int event_fd)
 		tmp += colon_parse[1][i];
 		i++;
 	}
-	this->request[event_fd].pushBackHost(tmp);
-	this->request[event_fd].pushBackHost(colon_parse[2]);
+	req.pushBackHost(tmp);
+	req.pushBackHost(colon_parse[2]);
 }
 
-void	Worker::parseConnection(std::vector<std::string> colon_parse, int event_fd)
+void	Worker::parseConnection(Request &req, std::vector<std::string> colon_parse)
 {
 	int	i = 1;
 	std::string	tmp;
@@ -192,10 +182,10 @@ void	Worker::parseConnection(std::vector<std::string> colon_parse, int event_fd)
 		tmp += colon_parse[1][i];
 		i++;
 	}
-	this->request[event_fd].setConnection(tmp);
+	req.setConnection(tmp);
 }
 
-void	Worker::parseContentLength(std::vector<std::string> colon_parse, int event_fd)
+void	Worker::parseContentLength(Request &req, std::vector<std::string> colon_parse)
 {
 	int	i = 1;
 	std::string tmp;
@@ -206,10 +196,10 @@ void	Worker::parseContentLength(std::vector<std::string> colon_parse, int event_
 		tmp += colon_parse[1][i];
 		i++;
 	}
-	this->request[event_fd].setContentLength(tmp);
+	req.setContentLength(tmp);
 }
 
-void	Worker::parseOther(std::vector<std::string> line_parse, int line_cnt, int event_fd)
+void	Worker::parseOther(Request &req, std::vector<std::string> line_parse, int line_cnt)
 {
 	int tmp;
 	std::vector <std::string> colon_parse;
@@ -220,43 +210,46 @@ void	Worker::parseOther(std::vector<std::string> line_parse, int line_cnt, int e
 		if (colon_parse.size() == 0)
 			continue ;
 		if (colon_parse[0] == "Host")
-			this->parseHost(colon_parse, event_fd);
+			this->parseHost(req, colon_parse);
 		else if (colon_parse[0] == "Connection")
-			this->parseConnection(colon_parse, event_fd);
+			this->parseConnection(req, colon_parse);
 		else if (colon_parse[0] == "Content-Length")
-			this->parseContentLength(colon_parse, event_fd);
+			this->parseContentLength(req, colon_parse);
 	}
 }
 
-void	Worker::requestHeaderParse(std::string header, int event_fd)
+void	Worker::requestHeaderParse(Request &req)
 {
 	int	line_cnt = 0;
 	std::vector <std::string> line_parse;
+	std::string header = req.getHeaders();
+
 	line_parse = this->splitArgs(header, "\r\n");
-	this->reqFirstLineParse(line_parse[0], event_fd);
+	this->reqFirstLineParse(req, line_parse[0]);
 	line_cnt = line_parse.size();
-	this->parseOther(line_parse, line_cnt, event_fd);
-	std::cout << "method : " << this->request[event_fd].getMethod() << std::endl;
-	std::cout << "path : " << this->request[event_fd].getPath() << std::endl;
-	std::cout << "scheme : " << this->request[event_fd].getScheme() << std::endl;
-	std::cout << "host[0] : " << this->request[event_fd].getHost()[0] << std::endl;
-	std::cout << "host[1] : " << this->request[event_fd].getHost()[1] << std::endl;
-	std::cout << "connection : " << this->request[event_fd].getConnection() << std::endl;
-	std::cout << "content-length : " << this->request[event_fd].getContentLength() << std::endl;
+	this->parseOther(req, line_parse, line_cnt);
+	std::cout << "method : " << req.getMethod() << std::endl;
+	std::cout << "path : " << req.getPath() << std::endl;
+	std::cout << "scheme : " << req.getScheme() << std::endl;
+	std::cout << "host[0] : " << req.getHost()[0] << std::endl;
+	std::cout << "host[1] : " << req.getHost()[1] << std::endl;
+	std::cout << "connection : " << req.getConnection() << std::endl;
+	std::cout << "content-length : " << req.getContentLength() << std::endl;
 	std::cout << "post body : ";
-	for(int i = 0; i < this->request[event_fd].getPostBody().size(); i++)
-		std::cout << this->request[event_fd].getPostBody()[i];
+	for(int i = 0; i < req.getPostBody().size(); i++)
+		std::cout << req.getPostBody()[i];
 	std::cout << std::endl;
-	std::cout << "body : " << this->request[event_fd].getBody() << std::endl;
+	std::cout << "body : " << req.getBody() << std::endl;
 	//여기서 바디랑 길이 맞는지 확인하고 아니면 에러
 }
 
-void	Worker::chunkBodyParse(std::string body, int event_fd)
+void	Worker::chunkBodyParse(Request &req, Response &res)
 {
 	size_t	byte;
 	std::vector <std::string> line_parse;
+	std::string body = req.getBody();
 	line_parse = this->splitArgs(body, "\r\n");
-	this->request[event_fd].setBody("");
+	req.setBody("");
 	for (int i = 0; i < line_parse.size(); i++)
 	{
 		if (i % 2 == 0)
@@ -269,9 +262,9 @@ void	Worker::chunkBodyParse(std::string body, int event_fd)
 		{
 			size_t	body_size = line_parse[i].size();
 			if (byte != body_size)
-				this->response[event_fd].setStatusCode(400);
-			this->request[event_fd].appendBody(line_parse[i]);
-			this->request[event_fd].appendBody("\r\n");
+				res.setStatusCode(400);
+			req.appendBody(line_parse[i]);
+			req.appendBody("\r\n");
 		}
 	}
 }
@@ -289,27 +282,27 @@ void	Worker::chunkBodyParse(std::string body, int event_fd)
 // 	}
 // }
 
-void	Worker::urlSearch(int event_fd)
-{
-	std::string str = "";
-	std::string file = "";
-	size_t	slen = 0;
-	size_t	i;
-	size_t	pos;
+// void	Worker::urlSearch(int event_fd)
+// {
+// 	std::string str = "";
+// 	std::string file = "";
+// 	size_t	slen = 0;
+// 	size_t	i;
+// 	size_t	pos;
 
-	for (i = 0; i < this->get_locations().size(); i++)
-	{
-		pos = this->getRequest()[event_fd].getPath().find(this->get_locations()[i].get_uri());
-		if (pos != std::string::npos && this->get_locations()[i].get_uri().size() > slen)
-		{
-			str = this->get_locations()[i].get_uri();
-			slen = this->get_locations()[i].get_uri().size();
-			file = this->getRequest()[event_fd].getPath().substr(pos + this->get_locations()[i].get_uri().size());
-		}
-	}
-	std::cout << str << std::endl;
-	std::cout << file << std::endl;
+// 	for (i = 0; i < this->get_locations().size(); i++)
+// 	{
+// 		pos = this->getRequest()[event_fd].getPath().find(this->get_locations()[i].get_uri());
+// 		if (pos != std::string::npos && this->get_locations()[i].get_uri().size() > slen)
+// 		{
+// 			str = this->get_locations()[i].get_uri();
+// 			slen = this->get_locations()[i].get_uri().size();
+// 			file = this->getRequest()[event_fd].getPath().substr(pos + this->get_locations()[i].get_uri().size());
+// 		}
+// 	}
+// 	std::cout << str << std::endl;
+// 	std::cout << file << std::endl;
 
-	this->getRequest()[event_fd].setPath(str);
-	this->getRequest()[event_fd].setBody(file);
-}
+// 	this->getRequest()[event_fd].setPath(str);
+// 	this->getRequest()[event_fd].setBody(file);
+// }

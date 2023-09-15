@@ -10,6 +10,12 @@
 # define RED "\033[31m"
 # define RESET "\033[0m"
 
+struct workerData
+{
+	Request	request;
+	Response response;
+};
+
 void	conf_parse(char *conf_file, std::vector<Worker> &workers)
 {
 	ConfigParser 	parser;
@@ -115,6 +121,7 @@ void	run(std::vector<Worker> &workers, int &kq, std::vector <struct kevent> &cha
 	std::vector<Worker>::iterator wit;
 	std::map<int, int>::iterator mapter;
 	struct kevent events[1024];
+	struct workerData	udata;
 
 	for (int i = 0; i < workers.size(); i++)
 		server_sockets.push_back(workers[i].get_server_socket());
@@ -131,24 +138,20 @@ void	run(std::vector<Worker> &workers, int &kq, std::vector <struct kevent> &cha
 		for (int i = 0; i < n; i++)
 		{
 			curr_event = &events[i];
+			struct workerData *eventData = (struct workerData *)curr_event->udata;
 			if (curr_event->flags & EV_ERROR)
 				continue ;
 			if (curr_event->filter == EVFILT_READ)
 			{
 				if (find(server_sockets.begin(), server_sockets.end(), curr_event->ident) != server_sockets.end())
 				{
-					it = find(server_sockets.begin(), server_sockets.end(), curr_event->ident);
+					it = find(server_sockets.begin(),  server_sockets.end(), curr_event->ident);
 					int tmp_cli_sock = accept(*it, NULL, NULL);
 					if (tmp_cli_sock== -1)
 						continue ;
-					for (wit = workers.begin(); wit != workers.end(); ++wit)
-						if (wit->get_server_socket() == *it)
-							break ;
 					fcntl(tmp_cli_sock, F_SETFL, O_NONBLOCK);
-					change_events(change_list, tmp_cli_sock, EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, NULL);
-					change_events(change_list, tmp_cli_sock, EVFILT_WRITE, EV_ADD | EV_DISABLE, 0, 0, NULL);
-					Request req;
-					wit->getRequest()[tmp_cli_sock] = req;	//client 소켓
+					change_events(change_list, tmp_cli_sock, EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, &udata);
+					change_events(change_list, tmp_cli_sock, EVFILT_WRITE, EV_ADD | EV_DISABLE, 0, 0, &udata);
 					find_fd[tmp_cli_sock] = curr_event->ident;
 				}
 				else if (find(server_sockets.begin(), server_sockets.end(), curr_event->ident) == server_sockets.end())
@@ -162,53 +165,53 @@ void	run(std::vector<Worker> &workers, int &kq, std::vector <struct kevent> &cha
 					if (len > 0)
 					{
 						buffer.resize(len);
-						if (wit->getRequest()[curr_event->ident].getState() == HEADER_READ)
+						if (eventData->request.getState() == HEADER_READ)
 						{
 							std::string temp_data(buffer.begin(), buffer.end());
-							wit->getRequest()[curr_event->ident].appendHeader(temp_data);
-							if (wit->getRequest()[curr_event->ident].getHeaders().find("POST") != std::string::npos)
-								wit->getRequest()[curr_event->ident].postBodyAppendVec(buffer);		//post 메소드면 char vector에 저장, 헤더부분 아래에서 지움. chunked일 경우 파싱부분에서 처리해야함
-							size_t pos = wit->getRequest()[curr_event->ident].getHeaders().find("\r\n\r\n");
+							eventData->request.appendHeader(temp_data);
+							if (eventData->request.getHeaders().find("POST") != std::string::npos)
+								eventData->request.postBodyAppendVec(buffer);		//post 메소드면 char vector에 저장, 헤더부분 아래에서 지움. chunked일 경우 파싱부분에서 처리해야함
+							size_t pos = eventData->request.getHeaders().find("\r\n\r\n");
 							if (pos == std::string::npos)
 								continue ;
 							else
 							{
-								std::string temp = wit->getRequest()[curr_event->ident].getHeaders();
-								wit->getRequest()[curr_event->ident].setHeaders(wit->getRequest()[curr_event->ident].getHeaders().substr(0, pos + 4));
+								std::string temp = eventData->request.getHeaders();
+								eventData->request.setHeaders(eventData->request.getHeaders().substr(0, pos + 4));
 								std::string temp_body = temp.substr(pos + 4);
-								wit->getRequest()[curr_event->ident].appendBody(temp_body);
-								if (wit->getRequest()[curr_event->ident].getHeaders().find("Content-Length") != std::string::npos)
+								eventData->request.appendBody(temp_body);
+								if (eventData->request.getHeaders().find("Content-Length") != std::string::npos)
 								{
-									size_t body_size = wit->checkContentLength(wit->getRequest()[curr_event->ident].getHeaders());
+									size_t body_size = wit->checkContentLength(eventData->request.getHeaders());
 									if (body_size == temp_body.size())	//본문을 다 읽으면
-										wit->getRequest()[curr_event->ident].setState(READ_FINISH);
+										eventData->request.setState(READ_FINISH);
 									else	//다 못 읽었으면
-										wit->getRequest()[curr_event->ident].setState(BODY_READ);
+										eventData->request.setState(BODY_READ);
 								}
-								else if (wit->getRequest()[curr_event->ident].getHeaders().find("Transfer-Encoding") != std::string::npos)
+								else if (eventData->request.getHeaders().find("Transfer-Encoding") != std::string::npos)
 								{
 									if (temp_body.find("0\r\n") != std::string::npos)
-										wit->getRequest()[curr_event->ident].setState(READ_FINISH);
+										eventData->request.setState(READ_FINISH);
 									else
-										wit->getRequest()[curr_event->ident].setState(BODY_READ);
+										eventData->request.setState(BODY_READ);
 								}
 							}
 						}
-						else if (wit->getRequest()[curr_event->ident].getState() == BODY_READ)
+						else if (eventData->request.getState() == BODY_READ)
 						{
 							std::string temp_body(buffer.begin(), buffer.end());
-							wit->getRequest()[curr_event->ident].appendBody(temp_body);
-							if (wit->getRequest()[curr_event->ident].getHeaders().find("POST") != std::string::npos)
-									wit->getRequest()[curr_event->ident].postBodyAppendVec(buffer);	//post 메소드면 char vector에 내용 추가, 헤더부분 아래에서 지움. chunked일 경우 파싱부분에서 처리해야함
-							if (wit->getRequest()[curr_event->ident].getHeaders().find("Content-Length") != std::string::npos)
+							eventData->request.appendBody(temp_body);
+							if (eventData->request.getHeaders().find("POST") != std::string::npos)
+									eventData->request.postBodyAppendVec(buffer);	//post 메소드면 char vector에 내용 추가, 헤더부분 아래에서 지움. chunked일 경우 파싱부분에서 처리해야함
+							if (eventData->request.getHeaders().find("Content-Length") != std::string::npos)
 							{
-								size_t body_size = wit->checkContentLength(wit->getRequest()[curr_event->ident].getHeaders());
-								if (body_size == wit->getRequest()[curr_event->ident].getBody().size())	//본문을 다 읽으면
-									wit->getRequest()[curr_event->ident].setState(READ_FINISH);
+								size_t body_size = wit->checkContentLength(eventData->request.getHeaders());
+								if (body_size == eventData->request.getBody().size())	//본문을 다 읽으면
+									eventData->request.setState(READ_FINISH);
 							}
-							else if (wit->getRequest()[curr_event->ident].getHeaders().find("Transfer-Encoding") != std::string::npos)
+							else if (eventData->request.getHeaders().find("Transfer-Encoding") != std::string::npos)
 								if (temp_body.find("0\r\n") != std::string::npos)
-									wit->getRequest()[curr_event->ident].setState(READ_FINISH);
+									eventData->request.setState(READ_FINISH);
 						}
 					}
 					else if (len == 0)
@@ -218,26 +221,26 @@ void	run(std::vector<Worker> &workers, int &kq, std::vector <struct kevent> &cha
 					}
 					else
 						continue ;
-					if (wit->getRequest()[curr_event->ident].getState() == READ_FINISH)
+					if (eventData->request.getState() == READ_FINISH)
 					{
 						// size_t	contentLength;
-						if (wit->getRequest()[curr_event->ident].getHeaders().find("POST") != std::string::npos)
-							wit->getRequest()[curr_event->ident].removeCRLF();
-						wit->requestHeaderParse(wit->getRequest()[curr_event->ident].getHeaders(), curr_event->ident);
-						if (wit->getRequest()[curr_event->ident].getHeaders().find("Transfer-Encoding") != std::string::npos)
-							wit->chunkBodyParse(wit->getRequest()[curr_event->ident].getBody(), curr_event->ident);
-						// contentLength = wit->myStoi(wit->getRequest()[curr_event->ident].getContentLength());
-						// if (contentLength != wit->getRequest()[curr_event->ident].getBody().size())
+						if (eventData->request.getHeaders().find("POST") != std::string::npos)
+							eventData->request.removeCRLF();
+						wit->requestHeaderParse(eventData->request);
+						if (eventData->request.getHeaders().find("Transfer-Encoding") != std::string::npos)
+							wit->chunkBodyParse(eventData->request, eventData->response);
+						// contentLength = wit->myStoi(eventData->request.getContentLength());
+						// if (contentLength != eventData->request.getBody().size())
 						// {
 						// 	//content length랑 body 사이즈랑 다를 경우 처리 필요
 						// 	std::cout << "body size is not matched with content length" << std::endl;
 						// 	continue ;
 						// }
 
-						// if (wit->getRequest()[curr_event->ident].getMethod() == "DELETE")
+						// if (eventData->request.getMethod() == "DELETE")
 							// wit->urlSearch(curr_event->ident);
-						change_events(change_list, curr_event->ident, EVFILT_READ, EV_DISABLE, 0, 0, NULL);
-						change_events(change_list, curr_event->ident, EVFILT_WRITE, EV_ENABLE, 0, 0, NULL);	//write 이벤트 발생
+						change_events(change_list, curr_event->ident, EVFILT_READ, EV_DISABLE, 0, 0, &udata);
+						change_events(change_list, curr_event->ident, EVFILT_WRITE, EV_ENABLE, 0, 0, &udata);	//write 이벤트 발생
 					}
 				}
 			}
@@ -252,10 +255,10 @@ void	run(std::vector<Worker> &workers, int &kq, std::vector <struct kevent> &cha
 							handle_request(client_sock);
 							std::map<int, int>::iterator tmp_fd_iter = find_fd.find(curr_event->ident);
 							find_fd.erase(tmp_fd_iter);
-							std::map<int, Request>::iterator tmp_req_iter = wit->getRequest().find(curr_event->ident);
-							wit->getRequest().erase(tmp_req_iter);
-							change_events(change_list, curr_event->ident, EVFILT_READ, EV_ENABLE, 0, 0, NULL);
-							change_events(change_list, curr_event->ident, EVFILT_WRITE, EV_DISABLE, 0, 0, NULL);
+							// std::map<int, Request>::iterator tmp_req_iter = wit->getRequest().find(curr_event->ident);
+							// wit->getRequest().erase(tmp_req_iter);
+							change_events(change_list, curr_event->ident, EVFILT_READ, EV_ENABLE, 0, 0, &udata);
+							change_events(change_list, curr_event->ident, EVFILT_WRITE, EV_DISABLE, 0, 0, &udata);
 							close (curr_event->ident);
 					// }
 				// }

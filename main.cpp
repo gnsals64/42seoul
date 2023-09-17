@@ -19,7 +19,7 @@ int main(int ac, char *av[])
 				conf_parse(av[1], workers);
 			init(workers, kqueue, change_list);
 			run(workers, kqueue, change_list, find_fd);
-			clean(workers);
+			// clean(workers);
 		}
 		catch(std::exception &e)
 		{

@@ -1,20 +1,15 @@
-CXX			:=	c++ #-fsanitize=address -g
+CXX			:=	c++ -fsanitize=address -g
 # CXXFLAGS	:= -std=c++98 -g
 #-Wall -Wextra -Werror
 LDFLAGS		:=
 
-SRCS		:=	main.cpp\
-				Worker.cpp\
-				Transaction.cpp\
-				Request.cpp\
-				Location.cpp\
-				LocationLexer.cpp\
-				WorkerLexer.cpp\
-				block_parser.cpp\
-				token_parse_error.cpp\
-				token_utils.cpp\
-				tokenizer.cpp\
-				Response.cpp\
+PARSER = $(addprefix parser/, BlockParser Location LocationLexer TokenParseError TokenUtils Tokenizer)
+SERVER = $(addprefix server/, Worker WorkerLexer Webserv ServerUtils)
+HTTP = ${addprefix http/, Request Response}
+
+FILES = $(addprefix src/, main  ${PARSER} ${SERVER} ${HTTP})
+
+SRCS = ${FILES:=.cpp}
 
 OBJS		:=	$(SRCS:.cpp=.o)
 

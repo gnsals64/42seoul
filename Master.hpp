@@ -4,7 +4,7 @@
 #include "Worker.hpp"
 #include "Transaction.hpp"
 #include "Request.hpp"
-#include "block_parser.hpp"
+#include "BlockParser.hpp"
 
 # define BUFFER_SIZE 5
 # define RED "\033[31m"

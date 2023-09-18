@@ -18,9 +18,16 @@ struct workerData
 	Response response;
 };
 
-class Webserv
-{
+class Webserv {
 	private:
+		ssize_t	readData(int fd, char *buffer, size_t buffer_size);
+		void	ReadyToConnect(int i);
+		void	send_response(int client_socket, int status_code, const std::string &content);
+		void	handle_request(int client_socket);
+		int		ConnectNewClient(void);
+		void	ChangeEvent(std::vector<struct kevent>& change_list, uintptr_t ident, int16_t filter,	uint16_t flags, uint32_t fflags, intptr_t data, void *udata);
+
+	protected:
 		int								kq;
 		std::vector<struct kevent>		change_list;
 		std::map<int, int>				find_fd;
@@ -33,19 +40,24 @@ class Webserv
 		std::map<int, int>::iterator	mapter;
 		std::map<int, std::string>		status_messages;
 		struct kevent events[1024];
-		// struct workerData	udata;
-    
-		ssize_t	readData(int fd, char *buffer, size_t buffer_size);
-		void	ReadyToConnect(int i);
-		void	send_response(int client_socket, int status_code, const std::string &content);
-		void	handle_request(int client_socket);
-		int		ConnectNewClient(void);
-		void	ChangeEvent(std::vector<struct kevent>& change_list, uintptr_t ident, int16_t filter,	uint16_t flags, uint32_t fflags, intptr_t data, void *udata);
 
     public:
+		Webserv();
+		~Webserv();
 		void	ConfParse(char *conf_file);
 		void	Init(void);
 		void	Run(void);
+
+};
+
+class ReadData: public Webserv {
+	private:
+
+	public:
+		struct workerData *eventData;
+		std::vector<char> buffer;
+		ReadData();
+		~ReadData();
 
 };
 

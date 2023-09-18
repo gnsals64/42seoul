@@ -38,6 +38,19 @@ void	Webserv::Init(void)
 		ChangeEvent(change_list, this->workers[i].get_server_socket(), EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, NULL);
 }
 
+int	Webserv::ConnectNewClient(void) {
+	it = find(server_sockets.begin(),  server_sockets.end(), curr_event->ident);
+	int tmp_cli_sock = accept(*it, NULL, NULL);
+	if (tmp_cli_sock== -1)
+		return -1 ;
+	fcntl(tmp_cli_sock, F_SETFL, O_NONBLOCK);
+	struct workerData	*udata = new (struct workerData);
+	ChangeEvent(change_list, tmp_cli_sock, EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, udata);
+	ChangeEvent(change_list, tmp_cli_sock, EVFILT_WRITE, EV_ADD | EV_DISABLE, 0, 0, udata);
+	find_fd[tmp_cli_sock] = curr_event->ident;
+	return 0;
+}
+
 void	Webserv::Run(void)
 {
 	for (int i = 0; i < workers.size(); i++)
@@ -61,72 +74,63 @@ void	Webserv::Run(void)
 			{
 				if (find(server_sockets.begin(), server_sockets.end(), curr_event->ident) != server_sockets.end())
 				{
-					it = find(server_sockets.begin(),  server_sockets.end(), curr_event->ident);
-					int tmp_cli_sock = accept(*it, NULL, NULL);
-					if (tmp_cli_sock== -1)
+					if (ConnectNewClient() == -1)
 						continue ;
-					fcntl(tmp_cli_sock, F_SETFL, O_NONBLOCK);
-					struct workerData	*udata = new (struct workerData);
-					ChangeEvent(change_list, tmp_cli_sock, EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, udata);
-					ChangeEvent(change_list, tmp_cli_sock, EVFILT_WRITE, EV_ADD | EV_DISABLE, 0, 0, udata);
-					find_fd[tmp_cli_sock] = curr_event->ident;
 				}
 				else if (find(server_sockets.begin(), server_sockets.end(), curr_event->ident) == server_sockets.end())
 				{
-					struct workerData *eventData = (struct workerData *)curr_event->udata;
-					std::vector<char> buffer(BUFFER_SIZE);
-					mapter = find_fd.find(curr_event->ident);
+					ReadData	data;
 					for (wit = workers.begin(); wit != workers.end(); ++wit)
 						if (wit->get_server_socket() == mapter->second)
 							break ;
-					ssize_t len = readData(curr_event->ident, buffer.data(), BUFFER_SIZE);
+					ssize_t len = readData(curr_event->ident, data.buffer.data(), BUFFER_SIZE);
 					if (len > 0)
 					{
-						buffer.resize(len);
-						if (eventData->request.getState() == HEADER_READ)
+						data.buffer.resize(len);
+						if (data.eventData->request.getState() == HEADER_READ)
 						{
-							std::string temp_data(buffer.begin(), buffer.end());
-							eventData->request.appendHeader(temp_data);
-							eventData->request.BodyAppendVec(buffer);
-							size_t pos = eventData->request.getHeaders().find("\r\n\r\n");
+							std::string temp_data(data.buffer.begin(), data.buffer.end());
+							data.eventData->request.appendHeader(temp_data);
+							data.eventData->request.BodyAppendVec(data.buffer);
+							size_t pos = data.eventData->request.getHeaders().find("\r\n\r\n");
 							if (pos == std::string::npos)
 								continue ;
 							else
 							{
-								std::string temp = eventData->request.getHeaders();
-								eventData->request.setHeaders(eventData->request.getHeaders().substr(0, pos + 4));
-								eventData->request.removeCRLF();
-								if (eventData->request.getHeaders().find("Content-Length") != std::string::npos)
+								std::string temp = data.eventData->request.getHeaders();
+								data.eventData->request.setHeaders(data.eventData->request.getHeaders().substr(0, pos + 4));
+								data.eventData->request.removeCRLF();
+								if (data.eventData->request.getHeaders().find("Content-Length") != std::string::npos)
 								{
-									size_t body_size = wit->checkContentLength(eventData->request.getHeaders());
-									if (body_size <= eventData->request.getBody().size())
-										eventData->request.setState(READ_FINISH);
+									size_t body_size = wit->checkContentLength(data.eventData->request.getHeaders());
+									if (body_size <= data.eventData->request.getBody().size())
+										data.eventData->request.setState(READ_FINISH);
 									else
-										eventData->request.setState(BODY_READ);
+										data.eventData->request.setState(BODY_READ);
 								}
-								else if (eventData->request.getHeaders().find("Transfer-Encoding") != std::string::npos)
+								else if (data.eventData->request.getHeaders().find("Transfer-Encoding") != std::string::npos)
 								{
-									if (eventData->request.Findrn0rn() == 1)
-										eventData->request.setState(READ_FINISH);
+									if (data.eventData->request.Findrn0rn() == 1)
+										data.eventData->request.setState(READ_FINISH);
 									else
-										eventData->request.setState(BODY_READ);
+										data.eventData->request.setState(BODY_READ);
 								}
 								else
-									eventData->request.setState(READ_FINISH);
+									data.eventData->request.setState(READ_FINISH);
 							}
 						}
-						else if (eventData->request.getState() == BODY_READ)
+						else if (data.eventData->request.getState() == BODY_READ)
 						{
-							eventData->request.BodyAppendVec(buffer);
-							if (eventData->request.getHeaders().find("Content-Length") != std::string::npos)
+							data.eventData->request.BodyAppendVec(data.buffer);
+							if (data.eventData->request.getHeaders().find("Content-Length") != std::string::npos)
 							{
-								size_t body_size = wit->checkContentLength(eventData->request.getHeaders());
-								if (body_size <= eventData->request.getBody().size())	//본문을 다 읽으면
-									eventData->request.setState(READ_FINISH);
+								size_t body_size = wit->checkContentLength(data.eventData->request.getHeaders());
+								if (body_size <= data.eventData->request.getBody().size())	//본문을 다 읽으면
+									data.eventData->request.setState(READ_FINISH);
 							}
-							else if (eventData->request.getHeaders().find("Transfer-Encoding") != std::string::npos)
-								if (eventData->request.Findrn0rn() == 1)
-									eventData->request.setState(READ_FINISH);
+							else if (data.eventData->request.getHeaders().find("Transfer-Encoding") != std::string::npos)
+								if (data.eventData->request.Findrn0rn() == 1)
+									data.eventData->request.setState(READ_FINISH);
 						}
 					}
 					else if (len == 0)
@@ -136,11 +140,11 @@ void	Webserv::Run(void)
 					}
 					else
 						continue ;
-					if (eventData->request.getState() == READ_FINISH)
+					if (data.eventData->request.getState() == READ_FINISH)
 					{
-						wit->requestHeaderParse(eventData->request);
-						if (eventData->request.getHeaders().find("Transfer-Encoding") != std::string::npos)
-							wit->chunkBodyParse(eventData->request, eventData->response);
+						wit->requestHeaderParse(data.eventData->request);
+						if (data.eventData->request.getHeaders().find("Transfer-Encoding") != std::string::npos)
+							wit->chunkBodyParse(data.eventData->request, data.eventData->response);
 						ChangeEvent(change_list, curr_event->ident, EVFILT_READ, EV_DISABLE, 0, 0, curr_event->udata);
 						ChangeEvent(change_list, curr_event->ident, EVFILT_WRITE, EV_ENABLE, 0, 0, curr_event->udata);	//write 이벤트 발생
 					}
@@ -169,3 +173,14 @@ void	Webserv::Run(void)
 		}
 	}
 }
+
+Webserv::Webserv() {}
+
+Webserv::~Webserv() {}
+
+ReadData::ReadData() : buffer(BUFFER_SIZE) {
+	eventData = (struct workerData *)curr_event->udata;
+	mapter = find_fd.find(curr_event->ident);
+}
+
+ReadData::~ReadData() {}

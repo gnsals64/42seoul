@@ -6,41 +6,9 @@
 #include "Request.hpp"
 #include "BlockParser.hpp"
 
-# define BUFFER_SIZE 5
-# define RED "\033[31m"
-# define RESET "\033[0m"
-
-struct workerData
-{
-	Request	request;
-	Response response;
-};
-
-void	conf_parse(char *conf_file, std::vector<Worker> &workers)
-{
-	ConfigParser 	parser;
-
-	//확장자 체크
-	if (check_extension(conf_file) == -1) {
-		std::cout << "File is not configuration file." << std::endl;
-		return ;
-	}
-	//블럭 토큰화 밑 오류체크
-	if (check_block(conf_file, &parser) == -1) {
-		std::cout << "configuration file is not vaild" << std::endl;
-		return ;
-	}
-	//토큰 바탕으로 해석 후 worker class 인스턴스화
-    for (int i = 0; i < parser.get_server().size(); i++) {
-        Worker worker = set_worker_info(parser.server_[i]);
-		workers.push_back(worker);
-        print_worker_info(worker);
-    }
-}
-
 const std::string CRLF = "\r\n";
 
-std::map<int, std::string> status_messages;
+
 
 void send_response(int client_socket, int status_code, const std::string &content) {
 	std::stringstream response;

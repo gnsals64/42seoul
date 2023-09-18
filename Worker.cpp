@@ -107,6 +107,8 @@ size_t Worker::myStoi(std::string str)
 	int sum = 0;
 	for (int i = len - 1, p = 1; i >= 0; i--, p *= 10)
 	{
+		if (!(str[i] >= 48 && str[i] <= 57))
+			return (-1);
 		str[i] -= 48;
 		sum += str[i] * p;
 	}
@@ -235,11 +237,10 @@ void	Worker::requestHeaderParse(Request &req)
 	std::cout << "host[1] : " << req.getHost()[1] << std::endl;
 	std::cout << "connection : " << req.getConnection() << std::endl;
 	std::cout << "content-length : " << req.getContentLength() << std::endl;
-	std::cout << "post body : ";
-	for(int i = 0; i < req.getPostBody().size(); i++)
-		std::cout << req.getPostBody()[i];
+	std::cout << "body : ";
+	for(int i = 0; i < req.getBody().size(); i++)
+		std::cout << req.getBody()[i];
 	std::cout << std::endl;
-	std::cout << "body : " << req.getBody() << std::endl;
 	//여기서 바디랑 길이 맞는지 확인하고 아니면 에러
 }
 
@@ -247,24 +248,33 @@ void	Worker::chunkBodyParse(Request &req, Response &res)
 {
 	size_t	byte;
 	std::vector <std::string> line_parse;
-	std::string body = req.getBody();
-	line_parse = this->splitArgs(body, "\r\n");
-	req.setBody("");
+	std::string tmp_body;
+	for (int i = 0; i < req.getBody().size(); i++)
+		tmp_body.push_back(req.getBody()[i]);
+	line_parse = this->splitArgs(tmp_body, "\r\n");
+	req.setBodyClear();
 	for (int i = 0; i < line_parse.size(); i++)
 	{
 		if (i % 2 == 0)
 		{
 			byte = this->myStoi(line_parse[i]);
+			if (byte == -1)
+			{
+				res.setStatusCode(400);
+				break ;
+			}
 			if (byte == 0)
-				break;
+				break ;
 		}
 		else if (i % 2 == 1)
 		{
 			size_t	body_size = line_parse[i].size();
 			if (byte != body_size)
 				res.setStatusCode(400);
-			req.appendBody(line_parse[i]);
-			req.appendBody("\r\n");
+			for (int j = 0; j < line_parse[i].size(); j++)
+				req.pushPostBody(line_parse[i][j]);
+			req.pushPostBody('\r');
+			req.pushPostBody('\n');
 		}
 	}
 }

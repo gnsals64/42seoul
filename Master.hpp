@@ -6,7 +6,7 @@
 #include "Request.hpp"
 #include "block_parser.hpp"
 
-# define BUFFER_SIZE 1024
+# define BUFFER_SIZE 5
 # define RED "\033[31m"
 # define RESET "\033[0m"
 
@@ -49,7 +49,6 @@ void send_response(int client_socket, int status_code, const std::string &conten
 	response << "Content-Length: " << content.size() << CRLF;
 	response << CRLF;
 	response << content;
-	// std::cout << (char *)response.str().c_str() << std::endl;
 
 	send(client_socket, response.str().c_str(), response.str().size(), 0);
 	// close (client_socket);
@@ -121,7 +120,6 @@ void	run(std::vector<Worker> &workers, int &kq, std::vector <struct kevent> &cha
 	std::vector<Worker>::iterator wit;
 	std::map<int, int>::iterator mapter;
 	struct kevent events[1024];
-	// struct workerData	udata;
 
 	for (int i = 0; i < workers.size(); i++)
 		server_sockets.push_back(workers[i].get_server_socket());
@@ -138,7 +136,6 @@ void	run(std::vector<Worker> &workers, int &kq, std::vector <struct kevent> &cha
 		for (int i = 0; i < n; i++)
 		{
 			curr_event = &events[i];
-			// struct workerData *eventData = (struct workerData *)curr_event->udata;
 			if (curr_event->flags & EV_ERROR)
 				continue ;
 			if (curr_event->filter == EVFILT_READ)
@@ -171,8 +168,7 @@ void	run(std::vector<Worker> &workers, int &kq, std::vector <struct kevent> &cha
 						{
 							std::string temp_data(buffer.begin(), buffer.end());
 							eventData->request.appendHeader(temp_data);
-							if (eventData->request.getHeaders().find("POST") != std::string::npos)
-								eventData->request.postBodyAppendVec(buffer);		//post 메소드면 char vector에 저장, 헤더부분 아래에서 지움. chunked일 경우 파싱부분에서 처리해야함
+							eventData->request.BodyAppendVec(buffer);
 							size_t pos = eventData->request.getHeaders().find("\r\n\r\n");
 							if (pos == std::string::npos)
 								continue ;
@@ -180,39 +176,37 @@ void	run(std::vector<Worker> &workers, int &kq, std::vector <struct kevent> &cha
 							{
 								std::string temp = eventData->request.getHeaders();
 								eventData->request.setHeaders(eventData->request.getHeaders().substr(0, pos + 4));
-								std::string temp_body = temp.substr(pos + 4);
-								eventData->request.appendBody(temp_body);
+								eventData->request.removeCRLF();
 								if (eventData->request.getHeaders().find("Content-Length") != std::string::npos)
 								{
 									size_t body_size = wit->checkContentLength(eventData->request.getHeaders());
-									if (body_size == temp_body.size())	//본문을 다 읽으면
-										eventData->request.setState(READ_FINISH);
-									else	//다 못 읽었으면
-										eventData->request.setState(BODY_READ);
-								}
-								else if (eventData->request.getHeaders().find("Transfer-Encoding") != std::string::npos)
-								{
-									if (temp_body.find("0\r\n") != std::string::npos)
+									if (body_size <= eventData->request.getBody().size())
 										eventData->request.setState(READ_FINISH);
 									else
 										eventData->request.setState(BODY_READ);
 								}
+								else if (eventData->request.getHeaders().find("Transfer-Encoding") != std::string::npos)
+								{
+									if (eventData->request.Findrn0rn() == 1)
+										eventData->request.setState(READ_FINISH);
+									else
+										eventData->request.setState(BODY_READ);
+								}
+								else
+									eventData->request.setState(READ_FINISH);
 							}
 						}
 						else if (eventData->request.getState() == BODY_READ)
 						{
-							std::string temp_body(buffer.begin(), buffer.end());
-							eventData->request.appendBody(temp_body);
-							if (eventData->request.getHeaders().find("POST") != std::string::npos)
-									eventData->request.postBodyAppendVec(buffer);	//post 메소드면 char vector에 내용 추가, 헤더부분 아래에서 지움. chunked일 경우 파싱부분에서 처리해야함
+							eventData->request.BodyAppendVec(buffer);
 							if (eventData->request.getHeaders().find("Content-Length") != std::string::npos)
 							{
 								size_t body_size = wit->checkContentLength(eventData->request.getHeaders());
-								if (body_size == eventData->request.getBody().size())	//본문을 다 읽으면
+								if (body_size <= eventData->request.getBody().size())	//본문을 다 읽으면
 									eventData->request.setState(READ_FINISH);
 							}
 							else if (eventData->request.getHeaders().find("Transfer-Encoding") != std::string::npos)
-								if (temp_body.find("0\r\n") != std::string::npos)
+								if (eventData->request.Findrn0rn() == 1)
 									eventData->request.setState(READ_FINISH);
 						}
 					}
@@ -225,22 +219,9 @@ void	run(std::vector<Worker> &workers, int &kq, std::vector <struct kevent> &cha
 						continue ;
 					if (eventData->request.getState() == READ_FINISH)
 					{
-						// size_t	contentLength;
-						if (eventData->request.getHeaders().find("POST") != std::string::npos)
-							eventData->request.removeCRLF();
 						wit->requestHeaderParse(eventData->request);
 						if (eventData->request.getHeaders().find("Transfer-Encoding") != std::string::npos)
 							wit->chunkBodyParse(eventData->request, eventData->response);
-						// contentLength = wit->myStoi(eventData->request.getContentLength());
-						// if (contentLength != eventData->request.getBody().size())
-						// {
-						// 	//content length랑 body 사이즈랑 다를 경우 처리 필요
-						// 	std::cout << "body size is not matched with content length" << std::endl;
-						// 	continue ;
-						// }
-
-						// if (eventData->request.getMethod() == "DELETE")
-							// wit->urlSearch(curr_event->ident);
 						change_events(change_list, curr_event->ident, EVFILT_READ, EV_DISABLE, 0, 0, curr_event->udata);
 						change_events(change_list, curr_event->ident, EVFILT_WRITE, EV_ENABLE, 0, 0, curr_event->udata);	//write 이벤트 발생
 					}

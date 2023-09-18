@@ -22,7 +22,7 @@ protected:
     std::string connection;
     std::string location; // 300번대 응답에서 redirect 시 사용.
     std::string contentType;
-    std::string body;
+	std::vector <char> body;
 
 public:
 };

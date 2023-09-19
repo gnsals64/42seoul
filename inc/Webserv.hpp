@@ -6,7 +6,7 @@
 # include "Request.hpp"
 # include "BlockParser.hpp"
 
-# define BUFFER_SIZE 1024
+# define BUFFER_SIZE 10
 # define RED "\033[31m"
 # define RESET "\033[0m"
 
@@ -20,26 +20,32 @@ struct workerData
 
 class Webserv {
 	private:
-		ssize_t	readData(int fd, char *buffer, size_t buffer_size);
-		void	ReadyToConnect(int i);
-		void	send_response(int client_socket, int status_code, const std::string &content);
-		void	handle_request(int client_socket);
-		int		ConnectNewClient(void);
-		void	ChangeEvent(std::vector<struct kevent>& change_list, uintptr_t ident, int16_t filter,	uint16_t flags, uint32_t fflags, intptr_t data, void *udata);
-
-	protected:
 		int								kq;
-		std::vector<struct kevent>		change_list;
+		std::vector<struct keventlld>		change_list;
 		std::map<int, int>				find_fd;
 		std::vector<Worker>				workers;
-
 		struct kevent					*curr_event;
 		std::vector<int>				server_sockets;
 		std::vector<int>::iterator		it;
 		std::vector<Worker>::iterator	wit;
 		std::map<int, int>::iterator	mapter;
 		std::map<int, std::string>		status_messages;
-		struct kevent events[1024];
+		struct workerData				*eventData;
+		std::vector<char>				buffer;
+		struct kevent					events[1024];
+
+		ssize_t	readData(int fd, char *buffer, size_t buffer_size);
+		void	ReadyToConnect(int i);
+		void	send_response(int client_socket, int status_code, const std::string &content);
+		void	handle_request(int client_socket);
+		int		ConnectNewClient(void);
+		int		StartReceiveData(int len);
+		int		SockReceiveData(void);
+		int		ReadHeader(void);
+		void	ReadBody(void);
+		void	ReadFinish(void);
+		void	SockSendData(void);
+		void	ChangeEvent(std::vector<struct kevent>& change_list, uintptr_t ident, int16_t filter,	uint16_t flags, uint32_t fflags, intptr_t data, void *udata);
 
     public:
 		Webserv();
@@ -47,17 +53,6 @@ class Webserv {
 		void	ConfParse(char *conf_file);
 		void	Init(void);
 		void	Run(void);
-
-};
-
-class ReadData: public Webserv {
-	private:
-
-	public:
-		struct workerData *eventData;
-		std::vector<char> buffer;
-		ReadData();
-		~ReadData();
 
 };
 

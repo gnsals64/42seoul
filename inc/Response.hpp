@@ -64,6 +64,8 @@ public:
 
     void SetCgiResponse(const Request &request);
 
+	std::string deleteCheck(std::string path) const;
+
 };
 
 #endif

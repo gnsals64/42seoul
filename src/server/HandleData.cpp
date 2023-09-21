@@ -69,6 +69,8 @@ int	Webserv::StartReceiveData(int len) {
 
 int	Webserv::ReadHeader(void) {
 	std::string temp_data(buffer.begin(), buffer.end());
+	std::cout << "read = " << temp_data << std::endl;
+	std::cout << "fuck" << std::endl;
 	eventData->request.appendHeader(temp_data);
 	eventData->request.BodyAppendVec(buffer);
 	size_t pos = eventData->request.getHeaders().find("\r\n\r\n");
@@ -131,14 +133,31 @@ void    Webserv::MakeResponse(const Request &request) {
 
     std::string method = this->eventData->request.getMethod();
 
-    if (method == "GET")
+	int i;
+	for(i = 0; i < wit->get_locations().size(); i++)
+	{
+		if (wit->get_locations()[i].get_uri() == request.getPath())
+			break ;
+	}
+	if (i == wit->get_locations().size())
+		i = 0;
+	if (request.getScheme().find("1.1") == std::string::npos)
+	{
+		this->eventData->response.setStatusCode(Response::BAD_REQUEST);
+		std::cout << "wrong http version" << std::endl;
+	}
+
+	std::map<int, bool> limit_excepts = wit->get_locations()[i].get_limit_excepts();
+    if (method == "GET" && limit_excepts[0])
         this->eventData->response.handleGET(*wit, eventData->request);
-    else if (method == "POST")
+    else if (method == "POST" && limit_excepts[1])
         this->eventData->response.handlePOST(*wit, eventData->request);
-    else if (method == "PUT")
+    else if (method == "PUT" && limit_excepts[2])
         this->eventData->response.handlePOST(*wit, eventData->request);
-    else if (method == "DELETE")
+    else if (method == "DELETE" && limit_excepts[3])
         this->eventData->response.handleDELETE(*wit, eventData->request);
-    else
-        std::cout << "nothing" << std::endl;
+    else {
+		this->eventData->response.setStatusCode(Response::METHOD_NOT_ALLOWED);
+        std::cout << "wrong method" << std::endl;
+	}
 }

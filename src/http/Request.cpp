@@ -162,9 +162,9 @@ int	Request::Findrn0rn()
 			// {
 				if (*(it) == '0')
 				{
-					if (*(it + 1) == '\r')
+					if (it + 1 < this->body.end() && *(it + 1) == '\r')
 					{
-						if (*(it + 2) == '\n')
+						if (it + 2 < this->body.end() && *(it + 2) == '\n')
 						{
 							return (1);
 						}

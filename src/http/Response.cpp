@@ -207,7 +207,7 @@ void Response::handleGET(Worker &worker, const Request &request)
     this->statusCode = OK;
     this->connection = "keep-alive";
     this->contentType = "text/html";
-    this->httpVersion = "1.1";
+    this->httpVersion = request.getScheme();
     this->location = "";
     try
     {
@@ -219,7 +219,16 @@ void Response::handleGET(Worker &worker, const Request &request)
     }
 }
 
-void Response::handlePOST(Worker &worker, const Request &request) {}
+void Response::handlePOST(Worker &worker, const Request &request) {
+    if (opendir(request.getPath().c_str()) != NULL) {
+        this->setHttpVersion("HTTP/1.1");
+        this->setStatusCode(405);
+        this->contentType = request.getContentType();
+        this->connection = "keep-alive";
+        return ;
+    }
+    this->SetCgiResponse(request);
+}
 
 void Response::handlePUT(Worker &worker, const Request &request) {}
 
@@ -227,7 +236,7 @@ void Response::handleDELETE(Worker &worker, const Request &request) {
 	this->statusCode = OK;
     this->connection = "keep-alive";
     this->contentType = "text/html";
-    this->httpVersion = "1.1";
+    this->httpVersion = request.getScheme();
     this->location = "";
 
 	std::string path = "./html" + request.getPath();
@@ -258,7 +267,7 @@ void    Response::SetCgiResponse(const Request &request) {
     this->statusCode = OK;
     this->connection = "keep-alive";
     this->contentType = "text/html";
-    this->httpVersion = "1.1";
+    this->httpVersion = request.getScheme();
     this->location = "";
     this->body = cgi.executeCgi(request);
 }
@@ -268,7 +277,7 @@ void    Response::SendResponse(int fd) {
 
 
     // 임시 하드코딩
-    toSend += "HTTP/" + this->httpVersion;
+    toSend += this->httpVersion;
     toSend += " " + std::to_string(this->statusCode);
     toSend += " " + this->getStatusMessage(this->statusCode);
     toSend += "\r\n";
@@ -280,6 +289,12 @@ void    Response::SendResponse(int fd) {
 	if (!this->connection.empty())
         toSend += "Connection: " + this->connection + "\r\n";
 	//header end
+    std::cout << "body : ";
+	for(int i = 0; i < this->body.size(); i++)
+		std::cout << this->body[i];
+	std::cout << std::endl;
+    std::cout << "bodysize = " << this->body.size() << std::endl;
+    std::cout << "res = " << toSend << std::endl;
 
 
     toSend += "\r\n";
@@ -307,4 +322,8 @@ std::string Response::deleteCheck(std::string path) const
 	}
 	else
 		throw std::runtime_error("404 not found");
+}
+
+void    Response::setHttpVersion(std::string version) {
+    this->httpVersion = version;
 }

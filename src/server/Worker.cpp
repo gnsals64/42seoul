@@ -154,6 +154,12 @@ void	Worker::reqFirstLineParse(Request &req, std::string first_line)
 	std::vector <std::string> fir_line_parse;
 	fir_line_parse = this->split(first_line, ' ', tmp);
 	req.setMethod(fir_line_parse[0]);
+	// for (int i = 0; i < this->get_locations().size(); i++)
+	// {
+	// 	if (req.getPath() == get_locations()[i].get_uri())
+	// 		break ;
+	// 	else
+	// }
 	req.setPath(fir_line_parse[1]);
 	req.setScheme(fir_line_parse[2]);
 }
@@ -232,7 +238,7 @@ void	Worker::requestHeaderParse(Request &req)
 	this->reqFirstLineParse(req, line_parse[0]);
 	line_cnt = line_parse.size();
 	this->parseOther(req, line_parse, line_cnt);
-	
+	std::cout << "head = " << req.getHeaders() << std::endl;
 	// std::cout << "method : " << req.getMethod() << std::endl;
 	// std::cout << "path : " << req.getPath() << std::endl;
 	// std::cout << "scheme : " << req.getScheme() << std::endl;
@@ -240,12 +246,28 @@ void	Worker::requestHeaderParse(Request &req)
 	// std::cout << "host[1] : " << req.getHost()[1] << std::endl;
 	// std::cout << "connection : " << req.getConnection() << std::endl;
 	// std::cout << "content-length : " << req.getContentLength() << std::endl;
-	// std::cout << "body : ";
+	std::cout << "body : ";
 	for(int i = 0; i < req.getBody().size(); i++)
 		std::cout << req.getBody()[i];
 	std::cout << std::endl;
 	//여기서 바디랑 길이 맞는지 확인하고 아니면 에러
 }
+
+// void	Worker::CheckPossibleMethod(Request &req)
+// {
+// 	int	method;
+
+// 	for(int i = 0; i < this->get_locations().size(); i++)
+// 	{
+// 		if (this->get_locations()[i].get_root() == req.getPath())
+// 		break ;
+// 	}
+// 	if (req.getMethod() == "GET")
+// 		method = 0;
+// 	else if (req.getMethod() == "POST")
+// 		method = 1;
+// 	else if (req.getMethod() == )
+// }
 
 void	Worker::chunkBodyParse(Request &req, Response &res)
 {

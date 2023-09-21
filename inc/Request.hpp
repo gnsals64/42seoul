@@ -32,7 +32,6 @@ class Request : public Transaction{
 		void	setHeaders(std::string data);
 		void	setBodyClear();
 		void	setContentType(std::string type);
-
 		std::string	getMethod() const;
 		std::string	getPath() const;
 		std::string	getScheme() const;

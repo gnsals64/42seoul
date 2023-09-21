@@ -97,15 +97,22 @@ std::vector<char> CgiHandler::generateProcess(const Request &request)
 void CgiHandler::fillEnv(const Request &request, std::string query_string)
 {
 	env["CONTENT_LENGTH"] = "1000";
+  
   if (request.getMethod() == "POST")
 	  env["CONTENT_TYPE"] = request.getContentType();
   else
     env["CONTENT_TYPE"] = "multipart/form-data";
+ 
 	env["PATH_INFO"] = this->cgi_path;
 	if (request.getMethod() == "GET")
 		env["QUERY_STRING"] = query_string;
 	env["REQUEST_METHOD"] = request.getMethod();
 	env["SERVER_PROTOCOL"] = "HTTP/1.1";
+  std::cerr << "len = "<< env["CONTENT_LENGTH"] << std::endl;
+  std::cerr << "type = " << env["CONTENT_TYPE"] << std::endl;
+  std::cerr << "path = " << env["PATH_INFO"] << std::endl;
+  std::cerr << "que = " << env["QUERY_STRING"] << std::endl;
+  std::cerr << "ser = "<< env["SERVER_PROTOCOL"] << std::endl;
 
   	convertEnv();
 }
@@ -133,8 +140,8 @@ std::vector<char> CgiHandler::executeCgi(const Request &request)
   catch (std::runtime_error &e)
   {
     std::cout << e.what() << std::endl;
-	std::string s = "cgihandler execute error";
-	std::vector<char> v(s.begin(), s.end());
+	  std::string s = "cgihandler execute error";
+	  std::vector<char> v(s.begin(), s.end());
     return v;
   }
 }

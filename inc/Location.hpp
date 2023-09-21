@@ -48,7 +48,7 @@ public:
 	const std::string& get_index() const;
 	int get_redir_status_code() const;
 	const std::string& get_redir_uri() const;
-	const std::map<int, bool> get_limit_excepts() const;
+	std::map<int, bool> get_limit_excepts() const;
 	bool get_auto_index() const;
 };
 

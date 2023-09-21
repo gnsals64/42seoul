@@ -30,21 +30,6 @@ private:
     void generateBody_AutoIndexing(const std::string &path, const Request &request);
     int checkPath(std::string &filePath);
     std::vector<std::string> getFilesInDirectory(const std::string &dirPath);
-    enum HttpStatusCode
-    {
-        OK = 200,
-        CREATED = 201,
-        ACCEPTED = 202,
-        NO_CONTENT = 204,
-        BAD_REQUEST = 400,
-        UNAUTHORIZED = 401,
-        FORBIDDEN = 403,
-        NOT_FOUND = 404,
-        CONTENT_TOO_LARGE = 413,
-        INTERNAL_SERVER_ERROR = 500,
-        NOT_IMPLEMENTED = 501,
-        SERVICE_UNAVAILABLE = 503,
-    };
 
 public:
     Response();
@@ -61,11 +46,28 @@ public:
     void handlePUT(Worker &worker, const Request &request);
     void handleDELETE(Worker &worker, const Request &request);
     void setStatusCode(int data);
+    void setHttpVersion(std::string version);
 
     void SetCgiResponse(const Request &request);
 
 	std::string deleteCheck(std::string path) const;
 
+    enum HttpStatusCode
+    {
+        OK = 200,
+        CREATED = 201,
+        ACCEPTED = 202,
+        NO_CONTENT = 204,
+        BAD_REQUEST = 400,
+        UNAUTHORIZED = 401,
+        FORBIDDEN = 403,
+        NOT_FOUND = 404,
+        METHOD_NOT_ALLOWED = 405,
+        CONTENT_TOO_LARGE = 413,
+        INTERNAL_SERVER_ERROR = 500,
+        NOT_IMPLEMENTED = 501,
+        SERVICE_UNAVAILABLE = 503,
+    };
 };
 
 #endif

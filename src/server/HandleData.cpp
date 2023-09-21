@@ -43,7 +43,7 @@ int	Webserv::SockReceiveData(void) {
 
 void	Webserv::SockSendData(void) {
 	int	client_sock = curr_event->ident;
-	// handle_request(client_sock);
+	this->eventData->response.SendResponse(client_sock);
 	std::map<int, int>::iterator tmp_fd_iter = find_fd.find(curr_event->ident);
 	find_fd.erase(tmp_fd_iter);
 	delete ((struct workerData *)curr_event->udata);

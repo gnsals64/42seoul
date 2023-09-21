@@ -48,9 +48,9 @@ std::vector<char> CgiHandler::generateProcess(const Request &request)
       ssize_t bytesRead;
       while ((bytesRead = read(to_cgi[1], buffer, sizeof(buffer))) > 0)
       {
-	  	std::cerr << to_cgi[0] << std::endl;
-        // Process POST data as needed
-		write(to_cgi[1], buffer, bytesRead);
+	  	  std::cerr << to_cgi[0] << std::endl;
+          // Process POST data as needed
+		    write(to_cgi[1], buffer, bytesRead);
       }
 	  close(to_cgi[1]);
     }
@@ -96,7 +96,10 @@ std::vector<char> CgiHandler::generateProcess(const Request &request)
 void CgiHandler::fillEnv(const Request &request, std::string query_string)
 {
 	env["CONTENT_LENGTH"] = "1000";
-	env["CONTENT_TYPE"] = request.getContentType();
+  if (request.getMethod() == "POST")
+	  env["CONTENT_TYPE"] = request.getContentType();
+  else
+    env["CONTENT_TYPE"] = "multipart/form-data";
 	env["PATH_INFO"] = this->cgi_path;
 	if (request.getMethod() == "GET")
 		env["QUERY_STRING"] = query_string;

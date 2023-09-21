@@ -10,33 +10,6 @@ Response::~Response()
 
 }
 
-// // 나중에 헤더 있을 경우만 추가하도록 수정
-// void Response::send(int fd)
-// {
-//     std::string toSend;
-
-//     // 임시 하드코딩
-//     toSend += "HTTP/" + this->httpVersion;
-//     toSend += " " + std::to_string(this->statusCode);
-//     toSend += " " + this->getStatusMessage(this->statusCode);
-//     toSend += "\r\n";
-
-//     if (!this->contentType.empty())
-//         toSend += "Content-Type: " + this->contentType + "\r\n";
-//     if (!this->body.empty())
-//         toSend += "Content-Length: " + std::to_string(this->body.size()) + "\r\n";
-//     if (!this->connection.empty())
-//         toSend += "Connection: " + this->connection + "\r\n";
-//     //header end
-
-//     toSend += "\r\n";
-
-//     toSend += this->body;
-//     fcntl(fd, F_SETFL, O_NONBLOCK, FD_CLOEXEC); // write함수 non-block으로 변환
-//     if (write(fd, toSend.c_str(), toSend.size()) == -1)
-//         throw std::runtime_error("write error");
-// }
-
 std::string Response::getStatusMessage(int code)
 {
     switch (code)
@@ -265,4 +238,34 @@ void    Response::SetCgiResponse(const Request &request) {
     this->httpVersion = "1.1";
     this->location = "";
     this->body = cgi.executeCgi(request);
+}
+
+void    Response::SendResponse(int fd) {
+    std::string toSend;
+
+
+    // 임시 하드코딩
+    toSend += "HTTP/" + this->httpVersion;
+    toSend += " " + std::to_string(this->statusCode);
+    toSend += " " + this->getStatusMessage(this->statusCode);
+    toSend += "\r\n";
+
+    if (!this->contentType.empty())
+	    toSend += "Content-Type: " + this->contentType + "\r\n";
+	if (!this->body.empty())
+        toSend += "Content-Length: " + std::to_string(this->body.size()) + "\r\n";
+	if (!this->connection.empty())
+        toSend += "Connection: " + this->connection + "\r\n";
+	//header end
+
+
+    toSend += "\r\n";
+
+    std::string tmp(this->body.begin(), this->body.end());
+
+
+    toSend += tmp;
+    fcntl(fd, F_SETFL, O_NONBLOCK, FD_CLOEXEC); // write함수 non-block으로 변환
+    if (write(fd, toSend.c_str(), toSend.size()) == -1)
+        throw std::runtime_error("write error");
 }

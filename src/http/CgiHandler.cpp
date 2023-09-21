@@ -44,7 +44,7 @@ std::vector<char> CgiHandler::generateProcess(const Request &request)
     if (request.getMethod() == "POST")
     {
       // Read POST data from parent process through stdin
-      char buffer[1024];
+      char buffer[4048];
       ssize_t bytesRead;
       while ((bytesRead = read(to_cgi[1], buffer, sizeof(buffer))) > 0)
       {
@@ -73,7 +73,7 @@ std::vector<char> CgiHandler::generateProcess(const Request &request)
 		close(to_cgi[1]);
     }
 
-    char buff[2048];
+    char buff[4048];
     ssize_t bytesRead;
     std::vector<char> body;
 
@@ -96,7 +96,7 @@ std::vector<char> CgiHandler::generateProcess(const Request &request)
 
 void CgiHandler::fillEnv(const Request &request, std::string query_string)
 {
-	env["CONTENT_LENGTH"] = "1000";
+	env["CONTENT_LENGTH"] = "50000";
   if (request.getMethod() == "POST")
 	  env["CONTENT_TYPE"] = request.getContentType();
   else

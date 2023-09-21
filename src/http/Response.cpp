@@ -297,9 +297,13 @@ std::string Response::deleteCheck(std::string path) const
 {
 	if (access(path.c_str(), F_OK) == 0)
 	{
-		if (unlink(path.c_str()) == 0)
-			return path + " deleted\n";
-		throw std::runtime_error("unlink error");
+		if (access(path.c_str(), W_OK) == 0)
+		{
+			if (unlink(path.c_str()) == 0)
+				return path + " deleted\n";
+			throw std::runtime_error("unlink error");
+		}
+		throw std::runtime_error("permission error");
 	}
 	else
 		throw std::runtime_error("404 not found");

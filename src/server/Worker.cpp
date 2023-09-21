@@ -233,14 +233,14 @@ void	Worker::requestHeaderParse(Request &req)
 	line_cnt = line_parse.size();
 	this->parseOther(req, line_parse, line_cnt);
 	
-	std::cout << "method : " << req.getMethod() << std::endl;
-	std::cout << "path : " << req.getPath() << std::endl;
-	std::cout << "scheme : " << req.getScheme() << std::endl;
-	std::cout << "host[0] : " << req.getHost()[0] << std::endl;
-	std::cout << "host[1] : " << req.getHost()[1] << std::endl;
-	std::cout << "connection : " << req.getConnection() << std::endl;
-	std::cout << "content-length : " << req.getContentLength() << std::endl;
-	std::cout << "body : ";
+	// std::cout << "method : " << req.getMethod() << std::endl;
+	// std::cout << "path : " << req.getPath() << std::endl;
+	// std::cout << "scheme : " << req.getScheme() << std::endl;
+	// std::cout << "host[0] : " << req.getHost()[0] << std::endl;
+	// std::cout << "host[1] : " << req.getHost()[1] << std::endl;
+	// std::cout << "connection : " << req.getConnection() << std::endl;
+	// std::cout << "content-length : " << req.getContentLength() << std::endl;
+	// std::cout << "body : ";
 	for(int i = 0; i < req.getBody().size(); i++)
 		std::cout << req.getBody()[i];
 	std::cout << std::endl;

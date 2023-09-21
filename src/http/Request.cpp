@@ -156,23 +156,23 @@ int	Request::Findrn0rn()
 	std::vector <char>::iterator it;
 	for (it = this->body.begin(); it != this->body.end(); it++)
 	{
-		if (*it == '\r')
-		{
-			if (*(it + 1) == '\n')
-			{
-				if (*(it + 2) == '0')
+		// if (*it == '\r')
+		// {
+			// if (*(it + 1) == '\n')
+			// {
+				if (*(it) == '0')
 				{
-					if (*(it + 3) == '\r')
+					if (*(it + 1) == '\r')
 					{
-						if (*(it + 4) == '\n')
+						if (*(it + 2) == '\n')
 						{
 							return (1);
 						}
 					}
 				}
 			}
-		}
-	}
+		// }
+	// }
 	return (0);
 }
 

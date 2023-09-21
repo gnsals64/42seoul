@@ -123,7 +123,7 @@ void	Webserv::ReadFinish(void) {
 }
 
 void    Webserv::MakeResponse(const Request &request) {
-    if (this->eventData->request.getPath().find("cgi") != std::string::npos)
+    if (this->eventData->request.getPath().find(".py") != std::string::npos)
     {
         this->eventData->response.SetCgiResponse(request);
         return ;
@@ -136,7 +136,7 @@ void    Webserv::MakeResponse(const Request &request) {
     else if (method == "POST")
         this->eventData->response.handlePOST(*wit, eventData->request);
     else if (method == "PUT")
-        this->eventData->response.handlePUT(*wit, eventData->request);
+        this->eventData->response.handlePOST(*wit, eventData->request);
     else if (method == "DELETE")
         this->eventData->response.handleDELETE(*wit, eventData->request);
     else

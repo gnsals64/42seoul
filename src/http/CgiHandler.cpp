@@ -68,6 +68,7 @@ std::vector<char> CgiHandler::generateProcess(const Request &request)
     {
 		std::vector<char> v = request.getBody();
 		std::string s(v.begin(), v.end());
+      std::cerr << s << std::endl;
     	write(to_cgi[1], s.c_str(), s.length());
 		close(to_cgi[1]);
     }

@@ -125,6 +125,10 @@ void	Request::BodyAppendVec(std::vector<char> data)
 	this->body.insert(this->body.end(), data.begin(), data.end());
 }
 
+void	Request::setContentType(std::string type) {
+	this->contentType = type;
+}
+
 void	Request::removeCRLF()
 {
 	std::vector <char>::iterator it;
@@ -171,3 +175,40 @@ int	Request::Findrn0rn()
 	}
 	return (0);
 }
+
+// void Request::parsingFromData(std::string data)
+// {
+//     // max size_error 가정
+//     //throw std::runtime_error("client body size error");
+
+//     //test code
+// 	std::stringstream stream;
+// 	stream.str(data);
+
+//     std::string method;
+//     stream >> method;
+//     stream >> this->path;
+
+// 	std::string s;
+// 	while (stream >> s)
+// 	{
+// 		if (s == "Content-Length:")
+// 			stream >> this->contentLength;
+// 		if (s == "Content-Type:")
+// 			stream >> this->contentType;
+// 	}
+
+// 	size_t bodyStart = data.find("\r\n\r\n") + 4; // 빈 줄 다음부터 본문
+//     this->body = data.substr(bodyStart, this->contentLength);
+
+
+//     this->host.push_back("localhost:8080");
+//     if (method == "GET")
+//         this->httpMethod = "GET";
+//     else if (method == "POST")
+//         this->httpMethod = "POST";
+//     else if (method == "PUT")
+//         this->httpMethod = "PUT";
+//     else if (method == "DELETE")
+//         this->httpMethod = "DELETE";
+// }

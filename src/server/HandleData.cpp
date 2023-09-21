@@ -63,6 +63,7 @@ int	Webserv::StartReceiveData(int len) {
 	//바디파싱
 	else if (eventData->request.getState() == BODY_READ)
 		ReadBody();
+	
 	return 0;
 }
 

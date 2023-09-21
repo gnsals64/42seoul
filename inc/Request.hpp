@@ -31,6 +31,7 @@ class Request : public Transaction{
 		void	setState(int setstate);
 		void	setHeaders(std::string data);
 		void	setBodyClear();
+		void	setContentType(std::string type);
 
 		std::string	getMethod() const;
 		std::string	getPath() const;
@@ -47,6 +48,7 @@ class Request : public Transaction{
 		void	pushPostBody(char data);
 		void	BodyAppendVec(std::vector<char> data);
 		void	removeCRLF();
+		void	parsingFromData(std::string data);
 
 		int	Findrn0rn();
 };

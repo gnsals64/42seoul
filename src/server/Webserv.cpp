@@ -1,5 +1,6 @@
 #include "../../inc/Webserv.hpp"
 #include "../../inc/Transaction.hpp"
+#include <iostream>
 
 void	Webserv::Run(void)
 {
@@ -15,9 +16,11 @@ void	Webserv::Run(void)
 			throw Worker::keventError();
 		}
 		change_list.clear();
+		
 		for (int i = 0; i < n; i++)
 		{
 			curr_event = &events[i];
+			
 			if (curr_event->flags & EV_ERROR)
 				continue ;
 			if (curr_event->filter == EVFILT_READ)

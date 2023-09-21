@@ -217,6 +217,8 @@ void	Worker::parseOther(Request &req, std::vector<std::string> line_parse, int l
 			this->parseConnection(req, colon_parse);
 		else if (colon_parse[0] == "Content-Length")
 			this->parseContentLength(req, colon_parse);
+		else if (colon_parse[0] == "Content-Type")
+			req.setContentType(colon_parse[1]);	
 	}
 }
 
@@ -230,6 +232,7 @@ void	Worker::requestHeaderParse(Request &req)
 	this->reqFirstLineParse(req, line_parse[0]);
 	line_cnt = line_parse.size();
 	this->parseOther(req, line_parse, line_cnt);
+	
 	std::cout << "method : " << req.getMethod() << std::endl;
 	std::cout << "path : " << req.getPath() << std::endl;
 	std::cout << "scheme : " << req.getScheme() << std::endl;

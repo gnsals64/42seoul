@@ -6,7 +6,7 @@
 # include "Request.hpp"
 # include "BlockParser.hpp"
 
-# define BUFFER_SIZE 10
+# define BUFFER_SIZE 1024
 # define RED "\033[31m"
 # define RESET "\033[0m"
 
@@ -21,7 +21,7 @@ struct workerData
 class Webserv {
 	private:
 		int								kq;
-		std::vector<struct keventlld>		change_list;
+		std::vector<struct kevent>		change_list;
 		std::map<int, int>				find_fd;
 		std::vector<Worker>				workers;
 		struct kevent					*curr_event;
@@ -45,6 +45,7 @@ class Webserv {
 		void	ReadBody(void);
 		void	ReadFinish(void);
 		void	SockSendData(void);
+		void	MakeResponse(const Request &request);
 		void	ChangeEvent(std::vector<struct kevent>& change_list, uintptr_t ident, int16_t filter,	uint16_t flags, uint32_t fflags, intptr_t data, void *udata);
 
     public:

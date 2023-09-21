@@ -5,7 +5,7 @@ LDFLAGS		:=
 
 PARSER = $(addprefix parser/, BlockParser Location LocationLexer TokenParseError TokenUtils Tokenizer)
 SERVER = $(addprefix server/, Worker WorkerLexer Webserv ServerUtils HandleData InitServer)
-HTTP = ${addprefix http/, Request Response}
+HTTP = ${addprefix http/, Request Response CgiHandler}
 
 FILES = $(addprefix src/, main  ${PARSER} ${SERVER} ${HTTP})
 

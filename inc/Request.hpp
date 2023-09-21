@@ -32,15 +32,16 @@ class Request : public Transaction{
 		void	setHeaders(std::string data);
 		void	setBodyClear();
 
-		std::string	getMethod();
-		std::string	getPath();
-		std::string	getScheme();
-		std::vector<std::string>	getHost();
-		std::string	getConnection();
-		std::string getContentLength();
-		std::string getHeaders();
-		int	getState();
-		std::vector<char> getBody();
+		std::string	getMethod() const;
+		std::string	getPath() const;
+		std::string	getScheme() const;
+		std::vector<std::string>	getHost() const;
+		std::string	getConnection() const;
+		std::string getContentLength() const;
+		std::string getHeaders() const;
+		int	getState() const;
+		std::vector<char> getBody() const;
+        std::string getContentType() const;
 
 		void	appendHeader(std::string data);
 		void	pushPostBody(char data);

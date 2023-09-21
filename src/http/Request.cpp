@@ -60,49 +60,54 @@ void	Request::setBodyClear()
 	this->body.clear();
 }
 
-std::string	Request::getMethod()
+std::string	Request::getMethod() const
 {
 	return (this->httpMethod);
 }
 
-std::string	Request::getPath()
+std::string	Request::getPath() const
 {
 	return (this->path);
 }
 
-std::string	Request::getScheme()
+std::string	Request::getScheme() const
 {
 	return (this->scheme);
 }
 
-std::vector<std::string>	Request::getHost()
+std::vector<std::string>	Request::getHost() const
 {
 	return (this->host);
 }
 
-std::string	Request::getConnection()
+std::string	Request::getConnection() const
 {
 	return (this->connection);
 }
 
-std::string	Request::getContentLength()
+std::string	Request::getContentLength() const
 {
 	return (this->contentLength);
 }
 
-std::vector<char> Request::getBody()
+std::vector<char> Request::getBody() const
 {
 	return (this->body);
 }
 
-std::string Request::getHeaders()
+std::string Request::getHeaders() const
 {
 	return (this->headers);
 }
 
-int	Request::getState()
+int	Request::getState() const
 {
 	return (this->state);
+}
+
+std::string Request::getContentType() const
+{
+    return this->contentType;
 }
 
 void	Request::appendHeader(std::string data)

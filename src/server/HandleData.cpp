@@ -1,4 +1,6 @@
 #include "../../inc/Webserv.hpp"
+#include "../../inc/CgiHandler.hpp"
+#include "../../inc/Transaction.hpp"
 
 int	Webserv::SockReceiveData(void) {
 	//새로운 클라이언트 접속 및 등록
@@ -41,7 +43,7 @@ int	Webserv::SockReceiveData(void) {
 
 void	Webserv::SockSendData(void) {
 	int	client_sock = curr_event->ident;
-	handle_request(client_sock);
+	// handle_request(client_sock);
 	std::map<int, int>::iterator tmp_fd_iter = find_fd.find(curr_event->ident);
 	find_fd.erase(tmp_fd_iter);
 	delete ((struct workerData *)curr_event->udata);
@@ -116,4 +118,26 @@ void	Webserv::ReadFinish(void) {
 		wit->chunkBodyParse(eventData->request, eventData->response);
 	ChangeEvent(change_list, curr_event->ident, EVFILT_READ, EV_DISABLE, 0, 0, curr_event->udata);
 	ChangeEvent(change_list, curr_event->ident, EVFILT_WRITE, EV_ENABLE, 0, 0, curr_event->udata);	//write 이벤트 발생
+    MakeResponse(eventData->request);
+}
+
+void    Webserv::MakeResponse(const Request &request) {
+    if (this->eventData->request.getPath().find("cgi") != std::string::npos)
+    {
+        this->eventData->response.SetCgiResponse(request);
+        return ;
+    }
+
+    std::string method = this->eventData->request.getMethod();
+
+    if (method == "GET")
+        this->eventData->response.handleGET(*wit, eventData->request);
+    else if (method == "POST")
+        this->eventData->response.handlePOST(*wit, eventData->request);
+    else if (method == "PUT")
+        this->eventData->response.handlePUT(*wit, eventData->request);
+    else if (method == "DELETE")
+        this->eventData->response.handleDELETE(*wit, eventData->request);
+    else
+        std::cout << "nothing" << std::endl;
 }

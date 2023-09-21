@@ -12,7 +12,7 @@
 #include "Response.hpp"
 
 class Location;
-// class Response;
+class Response;
 
 class Worker {
 private:

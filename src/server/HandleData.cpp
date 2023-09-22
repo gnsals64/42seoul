@@ -19,6 +19,7 @@ int	Webserv::SockReceiveData(void) {
 			if (wit->get_server_socket() == mapter->second)
 				break ;
 		ssize_t len = readData(curr_event->ident, buffer.data(), BUFFER_SIZE);
+		//std::cout << buffer.data() << "\n" << std::endl;
 		//데이터 읽기
 		if (len > 0)
 		{
@@ -69,8 +70,8 @@ int	Webserv::StartReceiveData(int len) {
 
 int	Webserv::ReadHeader(void) {
 	std::string temp_data(buffer.begin(), buffer.end());
-	std::cout << "read = " << temp_data << std::endl;
-	std::cout << "fuck" << std::endl;
+	// std::cout << "read = " << temp_data << std::endl;
+	// std::cout << "fuck" << std::endl;
 	eventData->request.appendHeader(temp_data);
 	eventData->request.BodyAppendVec(buffer);
 	size_t pos = eventData->request.getHeaders().find("\r\n\r\n");
@@ -158,6 +159,7 @@ void    Webserv::MakeResponse(const Request &request) {
         this->eventData->response.handleDELETE(*wit, eventData->request);
     else {
 		this->eventData->response.setStatusCode(Response::METHOD_NOT_ALLOWED);
+		this->eventData->response.setHttpVersion("HTTP/1.1");
         std::cout << "wrong method" << std::endl;
 	}
 }

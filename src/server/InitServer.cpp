@@ -70,4 +70,5 @@ void	Webserv::ReadyToConnect(int i) {
 			close(this->workers[j].get_port());
 		throw Worker::listenError();
 	}
+	fcntl(this->workers[i].get_server_socket(), F_SETFL, O_NONBLOCK);
 }

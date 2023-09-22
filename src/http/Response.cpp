@@ -173,7 +173,6 @@ std::vector<std::string> Response::getFilesInDirectory(const std::string &dirPat
 
     if ((dir_info = opendir(dirPath.c_str())) == NULL)
         throw std::runtime_error("opendir error");
-
     while ((dir_entry = readdir(dir_info)))
     {
         if (std::strcmp(dir_entry->d_name, ".") == 0)
@@ -220,13 +219,17 @@ void Response::handleGET(Worker &worker, const Request &request)
 }
 
 void Response::handlePOST(Worker &worker, const Request &request) {
-    if (opendir(request.getPath().c_str()) != NULL) {
+    DIR *dir_info;
+
+    if ((dir_info = opendir(request.getPath().c_str())) != NULL) {
         this->setHttpVersion("HTTP/1.1");
         this->setStatusCode(405);
         this->contentType = request.getContentType();
-        this->connection = "keep-alive";
+        this->connection = "Close";
+        closedir(dir_info);
         return ;
     }
+    closedir(dir_info);
     this->SetCgiResponse(request);
 }
 
@@ -289,12 +292,10 @@ void    Response::SendResponse(int fd) {
 	if (!this->connection.empty())
         toSend += "Connection: " + this->connection + "\r\n";
 	//header end
-    std::cout << "body : ";
-	for(int i = 0; i < this->body.size(); i++)
-		std::cout << this->body[i];
-	std::cout << std::endl;
-    std::cout << "bodysize = " << this->body.size() << std::endl;
-    std::cout << "res = " << toSend << std::endl;
+    // std::cout << "body : ";
+	// for(int i = 0; i < this->body.size(); i++)
+	// 	std::cout << this->body[i];
+	// std::cout << std::endl;
 
 
     toSend += "\r\n";
@@ -304,7 +305,7 @@ void    Response::SendResponse(int fd) {
 
     toSend += tmp;
     fcntl(fd, F_SETFL, O_NONBLOCK, FD_CLOEXEC); // write함수 non-block으로 변환
-    if (write(fd, toSend.c_str(), toSend.size()) == -1)
+    if (send(fd, toSend.c_str(), toSend.size(), 0) == -1)
         throw std::runtime_error("write error");
 }
 

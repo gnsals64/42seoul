@@ -238,7 +238,7 @@ void	Worker::requestHeaderParse(Request &req)
 	this->reqFirstLineParse(req, line_parse[0]);
 	line_cnt = line_parse.size();
 	this->parseOther(req, line_parse, line_cnt);
-	std::cout << "head = " << req.getHeaders() << std::endl;
+	//std::cout << "head = " << req.getHeaders() << std::endl;
 	// std::cout << "method : " << req.getMethod() << std::endl;
 	// std::cout << "path : " << req.getPath() << std::endl;
 	// std::cout << "scheme : " << req.getScheme() << std::endl;
@@ -246,10 +246,10 @@ void	Worker::requestHeaderParse(Request &req)
 	// std::cout << "host[1] : " << req.getHost()[1] << std::endl;
 	// std::cout << "connection : " << req.getConnection() << std::endl;
 	// std::cout << "content-length : " << req.getContentLength() << std::endl;
-	std::cout << "body : ";
-	for(int i = 0; i < req.getBody().size(); i++)
-		std::cout << req.getBody()[i];
-	std::cout << std::endl;
+	// std::cout << "body : ";
+	// for(int i = 0; i < req.getBody().size(); i++)
+	// 	std::cout << req.getBody()[i];
+	// std::cout << std::endl;
 	//여기서 바디랑 길이 맞는지 확인하고 아니면 에러
 }
 

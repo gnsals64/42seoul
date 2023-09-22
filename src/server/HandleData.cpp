@@ -136,17 +136,13 @@ void    Webserv::MakeResponse(const Request &request) {
 
     std::string method = this->eventData->request.getMethod();
 
-	int i;
-	if (request.getPath().back() == '/' && request.getPath().size() != 1) {
-		for(i = 0; i < wit->get_locations().size(); i++)
-		{
-			if (request.getPath().find(wit->get_locations()[i].get_uri()) == 0)
-				break ;
+	int location_idx = 0;
+	for(int i = 0; i < wit->get_locations().size(); i++)
+	{
+		if (request.getPath().find(wit->get_locations()[i].get_uri()) == 0) {
+			location_idx = i;
+			break ;
 		}
-	}
-	if (i == wit->get_locations().size()) {
-		this->eventData->response.handleBadRequest();
-		return ;
 	}
 	if (request.getScheme().find("1.1") == std::string::npos)
 	{
@@ -154,8 +150,8 @@ void    Webserv::MakeResponse(const Request &request) {
 		std::cout << "wrong http version" << std::endl;
 	}
 
-	std::map<int, bool> limit_excepts = wit->get_locations()[i].get_limit_excepts();
-    if (method == "GET" && limit_excepts[0])
+	std::map<int, bool> limit_excepts = wit->get_locations()[location_idx].get_limit_excepts();
+    if (method == "GET" &&  limit_excepts[0])
         this->eventData->response.handleGET(*wit, eventData->request);
     else if (method == "POST" && limit_excepts[1])
         this->eventData->response.handlePOST(*wit, eventData->request);

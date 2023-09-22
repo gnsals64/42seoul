@@ -314,7 +314,7 @@ void    Response::SendResponse(int fd) {
 
 
     toSend += tmp;
-    std::cout << "res\n" << toSend << std::endl;
+    std::cout << "response\n" << toSend << std::endl;
    // std::cout << toSend << std::endl;
     fcntl(fd, F_SETFL, O_NONBLOCK, FD_CLOEXEC); // write함수 non-block으로 변환
     if (send(fd, toSend.c_str(), toSend.size(), 0) == -1)

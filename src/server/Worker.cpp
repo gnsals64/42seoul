@@ -162,7 +162,6 @@ void	Worker::reqFirstLineParse(Request &req, std::string first_line)
 	// }
 	req.setPath(fir_line_parse[1]);
     req.setFullPath(this->root + req.getPath());
-    std::cerr << req.getFullPath() << std::endl;
 	req.setScheme(fir_line_parse[2]);
 }
 

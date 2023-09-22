@@ -122,6 +122,8 @@ void	Webserv::ReadFinish(void) {
 		wit->chunkBodyParse(eventData->request, eventData->response);
 	ChangeEvent(change_list, curr_event->ident, EVFILT_READ, EV_DISABLE, 0, 0, curr_event->udata);
 	ChangeEvent(change_list, curr_event->ident, EVFILT_WRITE, EV_ENABLE, 0, 0, curr_event->udata);	//write 이벤트 발생
+	std::cout << "request header" << std::endl;
+	std::cout << this->eventData->request.getHeaders() << std::endl;
     MakeResponse(eventData->request);
 }
 
@@ -135,13 +137,17 @@ void    Webserv::MakeResponse(const Request &request) {
     std::string method = this->eventData->request.getMethod();
 
 	int i;
-	for(i = 0; i < wit->get_locations().size(); i++)
-	{
-		if (wit->get_locations()[i].get_uri() == request.getPath())
-			break ;
+	if (request.getPath().back() == '/' && request.getPath().size() != 1) {
+		for(i = 0; i < wit->get_locations().size(); i++)
+		{
+			if (request.getPath().find(wit->get_locations()[i].get_uri()) == 0)
+				break ;
+		}
 	}
-	if (i == wit->get_locations().size())
-		i = 0;
+	if (i == wit->get_locations().size()) {
+		this->eventData->response.handleBadRequest();
+		return ;
+	}
 	if (request.getScheme().find("1.1") == std::string::npos)
 	{
 		this->eventData->response.setStatusCode(Response::BAD_REQUEST);

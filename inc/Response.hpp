@@ -38,6 +38,7 @@ public:
     void parsingFromRequest(Worker &worker, const Request &request);
     // void send(int fd);
     void handleBodySizeLimit();
+    void handleBadRequest();
     void setBody(const std::string body);
     void SendResponse(int fd);
 

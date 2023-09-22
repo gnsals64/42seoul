@@ -196,6 +196,16 @@ void Response::handleBodySizeLimit()
     this->contentType = "text/html";
 }
 
+void Response::handleBadRequest()
+{
+    this->httpVersion = "HTTP/1.1";
+    this->statusCode = NOT_FOUND;
+    this->connection = "close";
+    this->readFileToBody(ERROR_PAGE_404_PATH);
+    this->contentLength = this->body.size();
+    this->contentType = "text/html";
+}
+
 // void Response::setBody(const std::string body) {
 //     this->body = body;
 // }
@@ -304,6 +314,8 @@ void    Response::SendResponse(int fd) {
 
 
     toSend += tmp;
+    std::cout << "res\n" << toSend << std::endl;
+   // std::cout << toSend << std::endl;
     fcntl(fd, F_SETFL, O_NONBLOCK, FD_CLOEXEC); // write함수 non-block으로 변환
     if (send(fd, toSend.c_str(), toSend.size(), 0) == -1)
         throw std::runtime_error("write error");

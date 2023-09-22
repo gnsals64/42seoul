@@ -43,10 +43,10 @@ std::string Response::getStatusMessage(int code)
     }
 }
 
-void Response::readFileToBody(const std::string &filePath)
+void Response::readFileToBody(const std::string &path)
 {
     std::ifstream fin;
-    fin.open(filePath.c_str());
+    fin.open(path.c_str());
     if (fin.fail())
         throw std::runtime_error("file open error");
     std::string line;
@@ -60,20 +60,20 @@ void Response::readFileToBody(const std::string &filePath)
     fin.close();
 }
 
-void Response::generateBody(Worker &worker, const Request &request)
+void Response::generateBody(const Request &request)
 {
-    std::string filePath = worker.get_root();
-    filePath += request.getPath();
-
-    if (this->checkPath(filePath) == 1) // autoindex 해야하는 상황
+    std::string final_path = request.getFullPath();
+    if (this->checkPath(request.getFullPath()) == 1) // autoindex 해야하는 상황
     {
-        this->generateBody_AutoIndexing(filePath, request);
+        this->generateBody_AutoIndexing(request);
         return;
     }
-    this->readFileToBody(filePath);
+    else
+        final_path = ERROR_PAGE_404_PATH;
+    this->readFileToBody(final_path);
 }
 
-void Response::generateBody_AutoIndexing(const std::string &path, const Request &request)
+void Response::generateBody_AutoIndexing(const Request &request)
 {
     this->readFileToBody(AUTO_INDEX_HTML_PATH); // 템플릿 전부 읽기
 
@@ -93,7 +93,7 @@ void Response::generateBody_AutoIndexing(const std::string &path, const Request 
     std::string requestPath = request.getPath();
     if (requestPath.back() != '/') // request path가 '/'로 끝나지 않는 directory일 때 버그 방지
         requestPath.push_back('/');
-    std::vector<std::string> fileNames = getFilesInDirectory(path);
+    std::vector<std::string> fileNames = getFilesInDirectory(request.getFullPath());
     for (size_t i = 0; i < fileNames.size(); i++)
     {
         toInsert = string_body.rfind("<hr>");
@@ -143,24 +143,18 @@ void Response::generateBody_AutoIndexing(const std::string &path, const Request 
 //     }
 // }
 
-int Response::checkPath(std::string &filePath)
+int Response::checkPath(const std::string path)
 {
     struct stat buf;
 
-    if (stat(filePath.c_str(), &buf) == -1) // 해당 경로에 파일이 존재 안하면 404Page
-    {
-        filePath = ERROR_PAGE_404_PATH;
+    if (stat(path.c_str(), &buf) == -1) // 해당 경로에 파일이 존재 안하면 404Page
         this->statusCode = NOT_FOUND;
-    } else if (S_ISDIR(buf.st_mode)) // 경로일 때
+    else if (S_ISDIR(buf.st_mode)) // 경로일 때
     {
         if (/* directoryListing  == */ true) // 나중에 directory listing 추가해야 함.
-        {
             return 1;// directory listing 추후 처리
-        } else
-        {
-            filePath = ERROR_PAGE_404_PATH;
+        else
             this->statusCode = NOT_FOUND;
-        }
     }
     return 0;
 }
@@ -211,7 +205,7 @@ void Response::handleBadRequest()
 // }
 
 
-void Response::handleGET(Worker &worker, const Request &request)
+void Response::handleGET(const Request &request)
 {
     this->statusCode = OK;
     this->connection = "keep-alive";
@@ -220,7 +214,7 @@ void Response::handleGET(Worker &worker, const Request &request)
     this->location = "";
     try
     {
-        generateBody(worker, request);
+        generateBody(request);
     }
     catch (std::runtime_error &e)
     {
@@ -228,7 +222,7 @@ void Response::handleGET(Worker &worker, const Request &request)
     }
 }
 
-void Response::handlePOST(Worker &worker, const Request &request) {
+void Response::handlePOST(const Request &request) {
     DIR *dir_info;
 
     if ((dir_info = opendir(request.getPath().c_str())) != NULL) {
@@ -243,16 +237,16 @@ void Response::handlePOST(Worker &worker, const Request &request) {
     this->SetCgiResponse(request);
 }
 
-void Response::handlePUT(Worker &worker, const Request &request) {}
+void Response::handlePUT(const Request &request) {}
 
-void Response::handleDELETE(Worker &worker, const Request &request) {
+void Response::handleDELETE(const Request &request) {
 	this->statusCode = OK;
     this->connection = "keep-alive";
     this->contentType = "text/html";
     this->httpVersion = request.getScheme();
     this->location = "";
 
-	std::string path = "./html" + request.getPath();
+	std::string path = request.getFullPath();
 	try
 	{
 		std::string body = deleteCheck(path);

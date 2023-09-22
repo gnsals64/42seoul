@@ -151,14 +151,14 @@ void    Webserv::MakeResponse(const Request &request) {
 	}
 
 	std::map<int, bool> limit_excepts = wit->get_locations()[location_idx].get_limit_excepts();
-    if (method == "GET" &&  limit_excepts[0])
-        this->eventData->response.handleGET(*wit, eventData->request);
-    else if (method == "POST" && limit_excepts[1])
-        this->eventData->response.handlePOST(*wit, eventData->request);
-    else if (method == "PUT" && limit_excepts[2])
-        this->eventData->response.handlePOST(*wit, eventData->request);
-    else if (method == "DELETE" && limit_excepts[3])
-        this->eventData->response.handleDELETE(*wit, eventData->request);
+    if (method == "GET" &&  limit_excepts[METHOD_GET])
+        this->eventData->response.handleGET(eventData->request);
+    else if (method == "POST" && limit_excepts[METHOD_POST])
+        this->eventData->response.handlePOST(eventData->request);
+    else if (method == "PUT" && limit_excepts[METHOD_PUT])
+        this->eventData->response.handlePOST(eventData->request);
+    else if (method == "DELETE" && limit_excepts[METHOD_DELETE])
+        this->eventData->response.handleDELETE(eventData->request);
     else {
 		this->eventData->response.setStatusCode(Response::METHOD_NOT_ALLOWED);
 		this->eventData->response.setHttpVersion("HTTP/1.1");

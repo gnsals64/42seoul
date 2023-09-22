@@ -33,6 +33,11 @@ void	Request::setPath(std::string path)
 	this->path = path;
 }
 
+void    Request::setFullPath(std::string full_path)
+{
+    this->full_path = full_path;
+}
+
 void	Request::setScheme(std::string scheme)
 {
 	this->scheme = scheme;
@@ -71,6 +76,11 @@ void	Request::setBodyClear()
 std::string	Request::getMethod() const
 {
 	return (this->httpMethod);
+}
+
+std::string Request::getFullPath() const
+{
+    return (this->full_path);
 }
 
 std::string	Request::getPath() const

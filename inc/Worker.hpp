@@ -12,6 +12,7 @@
 #include "Response.hpp"
 
 class Location;
+class Request;
 class Response;
 
 class Worker {

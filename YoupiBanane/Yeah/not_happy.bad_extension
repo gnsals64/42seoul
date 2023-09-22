@@ -1,13 +1,1 @@
-Test GET http://localhost:8080/
-Test POST http://localhost:8080/ with a size of 0
-Test HEAD http://localhost:8080/
-Test GET http://localhost:8080/directory
-Test GET http://localhost:8080/directory/youpi.bad_extension
-Test GET http://localhost:8080/directory/youpi.bla
-Test GET Expected 404 on http://localhost:8080/directory/oulalala
-Test GET http://localhost:8080/directory/nop
-Test GET http://localhost:8080/directory/nop/
-Test GET http://localhost:8080/directory/nop/other.pouic
-Test GET Expected 404 on http://localhost:8080/directory/nop/other.pouac
-Test GET Expected 404 on http://localhost:8080/directory/Yeah
-Test GET http://localhost:8080/directory/Yeah/not_happy.bad_extension
+not_happy

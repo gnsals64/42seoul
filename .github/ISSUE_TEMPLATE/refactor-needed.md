@@ -1,7 +1,7 @@
 ---
 name: Refactor needed
 about: 리팩토링 필요
-title: "\U0001F528 [Refactor] - "
+title: "\U0001F3A8 [Refactor] - "
 labels: ''
 assignees: ''
 

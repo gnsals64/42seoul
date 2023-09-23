@@ -52,7 +52,7 @@ class Request : public Transaction{
 		void	removeCRLF();
 		void	parsingFromData(std::string data);
 
-		int	Findrn0rn();
+		int	Findrn0rn(std::string temp);
 };
 
 #endif

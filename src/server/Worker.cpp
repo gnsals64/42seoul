@@ -225,7 +225,7 @@ void	Worker::parseOther(Request &req, std::vector<std::string> line_parse, int l
 		else if (colon_parse[0] == "Content-Length")
 			this->parseContentLength(req, colon_parse);
 		else if (colon_parse[0] == "Content-Type")
-			req.setContentType(colon_parse[1]);	
+			req.setContentType(colon_parse[1]);
 	}
 }
 

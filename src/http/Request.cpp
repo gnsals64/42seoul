@@ -167,31 +167,37 @@ void	Request::removeCRLF()
 			}
 		}
 	}
+	this->body.insert(body.begin(), '\n');
+	this->body.insert(body.begin(), '\r');
 }
 
-int	Request::Findrn0rn()
+int	Request::Findrn0rn(std::string temp)
 {
-	std::vector <char>::iterator it;
-	for (it = this->body.begin(); it != this->body.end(); it++)
-	{
-		// if (*it == '\r')
-		// {
-			// if (*(it + 1) == '\n')
-			// {
-				if (*(it) == '0')
-				{
-					if (it + 1 < this->body.end() && *(it + 1) == '\r')
-					{
-						if (it + 2 < this->body.end() && *(it + 2) == '\n')
-						{
-							return (1);
-						}
-					}
-				}
-			}
-		// }
+	if (temp.find("\r\n0\r\n") != std::string::npos)
+		return (1);
+	else
+		return (0);
+	// std::vector <char>::iterator it;
+	// for (it = this->body.begin(); it != this->body.end(); it++)
+	// {
+	// 	if (*it == '\r')
+	// 	{
+	// 		if (it + 1 < this->body.end() && *(it + 1) == '\n')
+	// 		{
+	// 			if (it + 2 < this->body.end() && *(it + 2) == '0')
+	// 			{
+	// 				if (it + 3 < this->body.end() && *(it + 3) == '\r')
+	// 				{
+	// 					if (it + 4 < this->body.end() && *(it + 4) == '\n')
+	// 					{
+	// 						return (1);
+	// 					}
+	// 				}
+	// 			}
+	// 		}
+	// 	}
 	// }
-	return (0);
+	// return (0);
 }
 
 // void Request::parsingFromData(std::string data)

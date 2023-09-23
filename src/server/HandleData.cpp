@@ -64,7 +64,7 @@ int	Webserv::StartReceiveData(int len) {
 	//바디파싱
 	else if (eventData->request.getState() == BODY_READ)
 		ReadBody();
-	
+
 	return 0;
 }
 
@@ -92,7 +92,7 @@ int	Webserv::ReadHeader(void) {
 		}
 		else if (eventData->request.getHeaders().find("Transfer-Encoding") != std::string::npos)
 		{
-			if (eventData->request.Findrn0rn() == 1)
+			if (eventData->request.Findrn0rn(temp) == 1)
 				eventData->request.setState(READ_FINISH);
 			else
 				eventData->request.setState(BODY_READ);
@@ -105,6 +105,7 @@ int	Webserv::ReadHeader(void) {
 
 void	Webserv::ReadBody(void) {
 	eventData->request.BodyAppendVec(buffer);
+	std::string temp(buffer.begin(), buffer.end());
 	if (eventData->request.getHeaders().find("Content-Length") != std::string::npos)
 	{
 		size_t body_size = wit->checkContentLength(eventData->request.getHeaders());
@@ -112,14 +113,16 @@ void	Webserv::ReadBody(void) {
 			eventData->request.setState(READ_FINISH);
 	}
 	else if (eventData->request.getHeaders().find("Transfer-Encoding") != std::string::npos)
-		if (eventData->request.Findrn0rn() == 1)
+		if (eventData->request.Findrn0rn(temp) == 1)
 			eventData->request.setState(READ_FINISH);
 }
 
 void	Webserv::ReadFinish(void) {
 	wit->requestHeaderParse(eventData->request);
+	std::cout << "????" << std::endl;
 	if (eventData->request.getHeaders().find("Transfer-Encoding") != std::string::npos)
 		wit->chunkBodyParse(eventData->request, eventData->response);
+	std::cout << "!!!!" << std::endl;
 	ChangeEvent(change_list, curr_event->ident, EVFILT_READ, EV_DISABLE, 0, 0, curr_event->udata);
 	ChangeEvent(change_list, curr_event->ident, EVFILT_WRITE, EV_ENABLE, 0, 0, curr_event->udata);	//write 이벤트 발생
 	std::cout << "request header" << std::endl;
@@ -154,7 +157,10 @@ void    Webserv::MakeResponse(const Request &request) {
     if (method == "GET" &&  limit_excepts[METHOD_GET])
         this->eventData->response.handleGET(eventData->request);
     else if (method == "POST" && limit_excepts[METHOD_POST])
+	{
+		std::cout << "POSTPOSTPOSTPOSTPOSTPOST" << std::endl;
         this->eventData->response.handlePOST(eventData->request);
+	}
     else if (method == "PUT" && limit_excepts[METHOD_PUT])
         this->eventData->response.handlePOST(eventData->request);
     else if (method == "DELETE" && limit_excepts[METHOD_DELETE])

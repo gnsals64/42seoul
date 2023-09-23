@@ -27,7 +27,7 @@ class Response : public Transaction
         int statusCode;
         std::string getStatusMessage(int code);
         void readFileToBody(const std::string &path);
-        void generateBody(const Request &request);
+        void generateBody(const Request &request, const std::string index);
         void generateBody_AutoIndexing(const Request &request);
         int checkPath(const std::string path);
         std::vector<std::string> getFilesInDirectory(const std::string &dirPath);
@@ -43,7 +43,7 @@ class Response : public Transaction
         void setBody(const std::string body);
         void SendResponse(int fd);
 
-        void handleGET(const Request &request);
+        void handleGET(const Request &request, const std::string index);
         void handlePOST(const Request &request);
         void handlePUT(const Request &request);
         void handleDELETE(const Request &request);

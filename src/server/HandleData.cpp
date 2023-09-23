@@ -152,7 +152,7 @@ void    Webserv::MakeResponse(const Request &request) {
 
 	std::map<int, bool> limit_excepts = wit->get_locations()[location_idx].get_limit_excepts();
     if (method == "GET" &&  limit_excepts[METHOD_GET])
-        this->eventData->response.handleGET(eventData->request);
+        this->eventData->response.handleGET(eventData->request, wit->get_locations()[location_idx].get_index());
     else if (method == "POST" && limit_excepts[METHOD_POST])
         this->eventData->response.handlePOST(eventData->request);
     else if (method == "PUT" && limit_excepts[METHOD_PUT])

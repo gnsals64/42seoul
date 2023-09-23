@@ -53,6 +53,8 @@ class Request : public Transaction{
 		void	parsingFromData(std::string data);
 
 		int	Findrn0rn(std::string temp);
+		void	AddRNRNOneTime();
+		void	RemoveRNRNOneTime();
 };
 
 #endif

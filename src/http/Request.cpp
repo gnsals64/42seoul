@@ -167,8 +167,8 @@ void	Request::removeCRLF()
 			}
 		}
 	}
-	this->body.insert(body.begin(), '\n');
-	this->body.insert(body.begin(), '\r');
+	// this->body.insert(body.begin(), '\n');
+	// this->body.insert(body.begin(), '\r');
 }
 
 int	Request::Findrn0rn(std::string temp)
@@ -198,6 +198,18 @@ int	Request::Findrn0rn(std::string temp)
 	// 	}
 	// }
 	// return (0);
+}
+
+void	Request::AddRNRNOneTime()
+{
+	this->body.insert(this->body.begin(), '\n');
+	this->body.insert(this->body.begin(), '\r');
+}
+
+void	Request::RemoveRNRNOneTime()
+{
+	this->body.erase(this->body.begin());
+	this->body.erase(this->body.begin());
 }
 
 // void Request::parsingFromData(std::string data)

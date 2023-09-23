@@ -92,6 +92,7 @@ int	Webserv::ReadHeader(void) {
 		}
 		else if (eventData->request.getHeaders().find("Transfer-Encoding") != std::string::npos)
 		{
+			eventData->request.AddRNRNOneTime();
 			if (eventData->request.Findrn0rn(temp) == 1)
 				eventData->request.setState(READ_FINISH);
 			else
@@ -121,7 +122,14 @@ void	Webserv::ReadFinish(void) {
 	wit->requestHeaderParse(eventData->request);
 	std::cout << "????" << std::endl;
 	if (eventData->request.getHeaders().find("Transfer-Encoding") != std::string::npos)
+	{
+		eventData->request.RemoveRNRNOneTime();
 		wit->chunkBodyParse(eventData->request, eventData->response);
+	}
+	std::vector <char> body = eventData->request.getBody();
+	std::string tmp_body(body.begin(), body.end());
+	// std::cout << "body222 = " << tmp_body << std::endl;
+	std::cout << "size = " << body.size() << " " << tmp_body.size() << std::endl;
 	std::cout << "!!!!" << std::endl;
 	ChangeEvent(change_list, curr_event->ident, EVFILT_READ, EV_DISABLE, 0, 0, curr_event->udata);
 	ChangeEvent(change_list, curr_event->ident, EVFILT_WRITE, EV_ENABLE, 0, 0, curr_event->udata);	//write 이벤트 발생

@@ -18,7 +18,7 @@ void	Webserv::ConfParse(char *conf_file)
     for (int i = 0; i < parser.get_server().size(); i++) {
         Worker worker = set_worker_info(parser.server_[i]);
 		this->workers.push_back(worker);
-        print_worker_info(worker);
+        //print_worker_info(worker);
     }
 }
 
@@ -70,4 +70,5 @@ void	Webserv::ReadyToConnect(int i) {
 			close(this->workers[j].get_port());
 		throw Worker::listenError();
 	}
+	fcntl(this->workers[i].get_server_socket(), F_SETFL, O_NONBLOCK);
 }

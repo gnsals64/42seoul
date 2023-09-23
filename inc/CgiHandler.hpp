@@ -9,6 +9,8 @@
 
 #include "Request.hpp"
 
+class Request;
+
 class CgiHandler {
 private:
     std::string cgi_path;

@@ -6,7 +6,7 @@
 # include "Request.hpp"
 # include "BlockParser.hpp"
 
-# define BUFFER_SIZE 1024
+# define BUFFER_SIZE 1000000
 # define RED "\033[31m"
 # define RESET "\033[0m"
 

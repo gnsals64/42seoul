@@ -19,6 +19,7 @@ int	Webserv::SockReceiveData(void) {
 			if (wit->get_server_socket() == mapter->second)
 				break ;
 		ssize_t len = readData(curr_event->ident, buffer.data(), BUFFER_SIZE);
+		//std::cout << buffer.data() << "\n" << std::endl;
 		//데이터 읽기
 		if (len > 0)
 		{
@@ -69,6 +70,8 @@ int	Webserv::StartReceiveData(int len) {
 
 int	Webserv::ReadHeader(void) {
 	std::string temp_data(buffer.begin(), buffer.end());
+	// std::cout << "read = " << temp_data << std::endl;
+	// std::cout << "fuck" << std::endl;
 	eventData->request.appendHeader(temp_data);
 	eventData->request.BodyAppendVec(buffer);
 	size_t pos = eventData->request.getHeaders().find("\r\n\r\n");
@@ -119,11 +122,13 @@ void	Webserv::ReadFinish(void) {
 		wit->chunkBodyParse(eventData->request, eventData->response);
 	ChangeEvent(change_list, curr_event->ident, EVFILT_READ, EV_DISABLE, 0, 0, curr_event->udata);
 	ChangeEvent(change_list, curr_event->ident, EVFILT_WRITE, EV_ENABLE, 0, 0, curr_event->udata);	//write 이벤트 발생
+	std::cout << "request header" << std::endl;
+	std::cout << this->eventData->request.getHeaders() << std::endl;
     MakeResponse(eventData->request);
 }
 
 void    Webserv::MakeResponse(const Request &request) {
-    if (this->eventData->request.getPath().find("cgi") != std::string::npos)
+    if (this->eventData->request.getPath().find(".py") != std::string::npos)
     {
         this->eventData->response.SetCgiResponse(request);
         return ;
@@ -131,14 +136,32 @@ void    Webserv::MakeResponse(const Request &request) {
 
     std::string method = this->eventData->request.getMethod();
 
-    if (method == "GET")
-        this->eventData->response.handleGET(*wit, eventData->request);
-    else if (method == "POST")
-        this->eventData->response.handlePOST(*wit, eventData->request);
-    else if (method == "PUT")
-        this->eventData->response.handlePUT(*wit, eventData->request);
-    else if (method == "DELETE")
-        this->eventData->response.handleDELETE(*wit, eventData->request);
-    else
-        std::cout << "nothing" << std::endl;
+	int location_idx = 0;
+	for(int i = 0; i < wit->get_locations().size(); i++)
+	{
+		if (request.getPath().find(wit->get_locations()[i].get_uri()) == 0) {
+			location_idx = i;
+			break ;
+		}
+	}
+	if (request.getScheme().find("1.1") == std::string::npos)
+	{
+		this->eventData->response.setStatusCode(Response::BAD_REQUEST);
+		std::cout << "wrong http version" << std::endl;
+	}
+
+	std::map<int, bool> limit_excepts = wit->get_locations()[location_idx].get_limit_excepts();
+    if (method == "GET" &&  limit_excepts[METHOD_GET])
+        this->eventData->response.handleGET(eventData->request);
+    else if (method == "POST" && limit_excepts[METHOD_POST])
+        this->eventData->response.handlePOST(eventData->request);
+    else if (method == "PUT" && limit_excepts[METHOD_PUT])
+        this->eventData->response.handlePOST(eventData->request);
+    else if (method == "DELETE" && limit_excepts[METHOD_DELETE])
+        this->eventData->response.handleDELETE(eventData->request);
+    else {
+		this->eventData->response.setStatusCode(Response::METHOD_NOT_ALLOWED);
+		this->eventData->response.setHttpVersion("HTTP/1.1");
+        std::cout << "wrong method" << std::endl;
+	}
 }

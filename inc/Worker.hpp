@@ -12,6 +12,7 @@
 #include "Response.hpp"
 
 class Location;
+class Request;
 class Response;
 
 class Worker {
@@ -53,6 +54,7 @@ public:
 	void	parseConnection(Request &req, std::vector<std::string> colon_parse);
 	void	parseContentLength(Request &req, std::vector<std::string> colon_parse);
 	void	parseOther(Request &req, std::vector <std::string> line_parse, int line_cnt);
+	// void	CheckPossibleMethod(Request &req);
 	void	requestHeaderParse(Request &req);
 	void	chunkBodyParse(Request &req, Response &res);
 	// void	urlSearch(int event_fd);

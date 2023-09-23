@@ -5,25 +5,27 @@
 # define BODY_READ 1
 # define READ_FINISH 2
 #include "Transaction.hpp"
+#include "Worker.hpp"
 #include <sys/time.h>
 
 class Request : public Transaction{
 	private:
 		std::string headers;
 		std::string httpMethod;
-		std::string path;
-		std::string	scheme;
-		std::vector <std::string> host;
-		std::string	connection;
-		std::string	contentLength;
+        std::string path;
+        std::string full_path;
+        std::string	scheme;
+        std::vector <std::string> host;
+        std::string	connection;
+        std::string	contentLength;
 		int	state;
-
 
 	public:
 		Request();
 		~Request();
 		void	setMethod(std::string method);
 		void	setPath(std::string path);
+        void    setFullPath(std::string full_path);
 		void	setScheme(std::string scheme);
 		void	pushBackHost(std::string host);
 		void	setConnection(std::string connection);
@@ -32,9 +34,9 @@ class Request : public Transaction{
 		void	setHeaders(std::string data);
 		void	setBodyClear();
 		void	setContentType(std::string type);
-
 		std::string	getMethod() const;
 		std::string	getPath() const;
+        std::string getFullPath() const;
 		std::string	getScheme() const;
 		std::vector<std::string>	getHost() const;
 		std::string	getConnection() const;

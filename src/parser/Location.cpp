@@ -74,7 +74,7 @@ const std::string& Location::get_redir_uri() const
 	return this->redir_uri;
 }
 
-const std::map<int, bool> Location::get_limit_excepts() const
+std::map<int, bool> Location::get_limit_excepts() const
 {
 	return this->limit_excepts;
 }

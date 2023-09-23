@@ -22,7 +22,20 @@ void	Request::setMethod(std::string method)
 
 void	Request::setPath(std::string path)
 {
+	if (path[0] == '/') {
+		while(true) {
+			if (path[1] != '/')
+				break ;
+			if (path[1] == '/')
+				path.erase(1, 1);
+		}
+	}
 	this->path = path;
+}
+
+void    Request::setFullPath(std::string full_path)
+{
+    this->full_path = full_path;
 }
 
 void	Request::setScheme(std::string scheme)
@@ -63,6 +76,11 @@ void	Request::setBodyClear()
 std::string	Request::getMethod() const
 {
 	return (this->httpMethod);
+}
+
+std::string Request::getFullPath() const
+{
+    return (this->full_path);
 }
 
 std::string	Request::getPath() const
@@ -156,23 +174,23 @@ int	Request::Findrn0rn()
 	std::vector <char>::iterator it;
 	for (it = this->body.begin(); it != this->body.end(); it++)
 	{
-		if (*it == '\r')
-		{
-			if (*(it + 1) == '\n')
-			{
-				if (*(it + 2) == '0')
+		// if (*it == '\r')
+		// {
+			// if (*(it + 1) == '\n')
+			// {
+				if (*(it) == '0')
 				{
-					if (*(it + 3) == '\r')
+					if (it + 1 < this->body.end() && *(it + 1) == '\r')
 					{
-						if (*(it + 4) == '\n')
+						if (it + 2 < this->body.end() && *(it + 2) == '\n')
 						{
 							return (1);
 						}
 					}
 				}
 			}
-		}
-	}
+		// }
+	// }
 	return (0);
 }
 

@@ -50,7 +50,7 @@ std::vector<char> CgiHandler::generateProcess(const Request &request)
         if (request.getMethod() == "POST")
         {
           // Read POST data from parent process through stdin
-            char buffer[1024];
+            char buffer[4048];
             ssize_t bytesRead;
             while ((bytesRead = read(to_cgi[1], buffer, sizeof(buffer))) > 0)
             {
@@ -94,7 +94,6 @@ std::vector<char> CgiHandler::generateProcess(const Request &request)
 
         return body;
     }
-
 	std::string s = "Process generate error";
 	std::vector<char> v(s.begin(), s.end());
 	return v;

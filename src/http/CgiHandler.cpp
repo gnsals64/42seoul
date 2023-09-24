@@ -9,7 +9,7 @@ std::vector<char> CgiHandler::generateProcess(const Request &request)
 {
     int to_cgi[2];
     int from_cgi[2];
-  
+
     this->cgi_path = request.getFullPath();
 
     std::string query_string = "";
@@ -60,7 +60,16 @@ std::vector<char> CgiHandler::generateProcess(const Request &request)
             }
             close(to_cgi[1]);
         }
-        execve(this->cgi_path.c_str(), NULL, envp.data());
+		if (request.getPath().find(".bla") != std::string::npos)
+		{
+			std::cout << "test .bla" << std::endl;
+			execve("./cgi_tester", NULL, envp.data());
+		}
+		else
+		{
+			std::cout << "not test .bla" << std::endl;
+        	execve(this->cgi_path.c_str(), NULL, envp.data());
+		}
         throw std::runtime_error("cgi execute failed");
     }
     else

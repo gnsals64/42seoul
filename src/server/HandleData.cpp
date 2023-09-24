@@ -151,11 +151,12 @@ void    Webserv::MakeResponse(const Request &request) {
 	for(int i = 0; i < wit->get_locations().size(); i++)
 	{
 		if (request.getPath().find(wit->get_locations()[i].get_uri()) != std::string::npos) {
-			location_idx = i;
-			if (wit->get_locations()[i].get_uri().length() == 1)
-				continue ;
-			else
+			if (wit->get_locations()[i].get_uri().length() != 1)
+			{
+				location_idx = i;
 				break ;
+			}
+			location_idx = i;
 		}
 	}
 	if (request.getScheme().find("1.1") == std::string::npos)

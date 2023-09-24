@@ -60,7 +60,7 @@ void Response::readFileToBody(const std::string &path)
 	fin.close();
 }
 
-void Response::generateBody(const Request &request)
+void Response::generateBody(const Request &request, const std::string index)
 {
 	std::string final_path = request.getFullPath();
 	int check_res = this->checkPath(final_path);
@@ -75,7 +75,7 @@ void Response::generateBody(const Request &request)
 		final_path += "/";
 		int last_slash = final_path.find_last_of("/");
 		std::string last_dir = final_path.substr(0, last_slash + 1);
-		final_path = last_dir + "youpi.bad_extension";
+		final_path = last_dir + index;
 //		std::cerr << request.getFullPath() << " -> " << last_dir << " -> " << final_path << std::endl;
 		int second_check = this->checkPath(final_path);
 //		std::cerr << "second: " << second_check << std::endl;
@@ -225,7 +225,7 @@ void Response::handleBadRequest()
 // }
 
 
-void Response::handleGET(const Request &request)
+void Response::handleGET(const Request &request, const std::string index)
 {
 	this->statusCode = OK;
 	this->connection = "keep-alive";
@@ -234,7 +234,7 @@ void Response::handleGET(const Request &request)
 	this->location = "";
 	try
 	{
-		generateBody(request);
+		generateBody(request, index);
 	}
 	catch (std::runtime_error &e)
 	{

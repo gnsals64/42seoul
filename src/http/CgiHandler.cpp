@@ -120,18 +120,6 @@ void CgiHandler::fillEnv(const Request &request, std::string query_string)
 		env["QUERY_STRING"] = query_string;
 	env["REQUEST_METHOD"] = request.getMethod();
 	env["SERVER_PROTOCOL"] = "HTTP/1.1";
-
-    std::cerr << "req = " << env["REQUEST_METHOD"] << std::endl;
-    if (request.getMethod() == "POST")
-    {
-        std::cerr << "len = " << env["CONTENT_LENGTH"] << std::endl;
-        std::cerr << "type = " << env["CONTENT_TYPE"] << std::endl;
-    }
-    std::cerr << "path = " << env["PATH_INFO"] << std::endl;
-    if (request.getMethod() == "GET")
-        std::cerr << "que = " << env["QUERY_STRING"] << std::endl;
-    std::cerr << "ser = "<< env["SERVER_PROTOCOL"] << std::endl;
-
   	convertEnv();
 }
 

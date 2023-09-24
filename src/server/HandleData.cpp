@@ -120,7 +120,6 @@ void	Webserv::ReadBody(void) {
 
 void	Webserv::ReadFinish(void) {
 	wit->requestHeaderParse(eventData->request);
-	std::cout << "????" << std::endl;
 	if (eventData->request.getHeaders().find("Transfer-Encoding") != std::string::npos)
 	{
 		eventData->request.RemoveRNRNOneTime();
@@ -128,14 +127,17 @@ void	Webserv::ReadFinish(void) {
 	}
 	std::vector <char> body = eventData->request.getBody();
 	std::string tmp_body(body.begin(), body.end());
-	// std::cout << "body222 = " << tmp_body << std::endl;
-	std::cout << "size = " << body.size() << " " << tmp_body.size() << std::endl;
-	std::cout << "!!!!" << std::endl;
 	ChangeEvent(change_list, curr_event->ident, EVFILT_READ, EV_DISABLE, 0, 0, curr_event->udata);
 	ChangeEvent(change_list, curr_event->ident, EVFILT_WRITE, EV_ENABLE, 0, 0, curr_event->udata);	//write 이벤트 발생
-	std::cout << "request header" << std::endl;
-	std::cout << this->eventData->request.getHeaders() << std::endl;
-    MakeResponse(eventData->request);
+    try
+	{
+	    MakeResponse(eventData->request);
+    }
+	catch (std::runtime_error &e)
+	{
+		std::cerr << e.what() << std::endl;
+		std::cerr << eventData->request.getMethod() << " " << eventData->request.getFullPath() << std::endl;
+	}
 }
 
 void    Webserv::MakeResponse(const Request &request) {
@@ -162,17 +164,14 @@ void    Webserv::MakeResponse(const Request &request) {
 	if (request.getScheme().find("1.1") == std::string::npos)
 	{
 		this->eventData->response.setStatusCode(Response::BAD_REQUEST);
-		std::cout << "wrong http version" << std::endl;
+		throw std::runtime_error("wrong http version");
 	}
 
 	std::map<int, bool> limit_excepts = wit->get_locations()[location_idx].get_limit_excepts();
     if (method == "GET" &&  limit_excepts[METHOD_GET])
         this->eventData->response.handleGET(eventData->request, wit->get_locations()[location_idx].get_index());
     else if (method == "POST" && limit_excepts[METHOD_POST])
-	{
-		std::cout << "POSTPOSTPOSTPOSTPOSTPOST" << std::endl;
         this->eventData->response.handlePOST(eventData->request);
-	}
     else if (method == "PUT" && limit_excepts[METHOD_PUT])
         this->eventData->response.handlePOST(eventData->request);
     else if (method == "DELETE" && limit_excepts[METHOD_DELETE])
@@ -180,6 +179,6 @@ void    Webserv::MakeResponse(const Request &request) {
     else {
 		this->eventData->response.setStatusCode(Response::METHOD_NOT_ALLOWED);
 		this->eventData->response.setHttpVersion("HTTP/1.1");
-        std::cout << "wrong method" << std::endl;
+	    throw std::runtime_error("wrong http method : " + request.getMethod());
 	}
 }

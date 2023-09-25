@@ -1,18 +1,10 @@
-#!/usr/bin/env python
+#!/usr/bin/python3
 
-# Required for Python 2.x compatibility
-# from __future__ import print_function
-
-# Import the CGI module
 # import cgi
 
-# Print the Content-Type header
-# print("Content-Type: text/html\n")
-
-# Start the HTML content
 print("<html>")
 print("<head><title>Simple CGI Example</title></head>")
-print("<body> hihi")
+print("<body> 000")
 
 # Get data from the form if it exists
 # form = cgi.FieldStorage()

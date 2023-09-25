@@ -253,7 +253,7 @@ void Response::handlePOST(const Request &request) {
 		closedir(dir_info);
 		return ;
 	}
-	closedir(dir_info);
+//	closedir(dir_info);
 	this->SetCgiResponse(request);
 }
 
@@ -302,7 +302,6 @@ void    Response::SetCgiResponse(const Request &request) {
 void    Response::SendResponse(int fd) {
 	std::string toSend;
 
-
 	// 임시 하드코딩
 	toSend += this->httpVersion;
 	toSend += " " + std::to_string(this->statusCode);
@@ -315,21 +314,11 @@ void    Response::SendResponse(int fd) {
 		toSend += "Content-Length: " + std::to_string(this->body.size()) + "\r\n";
 	if (!this->connection.empty())
 		toSend += "Connection: " + this->connection + "\r\n";
-	//header end
-	// std::cout << "body : ";
-	// for(int i = 0; i < this->body.size(); i++)
-	// 	std::cout << this->body[i];
-	// std::cout << std::endl;
-
-
 	toSend += "\r\n";
 
 	std::string tmp(this->body.begin(), this->body.end());
 
-
 	toSend += tmp;
-	std::cout << "response\n" << toSend << std::endl;
-	// std::cout << toSend << std::endl;
 	fcntl(fd, F_SETFL, O_NONBLOCK, FD_CLOEXEC); // write함수 non-block으로 변환
 	if (send(fd, toSend.c_str(), toSend.size(), 0) == -1)
 		throw std::runtime_error("write error");

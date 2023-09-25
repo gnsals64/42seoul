@@ -9,7 +9,7 @@ std::vector<char> CgiHandler::generateProcess(const Request &request)
 {
     int to_cgi[2];
     int from_cgi[2];
-  
+
     this->cgi_path = request.getFullPath();
 
     std::string query_string = "";
@@ -47,20 +47,28 @@ std::vector<char> CgiHandler::generateProcess(const Request &request)
 
         fillEnv(request, query_string);
 
-        if (request.getMethod() == "POST")
-        {
-          // Read POST data from parent process through stdin
-            char buffer[4048];
-            ssize_t bytesRead;
-            while ((bytesRead = read(to_cgi[1], buffer, sizeof(buffer))) > 0)
-            {
-                std::cerr << to_cgi[0] << std::endl;
-                // Process POST data as needed
-                write(to_cgi[1], buffer, bytesRead);
-            }
-            close(to_cgi[1]);
-        }
-        execve(this->cgi_path.c_str(), NULL, envp.data());
+//        if (request.getMethod() == "POST")
+//        {
+//          // Read POST data from parent process through stdin
+//            char buffer[4096];
+//            ssize_t bytesRead;
+//            while ((bytesRead = read(to_cgi[1], buffer, sizeof(buffer))) > 0)
+//            {
+//                // Process POST data as needed
+//                write(to_cgi[0], buffer, bytesRead);
+//            }
+//            close(to_cgi[1]);
+//        }
+		if (request.getPath().find(".bla") != std::string::npos)
+		{
+			std::cerr << "test .bla" << std::endl;
+			execve("./cgi_tester", NULL, envp.data());
+		}
+		else
+		{
+			std::cerr << "not test .bla" << std::endl;
+        	execve(this->cgi_path.c_str(), NULL, envp.data());
+		}
         throw std::runtime_error("cgi execute failed");
     }
     else
@@ -79,7 +87,7 @@ std::vector<char> CgiHandler::generateProcess(const Request &request)
             close(to_cgi[1]);
         }
 
-        char buff[2048];
+        char buff[4096];
         ssize_t bytesRead;
         std::vector<char> body;
 
@@ -88,7 +96,6 @@ std::vector<char> CgiHandler::generateProcess(const Request &request)
         {
             for (int i = 0; i < bytesRead; i++)
                 body.push_back(buff[i]);
-        //   body.append(buff, bytesRead);
         }
         close(from_cgi[0]);
 
@@ -103,7 +110,7 @@ void CgiHandler::fillEnv(const Request &request, std::string query_string)
 {
     if (request.getMethod() == "POST")
     {
-        env["CONTENT_LENGTH"] = "1000";
+        env["CONTENT_LENGTH"] = "1000000000";
         env["CONTENT_TYPE"] = request.getContentType();
     }
 	env["PATH_INFO"] = this->cgi_path;
@@ -111,18 +118,6 @@ void CgiHandler::fillEnv(const Request &request, std::string query_string)
 		env["QUERY_STRING"] = query_string;
 	env["REQUEST_METHOD"] = request.getMethod();
 	env["SERVER_PROTOCOL"] = "HTTP/1.1";
-
-    std::cerr << "req = " << env["REQUEST_METHOD"] << std::endl;
-    if (request.getMethod() == "POST")
-    {
-        std::cerr << "len = " << env["CONTENT_LENGTH"] << std::endl;
-        std::cerr << "type = " << env["CONTENT_TYPE"] << std::endl;
-    }
-    std::cerr << "path = " << env["PATH_INFO"] << std::endl;
-    if (request.getMethod() == "GET")
-        std::cerr << "que = " << env["QUERY_STRING"] << std::endl;
-    std::cerr << "ser = "<< env["SERVER_PROTOCOL"] << std::endl;
-
   	convertEnv();
 }
 

@@ -113,6 +113,17 @@ std::vector<char> Request::getBody() const
 	return (this->body);
 }
 
+std::string Request::getBodyStr() const
+{
+	return (this->body_str);
+}
+
+std::string Request::getBodyCharToStr() const
+{
+	std::string temp(this->body.begin(), this->body.end());
+	return (temp);
+}
+
 std::string Request::getHeaders() const
 {
 	return (this->headers);
@@ -141,6 +152,11 @@ void	Request::pushPostBody(char data)
 void	Request::BodyAppendVec(std::vector<char> data)
 {
 	this->body.insert(this->body.end(), data.begin(), data.end());
+}
+
+void	Request::appendBodyStr(std::string data)
+{
+	this->body_str.append(data);
 }
 
 void	Request::setContentType(std::string type) {
@@ -173,7 +189,7 @@ void	Request::removeCRLF()
 
 int	Request::Findrn0rn(std::string temp)
 {
-	if (temp.find("\r\n0\r\n") != std::string::npos)
+	if (temp.find("0\r\n") != std::string::npos)
 		return (1);
 	else
 		return (0);

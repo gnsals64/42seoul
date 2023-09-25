@@ -274,8 +274,9 @@ void	Worker::chunkBodyParse(Request &req, Response &res)
 {
 	size_t	byte;
 	std::vector <std::string> line_parse;
-	std::vector <char> body = req.getBody();
-	std::string tmp_body(body.begin(), body.end());
+	std::string tmp_body = req.getBodyStr();
+	// std::vector <char> body = req.getBody();
+	// std::string tmp_body(body.begin(), body.end());
 
 	line_parse = this->splitArgs(tmp_body, "\r\n");
 	req.setBodyClear();

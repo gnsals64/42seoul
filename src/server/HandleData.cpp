@@ -13,6 +13,7 @@ int	Webserv::SockReceiveData(void) {
 	else if (find(server_sockets.begin(), server_sockets.end(), curr_event->ident) == server_sockets.end())
 	{
 		eventData = (struct workerData *)curr_event->udata;
+		buffer.clear();
 		buffer.resize(BUFFER_SIZE);
 		mapter = find_fd.find(curr_event->ident);
 		for (wit = workers.begin(); wit != workers.end(); ++wit)
@@ -70,8 +71,6 @@ int	Webserv::StartReceiveData(int len) {
 
 int	Webserv::ReadHeader(void) {
 	std::string temp_data(buffer.begin(), buffer.end());
-	// std::cout << "read = " << temp_data << std::endl;
-	// std::cout << "fuck" << std::endl;
 	eventData->request.appendHeader(temp_data);
 	eventData->request.BodyAppendVec(buffer);
 	size_t pos = eventData->request.getHeaders().find("\r\n\r\n");
@@ -93,10 +92,17 @@ int	Webserv::ReadHeader(void) {
 		else if (eventData->request.getHeaders().find("Transfer-Encoding") != std::string::npos)
 		{
 			eventData->request.AddRNRNOneTime();
-			if (eventData->request.Findrn0rn(temp) == 1)
+			if (eventData->request.Findrn0rn(eventData->request.getBodyCharToStr()) == 1)
 				eventData->request.setState(READ_FINISH);
 			else
 				eventData->request.setState(BODY_READ);
+			// eventData->request.appendBodyStr(temp_data);
+			// std::string temp_str = eventData->request.getBodyStr();
+			// if (eventData->request.Findrn0rn(temp_str) == 1)
+			// 	eventData->request.setState(READ_FINISH);
+			// else
+			// 	eventData->request.setState(BODY_READ);
+
 		}
 		else
 			eventData->request.setState(READ_FINISH);
@@ -114,8 +120,23 @@ void	Webserv::ReadBody(void) {
 			eventData->request.setState(READ_FINISH);
 	}
 	else if (eventData->request.getHeaders().find("Transfer-Encoding") != std::string::npos)
+	{
+		std::cout << "body_size = " << eventData->request.getBody().size() << std::endl;
 		if (eventData->request.Findrn0rn(temp) == 1)
 			eventData->request.setState(READ_FINISH);
+		// if (eventData->request.getBody().size() < 10)
+		// {
+		// 	eventData->request.appendBodyStr(temp);
+		// 	std::string temp_str = eventData->request.getBodyStr();
+		// 	if (eventData->request.Findrn0rn(temp_str) == 1)
+		// 		eventData->request.setState(READ_FINISH);
+		// }
+		// else
+		// {
+		// 	if (eventData->request.Findrn0rn(temp) == 1)
+		// 		eventData->request.setState(READ_FINISH);
+		// }
+	}
 }
 
 void	Webserv::ReadFinish(void) {
@@ -125,8 +146,6 @@ void	Webserv::ReadFinish(void) {
 		eventData->request.RemoveRNRNOneTime();
 		wit->chunkBodyParse(eventData->request, eventData->response);
 	}
-	std::vector <char> body = eventData->request.getBody();
-	std::string tmp_body(body.begin(), body.end());
 	ChangeEvent(change_list, curr_event->ident, EVFILT_READ, EV_DISABLE, 0, 0, curr_event->udata);
 	ChangeEvent(change_list, curr_event->ident, EVFILT_WRITE, EV_ENABLE, 0, 0, curr_event->udata);	//write 이벤트 발생
     try

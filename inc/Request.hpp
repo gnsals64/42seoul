@@ -18,6 +18,7 @@ class Request : public Transaction{
         std::vector <std::string> host;
         std::string	connection;
         std::string	contentLength;
+		std::string	body_str;
 		int	state;
 
 	public:
@@ -45,8 +46,11 @@ class Request : public Transaction{
 		int	getState() const;
 		std::vector<char> getBody() const;
         std::string getContentType() const;
+		std::string getBodyStr() const;
+		std::string getBodyCharToStr() const;
 
 		void	appendHeader(std::string data);
+		void	appendBodyStr(std::string data);
 		void	pushPostBody(char data);
 		void	BodyAppendVec(std::vector<char> data);
 		void	removeCRLF();

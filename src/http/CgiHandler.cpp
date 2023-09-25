@@ -47,19 +47,19 @@ std::vector<char> CgiHandler::generateProcess(const Request &request)
 
         fillEnv(request, query_string);
 
-        if (request.getMethod() == "POST")
-        {
-          // Read POST data from parent process through stdin
-            char buffer[4048];
-            ssize_t bytesRead;
-            while ((bytesRead = read(to_cgi[1], buffer, sizeof(buffer))) > 0)
-            {
-                std::cerr << to_cgi[0] << std::endl;
-                // Process POST data as needed
-                write(to_cgi[1], buffer, bytesRead);
-            }
-            close(to_cgi[1]);
-        }
+        // if (request.getMethod() == "POST")
+        // {
+        //   // Read POST data from parent process through stdin
+        //     char buffer[4048];
+        //     ssize_t bytesRead;
+        //     while ((bytesRead = read(to_cgi[1], buffer, sizeof(buffer))) > 0)
+        //     {
+        //         std::cerr << to_cgi[0] << std::endl;
+        //         // Process POST data as needed
+        //         write(to_cgi[1], buffer, bytesRead);
+        //     }
+        //     close(to_cgi[1]);
+        // }
 		if (request.getPath().find(".bla") != std::string::npos)
 		{
 			std::cout << "test .bla" << std::endl;

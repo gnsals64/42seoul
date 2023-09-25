@@ -16,16 +16,16 @@ void	Webserv::Run(void)
 			throw Worker::keventError();
 		}
 		change_list.clear();
-		
+
 		for (int i = 0; i < n; i++)
 		{
 			curr_event = &events[i];
-			
+
 			if (curr_event->flags & EV_ERROR)
 				continue ;
 			if (curr_event->filter == EVFILT_READ)
 			{
-				if (SockReceiveData() == -1)
+				if (SockReceiveData() == -1 && i != 1)
 					continue ;
 			}
 			else if (events[i].filter == EVFILT_WRITE)

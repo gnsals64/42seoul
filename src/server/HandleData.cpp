@@ -20,8 +20,6 @@ int	Webserv::SockReceiveData(void) {
 			if (wit->get_server_socket() == mapter->second)
 				break ;
 		ssize_t len = readData(curr_event->ident, buffer.data(), BUFFER_SIZE);
-		//std::cout << buffer.data() << "\n" << std::endl;
-		//데이터 읽기
 		if (len > 0)
 		{
 			if (StartReceiveData(len) == -1)
@@ -92,17 +90,11 @@ int	Webserv::ReadHeader(void) {
 		else if (eventData->request.getHeaders().find("Transfer-Encoding") != std::string::npos)
 		{
 			eventData->request.AddRNRNOneTime();
-			if (eventData->request.Findrn0rn(eventData->request.getBodyCharToStr()) == 1)
+			std::string temp = eventData->request.getBodyCharToStr();
+			if (eventData->request.Findrn0rn(temp) == 1)
 				eventData->request.setState(READ_FINISH);
 			else
 				eventData->request.setState(BODY_READ);
-			// eventData->request.appendBodyStr(temp_data);
-			// std::string temp_str = eventData->request.getBodyStr();
-			// if (eventData->request.Findrn0rn(temp_str) == 1)
-			// 	eventData->request.setState(READ_FINISH);
-			// else
-			// 	eventData->request.setState(BODY_READ);
-
 		}
 		else
 			eventData->request.setState(READ_FINISH);
@@ -121,15 +113,18 @@ void	Webserv::ReadBody(void) {
 	}
 	else if (eventData->request.getHeaders().find("Transfer-Encoding") != std::string::npos)
 	{
-		std::cout << "body_size = " << eventData->request.getBody().size() << std::endl;
 		if (eventData->request.Findrn0rn(temp) == 1)
 			eventData->request.setState(READ_FINISH);
+	}
 }
 
 void	Webserv::ReadFinish(void) {
 	wit->requestHeaderParse(eventData->request);
 	if (eventData->request.getHeaders().find("Transfer-Encoding") != std::string::npos)
+	{
+		eventData->request.RemoveRNRNOneTime();
 		wit->chunkBodyParse(eventData->request, eventData->response);
+	}
 	ChangeEvent(change_list, curr_event->ident, EVFILT_READ, EV_DISABLE, 0, 0, curr_event->udata);
 	ChangeEvent(change_list, curr_event->ident, EVFILT_WRITE, EV_ENABLE, 0, 0, curr_event->udata);	//write 이벤트 발생
 	try

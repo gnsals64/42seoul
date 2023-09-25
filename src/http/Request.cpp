@@ -6,7 +6,7 @@ Request::Request()
 	this->path = "";
 	this->scheme = "";
 	this->connection = "";
-	this->contentLength = "";
+	this->contentLength = "0";
 	this->state = HEADER_READ;
 }
 
@@ -189,31 +189,10 @@ void	Request::removeCRLF()
 
 int	Request::Findrn0rn(std::string temp)
 {
-	if (temp.find("0\r\n") != std::string::npos)
+	if (temp.find("\r\n0\r\n") != std::string::npos)
 		return (1);
 	else
 		return (0);
-	// std::vector <char>::iterator it;
-	// for (it = this->body.begin(); it != this->body.end(); it++)
-	// {
-	// 	if (*it == '\r')
-	// 	{
-	// 		if (it + 1 < this->body.end() && *(it + 1) == '\n')
-	// 		{
-	// 			if (it + 2 < this->body.end() && *(it + 2) == '0')
-	// 			{
-	// 				if (it + 3 < this->body.end() && *(it + 3) == '\r')
-	// 				{
-	// 					if (it + 4 < this->body.end() && *(it + 4) == '\n')
-	// 					{
-	// 						return (1);
-	// 					}
-	// 				}
-	// 			}
-	// 		}
-	// 	}
-	// }
-	// return (0);
 }
 
 void	Request::AddRNRNOneTime()
@@ -227,40 +206,3 @@ void	Request::RemoveRNRNOneTime()
 	this->body.erase(this->body.begin());
 	this->body.erase(this->body.begin());
 }
-
-// void Request::parsingFromData(std::string data)
-// {
-//     // max size_error 가정
-//     //throw std::runtime_error("client body size error");
-
-//     //test code
-// 	std::stringstream stream;
-// 	stream.str(data);
-
-//     std::string method;
-//     stream >> method;
-//     stream >> this->path;
-
-// 	std::string s;
-// 	while (stream >> s)
-// 	{
-// 		if (s == "Content-Length:")
-// 			stream >> this->contentLength;
-// 		if (s == "Content-Type:")
-// 			stream >> this->contentType;
-// 	}
-
-// 	size_t bodyStart = data.find("\r\n\r\n") + 4; // 빈 줄 다음부터 본문
-//     this->body = data.substr(bodyStart, this->contentLength);
-
-
-//     this->host.push_back("localhost:8080");
-//     if (method == "GET")
-//         this->httpMethod = "GET";
-//     else if (method == "POST")
-//         this->httpMethod = "POST";
-//     else if (method == "PUT")
-//         this->httpMethod = "PUT";
-//     else if (method == "DELETE")
-//         this->httpMethod = "DELETE";
-// }

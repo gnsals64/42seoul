@@ -3,6 +3,7 @@
 
 Response::Response()
 {
+	this->contentLength = 0;
 }
 
 Response::~Response()

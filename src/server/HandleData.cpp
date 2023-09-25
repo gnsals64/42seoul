@@ -13,6 +13,7 @@ int	Webserv::SockReceiveData(void) {
 	else if (find(server_sockets.begin(), server_sockets.end(), curr_event->ident) == server_sockets.end())
 	{
 		eventData = (struct workerData *)curr_event->udata;
+		buffer.clear();
 		buffer.resize(BUFFER_SIZE);
 		mapter = find_fd.find(curr_event->ident);
 		for (wit = workers.begin(); wit != workers.end(); ++wit)
@@ -70,8 +71,6 @@ int	Webserv::StartReceiveData(int len) {
 
 int	Webserv::ReadHeader(void) {
 	std::string temp_data(buffer.begin(), buffer.end());
-	// std::cout << "read = " << temp_data << std::endl;
-	// std::cout << "fuck" << std::endl;
 	eventData->request.appendHeader(temp_data);
 	eventData->request.BodyAppendVec(buffer);
 	size_t pos = eventData->request.getHeaders().find("\r\n\r\n");
@@ -92,10 +91,18 @@ int	Webserv::ReadHeader(void) {
 		}
 		else if (eventData->request.getHeaders().find("Transfer-Encoding") != std::string::npos)
 		{
-			if (eventData->request.Findrn0rn() == 1)
+			eventData->request.AddRNRNOneTime();
+			if (eventData->request.Findrn0rn(eventData->request.getBodyCharToStr()) == 1)
 				eventData->request.setState(READ_FINISH);
 			else
 				eventData->request.setState(BODY_READ);
+			// eventData->request.appendBodyStr(temp_data);
+			// std::string temp_str = eventData->request.getBodyStr();
+			// if (eventData->request.Findrn0rn(temp_str) == 1)
+			// 	eventData->request.setState(READ_FINISH);
+			// else
+			// 	eventData->request.setState(BODY_READ);
+
 		}
 		else
 			eventData->request.setState(READ_FINISH);
@@ -105,6 +112,7 @@ int	Webserv::ReadHeader(void) {
 
 void	Webserv::ReadBody(void) {
 	eventData->request.BodyAppendVec(buffer);
+	std::string temp(buffer.begin(), buffer.end());
 	if (eventData->request.getHeaders().find("Content-Length") != std::string::npos)
 	{
 		size_t body_size = wit->checkContentLength(eventData->request.getHeaders());
@@ -112,7 +120,9 @@ void	Webserv::ReadBody(void) {
 			eventData->request.setState(READ_FINISH);
 	}
 	else if (eventData->request.getHeaders().find("Transfer-Encoding") != std::string::npos)
-		if (eventData->request.Findrn0rn() == 1)
+	{
+		std::cout << "body_size = " << eventData->request.getBody().size() << std::endl;
+		if (eventData->request.Findrn0rn(temp) == 1)
 			eventData->request.setState(READ_FINISH);
 }
 

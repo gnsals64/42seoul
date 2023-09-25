@@ -225,7 +225,7 @@ void	Worker::parseOther(Request &req, std::vector<std::string> line_parse, int l
 		else if (colon_parse[0] == "Content-Length")
 			this->parseContentLength(req, colon_parse);
 		else if (colon_parse[0] == "Content-Type")
-			req.setContentType(colon_parse[1]);	
+			req.setContentType(colon_parse[1]);
 	}
 }
 
@@ -274,9 +274,10 @@ void	Worker::chunkBodyParse(Request &req, Response &res)
 {
 	size_t	byte;
 	std::vector <std::string> line_parse;
-	std::string tmp_body;
-	for (int i = 0; i < req.getBody().size(); i++)
-		tmp_body.push_back(req.getBody()[i]);
+	std::string tmp_body = req.getBodyStr();
+	// std::vector <char> body = req.getBody();
+	// std::string tmp_body(body.begin(), body.end());
+
 	line_parse = this->splitArgs(tmp_body, "\r\n");
 	req.setBodyClear();
 	for (int i = 0; i < line_parse.size(); i++)
@@ -299,8 +300,8 @@ void	Worker::chunkBodyParse(Request &req, Response &res)
 				res.setStatusCode(400);
 			for (int j = 0; j < line_parse[i].size(); j++)
 				req.pushPostBody(line_parse[i][j]);
-			req.pushPostBody('\r');
-			req.pushPostBody('\n');
+			// req.pushPostBody('\r');
+			// req.pushPostBody('\n');
 		}
 	}
 }

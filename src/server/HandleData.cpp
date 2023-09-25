@@ -124,31 +124,15 @@ void	Webserv::ReadBody(void) {
 		std::cout << "body_size = " << eventData->request.getBody().size() << std::endl;
 		if (eventData->request.Findrn0rn(temp) == 1)
 			eventData->request.setState(READ_FINISH);
-		// if (eventData->request.getBody().size() < 10)
-		// {
-		// 	eventData->request.appendBodyStr(temp);
-		// 	std::string temp_str = eventData->request.getBodyStr();
-		// 	if (eventData->request.Findrn0rn(temp_str) == 1)
-		// 		eventData->request.setState(READ_FINISH);
-		// }
-		// else
-		// {
-		// 	if (eventData->request.Findrn0rn(temp) == 1)
-		// 		eventData->request.setState(READ_FINISH);
-		// }
-	}
 }
 
 void	Webserv::ReadFinish(void) {
 	wit->requestHeaderParse(eventData->request);
 	if (eventData->request.getHeaders().find("Transfer-Encoding") != std::string::npos)
-	{
-		eventData->request.RemoveRNRNOneTime();
 		wit->chunkBodyParse(eventData->request, eventData->response);
-	}
 	ChangeEvent(change_list, curr_event->ident, EVFILT_READ, EV_DISABLE, 0, 0, curr_event->udata);
 	ChangeEvent(change_list, curr_event->ident, EVFILT_WRITE, EV_ENABLE, 0, 0, curr_event->udata);	//write 이벤트 발생
-    try
+	try
 	{
 	    MakeResponse(eventData->request);
     }

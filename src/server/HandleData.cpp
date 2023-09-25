@@ -64,7 +64,7 @@ int	Webserv::StartReceiveData(int len) {
 	//바디파싱
 	else if (eventData->request.getState() == BODY_READ)
 		ReadBody();
-	
+
 	return 0;
 }
 
@@ -122,9 +122,15 @@ void	Webserv::ReadFinish(void) {
 		wit->chunkBodyParse(eventData->request, eventData->response);
 	ChangeEvent(change_list, curr_event->ident, EVFILT_READ, EV_DISABLE, 0, 0, curr_event->udata);
 	ChangeEvent(change_list, curr_event->ident, EVFILT_WRITE, EV_ENABLE, 0, 0, curr_event->udata);	//write 이벤트 발생
-	std::cout << "request header" << std::endl;
-	std::cout << this->eventData->request.getHeaders() << std::endl;
-    MakeResponse(eventData->request);
+	try
+	{
+	    MakeResponse(eventData->request);
+    }
+	catch (std::runtime_error &e)
+	{
+		std::cerr << e.what() << std::endl;
+		std::cerr << eventData->request.getMethod() << " " << eventData->request.getFullPath() << std::endl;
+	}
 }
 
 void    Webserv::MakeResponse(const Request &request) {
@@ -139,15 +145,19 @@ void    Webserv::MakeResponse(const Request &request) {
 	int location_idx = 0;
 	for(int i = 0; i < wit->get_locations().size(); i++)
 	{
-		if (request.getPath().find(wit->get_locations()[i].get_uri()) == 0) {
+		if (request.getPath().find(wit->get_locations()[i].get_uri()) != std::string::npos) {
+			if (wit->get_locations()[i].get_uri().length() != 1)
+			{
+				location_idx = i;
+				break ;
+			}
 			location_idx = i;
-			break ;
 		}
 	}
 	if (request.getScheme().find("1.1") == std::string::npos)
 	{
 		this->eventData->response.setStatusCode(Response::BAD_REQUEST);
-		std::cout << "wrong http version" << std::endl;
+		throw std::runtime_error("wrong http version");
 	}
 
 	std::map<int, bool> limit_excepts = wit->get_locations()[location_idx].get_limit_excepts();
@@ -162,6 +172,6 @@ void    Webserv::MakeResponse(const Request &request) {
     else {
 		this->eventData->response.setStatusCode(Response::METHOD_NOT_ALLOWED);
 		this->eventData->response.setHttpVersion("HTTP/1.1");
-        std::cout << "wrong method" << std::endl;
+	    throw std::runtime_error("wrong http method : " + request.getMethod());
 	}
 }

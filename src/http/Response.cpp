@@ -3,7 +3,11 @@
 
 Response::Response()
 {
-	this->contentLength = 0;
+	this->statusCode = OK;
+	this->connection = "keep-alive";
+	this->contentType = "text/html";
+	this->httpVersion = "HTTP/1.1";
+	this->location = "";
 }
 
 Response::~Response()
@@ -56,7 +60,6 @@ void Response::readFileToBody(const std::string &path)
 		line += "\r\n";
 		for (int i = 0; i < line.length(); i++)
 			this->body.push_back(line[i]);
-		// this->body += line;
 	}
 	fin.close();
 }
@@ -65,7 +68,6 @@ void Response::generateBody(const Request &request, const std::string index)
 {
 	std::string final_path = request.getFullPath();
 	int check_res = this->checkPath(final_path);
-//	std::cerr << "first: " << check_res << std::endl;
 	if (check_res == 1) // autoindex 해야하는 상황
 	{
 		this->generateBody_AutoIndexing(request);
@@ -77,9 +79,7 @@ void Response::generateBody(const Request &request, const std::string index)
 		int last_slash = final_path.find_last_of("/");
 		std::string last_dir = final_path.substr(0, last_slash + 1);
 		final_path = last_dir + index;
-//		std::cerr << request.getFullPath() << " -> " << last_dir << " -> " << final_path << std::endl;
 		int second_check = this->checkPath(final_path);
-//		std::cerr << "second: " << second_check << std::endl;
 		if (second_check == 0)
 		{
 			this->statusCode = NOT_FOUND;
@@ -126,44 +126,6 @@ void Response::generateBody_AutoIndexing(const Request &request)
 	this->body = v1;
 }
 
-// void Response::parsingFromRequest(Worker &worker, const Request &request)
-// {
-//     if (request.getPath().find("cgi") != std::string::npos)
-//     {
-//         CgiHandler cgi;
-//         this->statusCode = OK;
-//         this->connection = "keep-alive";
-//         this->contentType = "text/html";
-//         this->httpVersion = "1.1";
-//         this->location = "";
-// //       this->body = "hello";
-//         this->body = cgi.executeCgi(request);
-//         return ;
-//     }
-
-//     std::string method = request.getMethod();
-
-//     switch (method)
-//     {
-//         case GET:
-//             handleGET(worker, request);
-//             break;
-//         case POST:
-//             handlePOST(worker, request);
-//             break;
-//         case PUT:
-//             handlePUT(worker, request);
-//             break;
-//         case DELETE:
-//             handleDELETE(worker, request);
-//             break;
-//         default:
-//             // 올바르지 않은 http 메서드에 대한 에러 처리 함수 (인자는 아직 미정)
-//             // handleInvalidMethod();
-//             break;
-//     }
-// }
-
 int Response::checkPath(const std::string path)
 {
 	struct stat buf;
@@ -202,37 +164,32 @@ std::vector<std::string> Response::getFilesInDirectory(const std::string &dirPat
 	return ret;
 }
 
-void Response::handleBodySizeLimit()
-{
-	this->statusCode = CONTENT_TOO_LARGE;
-	this->connection = "close";
-	this->readFileToBody(ERROR_PAGE_413_PATH);
-	this->contentLength = this->body.size();
-	this->contentType = "text/html";
-}
-
-void Response::handleBadRequest()
-{
-	this->httpVersion = "HTTP/1.1";
-	this->statusCode = NOT_FOUND;
-	this->connection = "close";
-	this->readFileToBody(ERROR_PAGE_404_PATH);
-	this->contentLength = this->body.size();
-	this->contentType = "text/html";
-}
-
-// void Response::setBody(const std::string body) {
-//     this->body = body;
+// void Response::handleBodySizeLimit()
+// {
+// 	this->statusCode = CONTENT_TOO_LARGE;
+// 	this->connection = "close";
+// 	this->readFileToBody(ERROR_PAGE_413_PATH);
+// 	this->contentLength = this->body.size();
+// 	this->contentType = "text/html";
 // }
 
+// void Response::handleBadRequest()
+// {
+// 	this->httpVersion = "HTTP/1.1";
+// 	this->statusCode = NOT_FOUND;
+// 	this->connection = "close";
+// 	this->readFileToBody(ERROR_PAGE_404_PATH);
+// 	this->contentLength = this->body.size();
+// 	this->contentType = "text/html";
+// }
 
 void Response::handleGET(const Request &request, const std::string index)
 {
-	this->statusCode = OK;
-	this->connection = "keep-alive";
-	this->contentType = "text/html";
-	this->httpVersion = request.getScheme();
-	this->location = "";
+	// this->statusCode = OK;
+	// this->connection = "keep-alive";
+	// this->contentType = "text/html";
+	// this->httpVersion = request.getScheme();
+	// this->location = "";
 	try
 	{
 		generateBody(request, index);
@@ -254,8 +211,7 @@ void Response::handlePOST(const Request &request) {
 		closedir(dir_info);
 		return ;
 	}
-//	closedir(dir_info);
-	this->SetCgiResponse(request);
+	// this->SetCgiResponse(request);
 }
 
 void Response::handlePUT(const Request &request) {}
@@ -290,15 +246,9 @@ void Response::setStatusCode(int data)
 	this->statusCode = data;
 }
 
-void    Response::SetCgiResponse(const Request &request) {
-	CgiHandler cgi;
-	this->statusCode = OK;
-	this->connection = "keep-alive";
-	this->contentType = "text/html";
-	this->httpVersion = request.getScheme();
-	this->location = "";
-	this->body = cgi.executeCgi(request);
-}
+// void    Response::SetCgiResponse(const Request &request) {
+// 	cgi.executeChildProcess(request);
+// }
 
 void    Response::SendResponse(int fd) {
 	std::string toSend;
@@ -320,7 +270,6 @@ void    Response::SendResponse(int fd) {
 	std::string tmp(this->body.begin(), this->body.end());
 
 	toSend += tmp;
-	fcntl(fd, F_SETFL, O_NONBLOCK, FD_CLOEXEC); // write함수 non-block으로 변환
 	if (send(fd, toSend.c_str(), toSend.size(), 0) == -1)
 		throw std::runtime_error("write error");
 }

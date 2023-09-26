@@ -5,6 +5,7 @@
 # include "Transaction.hpp"
 # include "Request.hpp"
 # include "BlockParser.hpp"
+# include "CgiHandler.hpp"
 
 # define BUFFER_SIZE 100000
 # define RED "\033[31m"
@@ -12,10 +13,17 @@
 
 const std::string CRLF = "\r\n";
 
+enum WhichEvent {
+	CLIENTEVENT,
+	CGIEVENT
+};
+
 struct workerData
 {
 	Request	request;
 	Response response;
+	WhichEvent event;
+	CgiHandler cgi;
 };
 
 class Webserv {
@@ -47,6 +55,7 @@ class Webserv {
 		void	SockSendData(void);
 		void	MakeResponse(const Request &request);
 		void	ChangeEvent(std::vector<struct kevent>& change_list, uintptr_t ident, int16_t filter,	uint16_t flags, uint32_t fflags, intptr_t data, void *udata);
+		void	SetCgiEvent(void);
 
     public:
 		Webserv();

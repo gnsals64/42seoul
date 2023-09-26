@@ -20,16 +20,23 @@ void	Webserv::Run(void)
 		for (int i = 0; i < n; i++)
 		{
 			curr_event = &events[i];
+			eventData = (struct workerData *)curr_event->udata;
 
 			if (curr_event->flags & EV_ERROR)
 				continue ;
-			if (curr_event->filter == EVFILT_READ)
+			if (eventData->event == CLIENTEVENT && curr_event->filter == EVFILT_READ)
 			{
 				if (SockReceiveData() == -1 && i != 1)
 					continue ;
 			}
-			else if (events[i].filter == EVFILT_WRITE)
+			else if (eventData->event == CLIENTEVENT && curr_event->filter == EVFILT_WRITE)
 				SockSendData();
+			else if (eventData->event == CGIEVENT && curr_event->filter == EVFILT_READ)
+			;
+			else if (eventData->event == CGIEVENT && curr_event->filter == EVFILT_WRITE)
+			;
+			else
+			;
 		}
 	}
 }

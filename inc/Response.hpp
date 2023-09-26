@@ -37,7 +37,6 @@ class Response : public Transaction
         ~Response();
 
         void parsingFromRequest(Worker &worker, const Request &request);
-        // void send(int fd);
         void handleBodySizeLimit();
         void handleBadRequest();
         void setBody(const std::string body);
@@ -49,9 +48,6 @@ class Response : public Transaction
         void handleDELETE(const Request &request);
         void setStatusCode(int data);
         void setHttpVersion(std::string version);
-
-        void SetCgiResponse(const Request &request);
-
         std::string deleteCheck(std::string path) const;
 
         enum HttpStatusCode

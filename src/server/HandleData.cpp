@@ -12,7 +12,7 @@ int	Webserv::SockReceiveData(void) {
 	//클라이언트 등록이 되어있을때 read
 	else if (find(server_sockets.begin(), server_sockets.end(), curr_event->ident) == server_sockets.end())
 	{
-		eventData = (struct workerData *)curr_event->udata;
+		// eventData = (struct workerData *)curr_event->udata;
 		buffer.clear();
 		buffer.resize(BUFFER_SIZE);
 		mapter = find_fd.find(curr_event->ident);
@@ -42,6 +42,7 @@ int	Webserv::SockReceiveData(void) {
 }
 
 void	Webserv::SockSendData(void) {
+	MakeResponse(this->eventData->request);
 	int	client_sock = curr_event->ident;
 	this->eventData->response.SendResponse(client_sock);
 	std::map<int, int>::iterator tmp_fd_iter = find_fd.find(curr_event->ident);
@@ -125,28 +126,26 @@ void	Webserv::ReadFinish(void) {
 		eventData->request.RemoveRNRNOneTime();
 		wit->chunkBodyParse(eventData->request, eventData->response);
 	}
+	if (this->eventData->request.getPath().find(".py") != std::string::npos
+		|| this->eventData->request.getMethod() == "POST")
+    {
+        this->eventData->cgi.executeChildProcess(this->eventData->request);
+		this->SetCgiEvent();
+		return ;
+    }
 	ChangeEvent(change_list, curr_event->ident, EVFILT_READ, EV_DISABLE, 0, 0, curr_event->udata);
 	ChangeEvent(change_list, curr_event->ident, EVFILT_WRITE, EV_ENABLE, 0, 0, curr_event->udata);	//write 이벤트 발생
-	try
-	{
-	    MakeResponse(eventData->request);
-    }
-	catch (std::runtime_error &e)
-	{
-		std::cerr << e.what() << std::endl;
-		std::cerr << eventData->request.getMethod() << " " << eventData->request.getFullPath() << std::endl;
-	}
+}
+
+void	Webserv::SetCgiEvent(void) {
+	this->eventData->event = CGIEVENT;
+	ChangeEvent(change_list, this->eventData->cgi.getReadFd(), EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, this->eventData);
+	ChangeEvent(change_list, this->eventData->cgi.getWriteFd(), EVFILT_WRITE, EV_ADD | EV_ENABLE, 0, 0, this->eventData);
+	fcntl(this->eventData->cgi.getReadFd(), F_SETFL, O_NONBLOCK, FD_CLOEXEC);
+	fcntl(this->eventData->cgi.getWriteFd(), F_SETFL, O_NONBLOCK, FD_CLOEXEC);
 }
 
 void    Webserv::MakeResponse(const Request &request) {
-    if (this->eventData->request.getPath().find(".py") != std::string::npos)
-    {
-        this->eventData->response.SetCgiResponse(request);
-        return ;
-    }
-
-    std::string method = this->eventData->request.getMethod();
-
 	int location_idx = 0;
 	for(int i = 0; i < wit->get_locations().size(); i++)
 	{
@@ -159,20 +158,21 @@ void    Webserv::MakeResponse(const Request &request) {
 			location_idx = i;
 		}
 	}
-	if (request.getScheme().find("1.1") == std::string::npos)
-	{
-		this->eventData->response.setStatusCode(Response::BAD_REQUEST);
-		throw std::runtime_error("wrong http version");
-	}
+	/* should be handled right after reading request */
+	// if (request.getScheme().find("1.1") == std::string::npos)
+	// {
+	// 	this->eventData->response.setStatusCode(Response::BAD_REQUEST);
+	// 	throw std::runtime_error("wrong http version");
+	// }
 
 	std::map<int, bool> limit_excepts = wit->get_locations()[location_idx].get_limit_excepts();
-    if (method == "GET" &&  limit_excepts[METHOD_GET])
+    if (request.getMethod() == "GET" &&  limit_excepts[METHOD_GET])
         this->eventData->response.handleGET(eventData->request, wit->get_locations()[location_idx].get_index());
-    else if (method == "POST" && limit_excepts[METHOD_POST])
+    else if (request.getMethod() == "POST" && limit_excepts[METHOD_POST])
         this->eventData->response.handlePOST(eventData->request);
-    else if (method == "PUT" && limit_excepts[METHOD_PUT])
-        this->eventData->response.handlePOST(eventData->request);
-    else if (method == "DELETE" && limit_excepts[METHOD_DELETE])
+    // else if (method == "PUT" && limit_excepts[METHOD_PUT])
+    //     this->eventData->response.handlePOST(eventData->request);
+    else if (request.getMethod() == "DELETE" && limit_excepts[METHOD_DELETE])
         this->eventData->response.handleDELETE(eventData->request);
     else {
 		this->eventData->response.setStatusCode(Response::METHOD_NOT_ALLOWED);

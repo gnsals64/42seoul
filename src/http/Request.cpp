@@ -15,6 +15,21 @@ Request::~Request()
 
 }
 
+Request& Request::operator=(const Request& request)
+{
+	this->headers = request.headers;
+	this->httpMethod = request.httpMethod;
+	this->path = request.path;
+	this->full_path = request.full_path;
+	this->scheme = request.scheme;
+	this->host = request.host;
+	this->connection = request.connection;
+	this->contentLength = request.contentLength;
+	this->body_str = request.body_str;
+	this->state = request.state;
+	return *this;
+}
+
 void	Request::setMethod(std::string method)
 {
 	this->httpMethod = method;
@@ -183,8 +198,6 @@ void	Request::removeCRLF()
 			}
 		}
 	}
-	// this->body.insert(body.begin(), '\n');
-	// this->body.insert(body.begin(), '\r');
 }
 
 int	Request::Findrn0rn(std::string temp)

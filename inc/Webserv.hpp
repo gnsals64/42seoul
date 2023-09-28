@@ -2,6 +2,7 @@
 # define WEBSERV_HPP
 
 # include "Worker.hpp"
+# include "WorkerData.hpp"
 # include "Transaction.hpp"
 # include "Request.hpp"
 # include "BlockParser.hpp"
@@ -12,19 +13,6 @@
 # define RESET "\033[0m"
 
 const std::string CRLF = "\r\n";
-
-enum WhichEvent {
-	CLIENTEVENT,
-	CGIEVENT
-};
-
-struct workerData
-{
-	Request	request;
-	Response response;
-	WhichEvent event;
-	CgiHandler cgi;
-};
 
 class Webserv {
 	private:
@@ -38,7 +26,7 @@ class Webserv {
 		std::vector<Worker>::iterator	wit;
 		std::map<int, int>::iterator	mapter;
 		std::map<int, std::string>		status_messages;
-		struct workerData				*eventData;
+		WorkerData	        			*eventData;
 		std::vector<char>				buffer;
 		struct kevent					events[1024];
 
@@ -52,10 +40,14 @@ class Webserv {
 		int		ReadHeader(void);
 		void	ReadBody(void);
 		void	ReadFinish(void);
+		void    AddCgiEvent(void);
+		void    CheckRequestError(void);
 		void	SockSendData(void);
 		void	MakeResponse(const Request &request);
 		void	ChangeEvent(std::vector<struct kevent>& change_list, uintptr_t ident, int16_t filter,	uint16_t flags, uint32_t fflags, intptr_t data, void *udata);
 		void	SetCgiEvent(void);
+		void    WriteCgiInput(void);
+		void    ReadCgiResponse(void);
 
     public:
 		Webserv();

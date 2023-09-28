@@ -24,6 +24,8 @@ class Request : public Transaction{
 	public:
 		Request();
 		~Request();
+		Request& operator=(const Request& request);
+
 		void	setMethod(std::string method);
 		void	setPath(std::string path);
         void    setFullPath(std::string full_path);

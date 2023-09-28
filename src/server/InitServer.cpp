@@ -44,8 +44,7 @@ int	Webserv::ConnectNewClient(void) {
 	if (tmp_cli_sock== -1)
 		return -1 ;
 	fcntl(tmp_cli_sock, F_SETFL, O_NONBLOCK);
-	struct workerData	*udata = new (struct workerData);
-	udata->event = CLIENTEVENT;
+	WorkerData *udata = new WorkerData(*new Request(), *new Response(), *new CgiHandler(), CLIENTEVENT);
 	ChangeEvent(change_list, tmp_cli_sock, EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, udata);
 	ChangeEvent(change_list, tmp_cli_sock, EVFILT_WRITE, EV_ADD | EV_DISABLE, 0, 0, udata);
 	find_fd[tmp_cli_sock] = curr_event->ident;

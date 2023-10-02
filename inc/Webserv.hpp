@@ -16,21 +16,21 @@ const std::string CRLF = "\r\n";
 
 class Webserv {
 	private:
-		int								kq;
-		std::vector<struct kevent>		change_list;
-		std::map<int, int>				find_fd;
-		std::vector<Worker>				workers;
-		struct kevent					*curr_event;
-		std::vector<int>				server_sockets;
+		int								kq_;
+		std::vector<struct kevent>		change_list_;
+		std::map<int, int>				find_fd_;
+		std::vector<Worker>				workers_;
+		struct kevent					*curr_event_;
+		std::vector<int>				server_sockets_;
 		std::vector<int>::iterator		it;
-		std::vector<Worker>::iterator	wit;
-		std::map<int, int>::iterator	mapter;
-		std::map<int, std::string>		status_messages;
-		WorkerData	        			*eventData;
-		std::vector<char>				buffer;
-		struct kevent					events[1024];
+		std::vector<Worker>::iterator	wit_;
+		std::map<int, int>::iterator	mapter_;
+		std::map<int, std::string>		status_messages_;
+		WorkerData	        			*eventData_;
+		std::vector<char>				buffer_;
+		struct kevent					events_[1024];
 
-		ssize_t	readData(int fd, char *buffer, size_t buffer_size);
+		ssize_t	readData(int fd, char *buffer_, size_t buffer_size);
 		void	ReadyToConnect(int i);
 		void	send_response(int client_socket, int status_code, const std::string &content);
 		void	handle_request(int client_socket);
@@ -44,7 +44,7 @@ class Webserv {
 		void    CheckRequestError(void);
 		void	SockSendData(void);
 		void	MakeResponse(const Request &request);
-		void	ChangeEvent(std::vector<struct kevent>& change_list, uintptr_t ident, int16_t filter,	uint16_t flags, uint32_t fflags, intptr_t data, void *udata);
+		void	ChangeEvent(std::vector<struct kevent>& change_list_, uintptr_t ident, int16_t filter,	uint16_t flags, uint32_t fflags, intptr_t data, void *udata);
 		void	SetCgiEvent(void);
 		void    WriteCgiInput(void);
 		void    ReadCgiResponse(void);

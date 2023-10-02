@@ -7,22 +7,18 @@ WorkerData::WorkerData(Request &request, Response &response, CgiHandler &cgi, Ev
 
 WorkerData::~WorkerData() {}
 
-Request& WorkerData::getRequest()
-{
+Request& WorkerData::getRequest() {
 	return (this->request);
 }
 
-Response& WorkerData::getResponse()
-{
+Response& WorkerData::getResponse() {
 	return (this->response);
 }
 
-CgiHandler& WorkerData::getCgiHandler()
-{
+CgiHandler& WorkerData::getCgiHandler() {
 	return (this->cgi);
 }
 
-EventType WorkerData::getEventType() const
-{
+EventType WorkerData::getEventType() const {
 	return (this->event);
 }

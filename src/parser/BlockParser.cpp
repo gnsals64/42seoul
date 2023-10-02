@@ -18,8 +18,8 @@ int	CheckBlock(std::string filename, ConfigParser *parser) {
 
 	if (ifs.is_open() == false)
 		return (-1);
-	parser->init_parserclass();
-	parser->start_parsing(&ifs);
-	parser->print_parse_error(filename);
+	parser->InitParserClass();
+	parser->StartParsing(&ifs);
+	parser->PrintParseError(filename);
 	return (0);
 }

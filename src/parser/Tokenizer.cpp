@@ -1,6 +1,6 @@
 #include "../../inc/BlockParser.hpp"
 
-ConfigParser::TokenType	ConfigParser::tokenization(std::istream *file, std::string *token) {
+ConfigParser::TokenType	ConfigParser::Tokenization(std::istream *file, std::string *token) {
 	if (file->eof())
 		return TOKEN_TYPE_EOF;
 	if (file->good() == false) {
@@ -40,7 +40,7 @@ ConfigParser::TokenType	ConfigParser::tokenization(std::istream *file, std::stri
 				while (true) {
 					*token += c;
 					c = file->get();
-					if (is_char_true(c)) {
+					if (IsCharTrue(c)) {
 						file->unget();
 						return TOKEN_TYPE_NORMAL;
 					}
@@ -50,24 +50,24 @@ ConfigParser::TokenType	ConfigParser::tokenization(std::istream *file, std::stri
 	}
 }
 
-int	ConfigParser::block_token_check(std::string token) {
+int	ConfigParser::BlockTokenCheck(std::string token) {
 	if (token == "http") {
 		if (check_.http_ == true) {
-			set_errorbit(2);
+			setErrorbit(2);
 			return -1;
 		}
 		check_.http_ = true;
 	}
 	if (token == "server") {
 		if (check_.server_ == true) {
-			set_errorbit(3);
+			setErrorbit(3);
 			return -1;
 		}
 		check_.server_ = true;
 	}
 	if (token == "location") {
 		if (check_.location_ == true) {
-			set_errorbit(4);
+			setErrorbit(4);
 			return -1;
 		}
 		check_.location_ = true;
@@ -75,7 +75,7 @@ int	ConfigParser::block_token_check(std::string token) {
 	return 0;
 }
 
-void	ConfigParser::push_back_line(std::string token, std::string *line) {
+void	ConfigParser::PushBackLine(std::string token, std::string *line) {
 	if (check_.http_ == true && check_.server_ == false && check_.location_ == false) {
 		save_line_.push_back(*line);
 		(*line).clear();
@@ -90,7 +90,7 @@ void	ConfigParser::push_back_line(std::string token, std::string *line) {
 	}
 }
 
-void	ConfigParser::start_parsing(std::istream *file) {
+void	ConfigParser::StartParsing(std::istream *file) {
 	TokenType	token_type = TOKEN_TYPE_DEFAULT;
 	TokenType	last_type = TOKEN_TYPE_DEFAULT;
 	std::string	line;
@@ -98,15 +98,15 @@ void	ConfigParser::start_parsing(std::istream *file) {
 
 	while (true) {
 		std::string	token;
-		token_type = tokenization(file, &token);
+		token_type = Tokenization(file, &token);
 
 		if (token_type == TOKEN_TYPE_NORMAL) {
 			if (last_type == TOKEN_TYPE_NEWLINE || last_type == TOKEN_TYPE_DEFAULT )
-				if (block_token_check(token) == -1)
+				if (BlockTokenCheck(token) == -1)
 					break ;
 			line += token;
             token_tmp = token;
-			push_back_line(token, &line);
+			PushBackLine(token, &line);
 		}
 
 		if (token_type == TOKEN_TYPE_ERROR || last_type == TOKEN_TYPE_ERROR) {
@@ -120,16 +120,16 @@ void	ConfigParser::start_parsing(std::istream *file) {
 
 		if (token_type == TOKEN_TYPE_SEMICOLON) {
 			if (last_type == TOKEN_TYPE_START_BLOCK || last_type == TOKEN_TYPE_END_BLOCK || last_type == TOKEN_TYPE_SEMICOLON) {
-				last_type = set_errorbit(1);
+				last_type = setErrorbit(1);
 				continue ;
 			}
 			line += token;
-			push_back_line(token, &line);
+			PushBackLine(token, &line);
 		}
 
 		if (token_type == TOKEN_TYPE_NEWLINE) {
 			if (last_type == TOKEN_TYPE_NORMAL) {
-                last_type = set_errorbit(1);
+                last_type = setErrorbit(1);
                 continue ;
             }
 			line_num_++;
@@ -137,31 +137,31 @@ void	ConfigParser::start_parsing(std::istream *file) {
 
 		if (token_type == TOKEN_TYPE_START_BLOCK) {
 			if (last_type == TOKEN_TYPE_SEMICOLON) {
-				last_type = set_errorbit(1);
+				last_type = setErrorbit(1);
 				continue;
 			}
 			if (check_.http_ == true && token_tmp == "http") {
 					line += token;
 					last_type = token_type;
-					push_back_line(token, &line);
+					PushBackLine(token, &line);
 					token_tmp.clear();
 					continue ;
 			}
 			if (check_.server_ == true && token_tmp == "server") {
 					line += token;
 					last_type = token_type;
-					push_back_line(token, &line);
+					PushBackLine(token, &line);
 					token_tmp.clear();
 					continue ;
 			}
             if (check_.location_ == true && token_tmp.front() == '/') {
                 line += token;
                 last_type = token_type;
-                push_back_line(token, &line);
+                PushBackLine(token, &line);
                 token_tmp.clear();
                 continue ;
             }
-			last_type = set_errorbit(1);
+			last_type = setErrorbit(1);
 			continue;
 		}
 		if (token_type == TOKEN_TYPE_END_BLOCK) {
@@ -194,7 +194,7 @@ void	ConfigParser::start_parsing(std::istream *file) {
                 check_.location_ = false;
                 continue ;
             }
-			last_type = set_errorbit(1);
+			last_type = setErrorbit(1);
 			continue;
 		}
 		last_type = token_type;

@@ -17,7 +17,7 @@
 
 class Transaction {
 protected:
-    std::string httpVersion;
+    std::string httpversion;
     std::string connection;
     std::string location; // 300번대 응답에서 redirect 시 사용.
     std::string contentType;

@@ -26,8 +26,7 @@ enum ResponseType {
 	CGI
 };
 
-class Response : public Transaction
-{
+class Response : public Transaction {
     private:
         int statusCode;
 		ResponseType type;
@@ -55,7 +54,7 @@ class Response : public Transaction
         void handlePUT(const Request &request);
         void handleDELETE(const Request &request);
         void setStatusCode(int data);
-        void setHttpVersion(std::string version);
+        void sethttpversion(std::string version);
 		void pushBackBody(char c);
         std::string deleteCheck(std::string path) const;
 		void printBody() const;

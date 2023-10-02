@@ -1,6 +1,6 @@
 #include "../../inc/BlockParser.hpp"
 
-int		ConfigParser::print_parse_error(std::string filename){
+int		ConfigParser::PrintParseError(std::string filename){
 	if (get_errorbit()) {
 		if (get_errorline() == -1)
 			std::cout << "error" << std::endl;

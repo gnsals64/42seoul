@@ -1,7 +1,6 @@
 #include "../../inc/CgiHandler.hpp"
 
-CgiHandler::CgiHandler()
-{
+CgiHandler::CgiHandler() {
 	this->state = NOT_CALLED;
     this->query_string = "";
 	this->client_write_ident = -1;
@@ -9,8 +8,7 @@ CgiHandler::CgiHandler()
 
 CgiHandler::~CgiHandler() {}
 
-CgiHandler& CgiHandler::operator=(const CgiHandler& cgi)
-{
+CgiHandler& CgiHandler::operator=(const CgiHandler& cgi) {
 	this->pid = cgi.pid;
 	this->to_cgi[0] = cgi.to_cgi[0];
 	this->to_cgi[1] = cgi.to_cgi[1];
@@ -23,23 +21,19 @@ CgiHandler& CgiHandler::operator=(const CgiHandler& cgi)
 	return *this;
 }
 
-pid_t CgiHandler::getPid() const
-{
+pid_t CgiHandler::getPid() const {
     return (this->pid);
 }
 
-int CgiHandler::getWriteFd() const
-{
+int CgiHandler::getWriteFd() const {
     return (this->to_cgi[1]);
 }
 
-int CgiHandler::getReadFd() const
-{
+int CgiHandler::getReadFd() const {
     return (this->from_cgi[0]);
 }
 
-void CgiHandler::executeChildProcess(const Request &request)
-{
+void CgiHandler::executeChildProcess(const Request &request) {
     this->cgi_path = request.getFullPath();
 
     if (request.getMethod() == "GET") {
@@ -85,8 +79,7 @@ void CgiHandler::executeChildProcess(const Request &request)
     }
 }
 
-void CgiHandler::fillEnv(const Request &request)
-{
+void CgiHandler::fillEnv(const Request &request) {
     if (request.getMethod() == "POST")
     {
         env["CONTENT_LENGTH"] = "1000000000";
@@ -100,8 +93,7 @@ void CgiHandler::fillEnv(const Request &request)
   	convertEnv();
 }
 
-void CgiHandler::convertEnv()
-{
+void CgiHandler::convertEnv() {
     std::map<std::string, std::string>::iterator it;
     for (it = env.begin(); it != env.end(); it++)
     {
@@ -114,46 +106,38 @@ void CgiHandler::convertEnv()
 	// 끝나고 envp 돌면서 delete 해주기 (+ 구조 바꿀 생각도...)
 }
 
-void CgiHandler::closePipeBeforeRead()
-{
+void CgiHandler::closePipeBeforeRead() {
 //	close(to_cgi[0]);
 //	close(to_cgi[1]);
 //	close(from_cgi[1]);
 }
 
-void CgiHandler::closePipeBeforeWrite()
-{
+void CgiHandler::closePipeBeforeWrite() {
 	close(to_cgi[0]);
 	close(from_cgi[1]);
 }
 
-void CgiHandler::closePipeAfterRead()
-{
+void CgiHandler::closePipeAfterRead() {
 	close(from_cgi[0]);
 }
 
-void CgiHandler::closePipeAfterWrite()
-{
+void CgiHandler::closePipeAfterWrite() {
 	close(to_cgi[1]);
 //	close(from_cgi[0]);
 }
 
-CgiState CgiHandler::getState() const
-{
+CgiState CgiHandler::getState() const {
 	return (this->state);
 }
 
-void CgiHandler::setState(CgiState state)
-{
+void CgiHandler::setState(CgiState state) {
 	this->state = state;
 }
 
-void CgiHandler::setClientWriteIdent(uintptr_t ident)
-{
+void CgiHandler::setClientWriteIdent(uintptr_t ident) {
 	this->client_write_ident = ident;
 }
 
-uintptr_t CgiHandler::getClientWriteIdent() const
-{
+uintptr_t CgiHandler::getClientWriteIdent() const {
 	return (this->client_write_ident);
 }

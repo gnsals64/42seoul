@@ -4,13 +4,13 @@
 
 void	Webserv::Run(void) {
 	for (int i = 0; i < workers_.size(); i++)
-		server_sockets_.push_back(workers_[i].getServerSocket());
+		server_sockets_.push_back(workers_[i].GetServerSocket());
 	while (true) {
 		int	n = kevent(kq_, &change_list_[0], change_list_.size(), events_, 1024, NULL);
 		if (n == -1) {
 			for (int j = 0; j < workers_.size(); j++)
-				close(workers_[j].getPort());
-			throw Worker::keventError();
+				close(workers_[j].GetPort());
+			throw Worker::KeventError();
 		}
 		change_list_.clear();
 

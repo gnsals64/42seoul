@@ -1,7 +1,7 @@
 #include "../../inc/Request.hpp"
 
 Request::Request() {
-	this->httpMethod = "";
+	this->httpmethod_ = "";
 	this->path = "";
 	this->scheme = "";
 	this->connection = "";
@@ -14,8 +14,8 @@ Request::~Request() {
 }
 
 Request& Request::operator=(const Request& request) {
-	this->headers = request.headers;
-	this->httpMethod = request.httpMethod;
+	this->headers_ = request.headers_;
+	this->httpmethod_ = request.httpmethod_;
 	this->path = request.path;
 	this->full_path = request.full_path;
 	this->scheme = request.scheme;
@@ -28,7 +28,7 @@ Request& Request::operator=(const Request& request) {
 }
 
 void	Request::setMethod(std::string method) {
-	this->httpMethod = method;
+	this->httpmethod_ = method;
 }
 
 void	Request::setPath(std::string path) {
@@ -68,7 +68,7 @@ void	Request::setState(int data) {
 }
 
 void	Request::setHeaders(std::string data) {
-	this->headers = data;
+	this->headers_ = data;
 }
 
 void	Request::setBodyClear() {
@@ -76,7 +76,7 @@ void	Request::setBodyClear() {
 }
 
 std::string	Request::getMethod() const {
-	return (this->httpMethod);
+	return (this->httpmethod_);
 }
 
 std::string Request::getFullPath() const {
@@ -117,7 +117,7 @@ std::string Request::getBodyCharToStr() const {
 }
 
 std::string Request::getHeaders() const {
-	return (this->headers);
+	return (this->headers_);
 }
 
 int	Request::getState() const {
@@ -129,7 +129,7 @@ std::string Request::getContentType() const {
 }
 
 void	Request::appendHeader(std::string data) {
-	this->headers.append(data);
+	this->headers_.append(data);
 }
 
 void	Request::pushPostBody(char data) {

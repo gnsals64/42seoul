@@ -10,8 +10,8 @@
 
 class Request : public Transaction{
 	private:
-		std::string headers;
-		std::string httpMethod;
+		std::string headers_;
+		std::string httpmethod_;
         std::string path;
         std::string full_path;
         std::string	scheme;

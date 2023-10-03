@@ -36,7 +36,7 @@ class ConfigParser {
 
 		bool		IsCharTrue(char c);
 		TokenType	Tokenization(std::istream *file, std::string *token);
-		TokenType	setErrorbit(int errorcode);
+		TokenType	SetErrorbit(int errorcode);
 		int			BlockTokenCheck(std::string token);
 		void		PushBackLine(std::string token, std::string *line);
 
@@ -44,17 +44,33 @@ class ConfigParser {
      	std::vector<std::string>				save_line_;
    		std::vector<std::string>				v_server_;
     	std::vector<std::vector<std::string> >	server_;
-		void		StartParsing(std::istream *file);
-		void		InitParserClass(void);
-		int			get_errorbit(void);
-		int			get_errorline(void);
-		int			PrintParseError(std::string filename);
-		std::vector<std::string>	get_directives(void);
-		std::vector<std::string>	get_server_i(int i);
-		std::vector<std::vector<std::string> >	getServer(void);
+
+		void									CheckHttpBlock(void);
+		void									StartParsing(std::istream *file);
+		void									InitParserClass(void);
+		void									PrintParseError(std::string filename);
+		int										GetErrorbit(void);
+		int										GetErrorline(void);
+		std::vector<std::string>				GetDirectives(void);
+		std::vector<std::string>				GetServerIndex(int i);
+		std::vector<std::vector<std::string> >	GetServer(void);
+		
+		class	ConfFileNameError : public std::exception {
+			public :
+				virtual const char	*what() const throw();
+		};
+		class	ConfFileOpenError : public std::exception {
+			public :
+				virtual const char	*what() const throw();
+		};
+		class	ConfFileError : public std::exception {
+			public :
+				virtual const char	*what() const throw();
+		};
 };
 
-int		CheckExtension(std::string filename);
-int		CheckBlock(std::string filename, ConfigParser *parser);
+void	CheckExtension(std::string filename);
+void	CheckBlock(std::string filename, ConfigParser *parser);
+
 
 #endif

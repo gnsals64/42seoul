@@ -1,6 +1,6 @@
 #include "../../inc/BlockParser.hpp"
 
-ConfigParser::TokenType	ConfigParser::setErrorbit(int errorcode) {
+ConfigParser::TokenType	ConfigParser::SetErrorbit(int errorcode) {
 	error_bit_ = errorcode;
 	error_line_ = line_num_;
 	return (TOKEN_TYPE_ERROR);
@@ -18,21 +18,21 @@ void	ConfigParser::InitParserClass(void) {
 	error_line_ = 0;
 }
 
-int		ConfigParser::get_errorbit(void) {
+int		ConfigParser::GetErrorbit(void) {
 	return error_bit_;
 }
 
-int		ConfigParser::get_errorline(void) {
+int		ConfigParser::GetErrorline(void) {
 	return error_line_;
 }
 
-std::vector<std::string> ConfigParser::get_directives(void) {
+std::vector<std::string> ConfigParser::GetDirectives(void) {
 	return save_line_;
 }
 
-std::vector<std::vector<std::string> > ConfigParser::getServer(void) {
+std::vector<std::vector<std::string> > ConfigParser::GetServer(void) {
 	return server_;
 }
-std::vector<std::string> ConfigParser::get_server_i(int i) {
+std::vector<std::string> ConfigParser::GetServerIndex(int i) {
 	return server_[i];
 }

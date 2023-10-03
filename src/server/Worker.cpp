@@ -1,80 +1,80 @@
 #include "../../inc/Worker.hpp"
 
-Worker::Worker() : server_socket(0), port(80), root("default"), index("index.html"), server_names(0), client_max_body_size(0) {
-	server_socket = socket(AF_INET, SOCK_STREAM, 0);
+Worker::Worker() : server_socket_(0), port_(80), root_("default"), index_("index.html"), server_names_(0), client_max_body_size_worker_(0) {
+	server_socket_ = socket(AF_INET, SOCK_STREAM, 0);
 	const int value = 1;
-	setsockopt(server_socket, SOL_SOCKET, SO_REUSEADDR, &value, sizeof(value));
-	this->error_pages[404] = "404.html";
+	setsockopt(server_socket_, SOL_SOCKET, SO_REUSEADDR, &value, sizeof(value));
+	this->error_pages_[404] = "404.html";
 }
 
 Worker::~Worker() {}
 
-void Worker::set_server_socket(int server_socket) {
-    this->server_socket = server_socket;
+void Worker::SetServerSocket(int server_socket_) {
+    this->server_socket_ = server_socket_;
 }
 
-int Worker::getServerSocket() {
-    return this->server_socket;
+int Worker::GetServerSocket() {
+    return this->server_socket_;
 }
 
-void Worker::setPort(int port) {
-    this->port = port;
+void Worker::SetPort(int port) {
+    this->port_ = port;
 }
 
-int Worker::getPort() {
-    return this->port;
+int Worker::GetPort() {
+    return this->port_;
 }
 
-void	Worker::setRoot(std::string& root) {
-	this->root = root;
+void	Worker::SetRoot(std::string& root) {
+	this->root_ = root;
 }
 
-const	std::string& Worker::getRoot() const {
-	return this->root;
+const	std::string& Worker::GetRoot() const {
+	return this->root_;
 }
 
-void	Worker::setIndex(std::string& index) {
-	this->index = index;
+void	Worker::SetIndex(std::string& index) {
+	this->index_ = index;
 }
 
-const	std::string& Worker::getIndex() const {
-	return this->index;
+const	std::string& Worker::GetIndex() const {
+	return this->index_;
 }
 
 
 void Worker::AddServerName(std::string& server_name) {
-    this->server_names.push_back(server_name);
+    this->server_names_.push_back(server_name);
 }
 
-const std::vector<std::string>& Worker::get_server_names() const {
-    return this->server_names;
+const std::vector<std::string>& Worker::GetServerNames() const {
+    return this->server_names_;
 }
 
-void Worker::setClientMaxBodySize(size_t size) {
-    this->client_max_body_size = size;
+void Worker::SetClientMaxBodySize(size_t size) {
+    this->client_max_body_size_worker_ = size;
 }
 
-size_t Worker::get_client_max_body_size() const {
-    return this->client_max_body_size;
+size_t Worker::GetClientMaxBodySize() const {
+    return this->client_max_body_size_worker_;
 }
 
 void Worker::AddLocations(const Location& location) {
-    this->locations.push_back(location);
+    this->locations_.push_back(location);
 }
 
-const std::vector<Location>& Worker::get_locations() const {
-    return this->locations;
+const std::vector<Location>& Worker::GetLocations() const {
+    return this->locations_;
 }
 
 void	Worker::AddErrorPage(int err_no, std::string& error_page) {
-	this->error_pages[err_no] =  error_page;
+	this->error_pages_[err_no] =  error_page;
 }
 
-const	std::map<int, std::string>& Worker::get_error_page() const {
-	return this->error_pages;
+const	std::map<int, std::string>& Worker::GetErrorPage() const {
+	return this->error_pages_;
 }
 
-std::vector<std::string> Worker::splitArgs(std::string line, std::string sep) {
+std::vector<std::string> Worker::SplitArgs(std::string line, std::string sep) {
 	std::vector<std::string> str;
 	size_t	start = 0;
 	size_t	end = 0;
@@ -93,7 +93,7 @@ std::vector<std::string> Worker::splitArgs(std::string line, std::string sep) {
 	return (str);
 }
 
-size_t Worker::myStoi(std::string str) {
+size_t Worker::MyStoi(std::string str) {
 	int len = str.size();
 	int sum = 0;
 	for (int i = len - 1, p = 1; i >= 0; i--, p *= 10)
@@ -106,10 +106,10 @@ size_t Worker::myStoi(std::string str) {
 	return  sum;
 }
 
-size_t	Worker::checkContentLength(std::string headers) {
+size_t	Worker::CheckContentLength(std::string headers) {
 	size_t	len = 0;
 	std::string length = "";
-	std::vector <std::string> tmp = this->splitArgs(headers, "\r\n");
+	std::vector <std::string> tmp = this->SplitArgs(headers, "\r\n");
 	for (size_t i = 0; i < tmp.size(); i++)
 	{
 		if (tmp[i].find("Content-Length: ") != std::string::npos)
@@ -118,11 +118,11 @@ size_t	Worker::checkContentLength(std::string headers) {
 		}
 	}
 	if (length != "")
-		len = this->myStoi(length);
+		len = this->MyStoi(length);
 	return (len);
 }
 
-std::vector <std::string> Worker::split(std::string input, char dlim, int &result_cnt) {
+std::vector <std::string> Worker::Split(std::string input, char dlim, int &result_cnt) {
 	std::vector<std::string> result;
 
 	std::stringstream ss;
@@ -137,23 +137,23 @@ std::vector <std::string> Worker::split(std::string input, char dlim, int &resul
 	return result;
 }
 
-void	Worker::reqFirstLineParse(Request &req, std::string first_line) {
+void	Worker::ReqFirstLineParse(Request &req, std::string first_line) {
 	int	tmp = 0;
 	std::vector <std::string> fir_line_parse;
-	fir_line_parse = this->split(first_line, ' ', tmp);
+	fir_line_parse = this->Split(first_line, ' ', tmp);
 	req.setMethod(fir_line_parse[0]);
-	// for (int i = 0; i < this->get_locations().size(); i++)
+	// for (int i = 0; i < this->GetLocations().size(); i++)
 	// {
-	// 	if (req.getPath() == get_locations()[i].get_uri())
+	// 	if (req.getPath() == GetLocations()[i].GetUri())
 	// 		break ;
 	// 	else
 	// }
 	req.setPath(fir_line_parse[1]);
-    req.setFullPath(this->root + req.getPath());
+    req.setFullPath(this->root_ + req.getPath());
 	req.setScheme(fir_line_parse[2]);
 }
 
-void	Worker::parseHost(Request &req, std::vector<std::string> colon_parse) {
+void	Worker::ParseHost(Request &req, std::vector<std::string> colon_parse) {
 	int	i = 1;
 	std::string	tmp;
 	while (colon_parse[1][i])
@@ -167,7 +167,7 @@ void	Worker::parseHost(Request &req, std::vector<std::string> colon_parse) {
 	req.pushBackHost(colon_parse[2]);
 }
 
-void	Worker::parseConnection(Request &req, std::vector<std::string> colon_parse) {
+void	Worker::ParseConnection(Request &req, std::vector<std::string> colon_parse) {
 	int	i = 1;
 	std::string	tmp;
 	while (colon_parse[1][i])
@@ -180,7 +180,7 @@ void	Worker::parseConnection(Request &req, std::vector<std::string> colon_parse)
 	req.setConnection(tmp);
 }
 
-void	Worker::parseContentLength(Request &req, std::vector<std::string> colon_parse) {
+void	Worker::ParseContentLength(Request &req, std::vector<std::string> colon_parse) {
 	int	i = 1;
 	std::string tmp;
 	while (colon_parse[1][i])
@@ -193,35 +193,35 @@ void	Worker::parseContentLength(Request &req, std::vector<std::string> colon_par
 	req.setContentLength(tmp);
 }
 
-void	Worker::parseOther(Request &req, std::vector<std::string> line_parse, int line_cnt) {
+void	Worker::ParseOther(Request &req, std::vector<std::string> line_parse, int line_cnt) {
 	int tmp;
 	std::vector <std::string> colon_parse;
 	for (int i = 1; i < line_cnt; i++)
 	{
 		tmp = 0;
-		colon_parse = this->split(line_parse[i], ':', tmp);
+		colon_parse = this->Split(line_parse[i], ':', tmp);
 		if (colon_parse.size() == 0)
 			continue ;
 		if (colon_parse[0] == "Host")
-			this->parseHost(req, colon_parse);
+			this->ParseHost(req, colon_parse);
 		else if (colon_parse[0] == "Connection")
-			this->parseConnection(req, colon_parse);
+			this->ParseConnection(req, colon_parse);
 		else if (colon_parse[0] == "Content-Length")
-			this->parseContentLength(req, colon_parse);
+			this->ParseContentLength(req, colon_parse);
 		else if (colon_parse[0] == "Content-Type")
 			req.setContentType(colon_parse[1]);
 	}
 }
 
-void	Worker::requestHeaderParse(Request &req) {
+void	Worker::RequestHeaderParse(Request &req) {
 	int	line_cnt = 0;
 	std::vector <std::string> line_parse;
 	std::string header = req.getHeaders();
 
-	line_parse = this->splitArgs(header, "\r\n");
-	this->reqFirstLineParse(req, line_parse[0]);
+	line_parse = this->SplitArgs(header, "\r\n");
+	this->ReqFirstLineParse(req, line_parse[0]);
 	line_cnt = line_parse.size();
-	this->parseOther(req, line_parse, line_cnt);
+	this->ParseOther(req, line_parse, line_cnt);
 	//std::cout << "head = " << req.getHeaders() << std::endl;
 	// std::cout << "method : " << req.getMethod() << std::endl;
 	// std::cout << "path : " << req.getPath() << std::endl;
@@ -241,9 +241,9 @@ void	Worker::requestHeaderParse(Request &req) {
 // {
 // 	int	method;
 
-// 	for(int i = 0; i < this->get_locations().size(); i++)
+// 	for(int i = 0; i < this->GetLocations().size(); i++)
 // 	{
-// 		if (this->get_locations()[i].getRoot() == req.getPath())
+// 		if (this->GetLocations()[i].GetRoot() == req.getPath())
 // 		break ;
 // 	}
 // 	if (req.getMethod() == "GET")
@@ -253,20 +253,20 @@ void	Worker::requestHeaderParse(Request &req) {
 // 	else if (req.getMethod() == )
 // }
 
-void	Worker::chunkBodyParse(Request &req, Response &res) {
+void	Worker::ChunkBodyParse(Request &req, Response &res) {
 	size_t	byte;
 	std::vector <std::string> line_parse;
 	std::string tmp_body = req.getBodyStr();
 	// std::vector <char> body = req.getBody();
 	// std::string tmp_body(body.begin(), body.end());
 
-	line_parse = this->splitArgs(tmp_body, "\r\n");
+	line_parse = this->SplitArgs(tmp_body, "\r\n");
 	req.setBodyClear();
 	for (int i = 0; i < line_parse.size(); i++)
 	{
 		if (i % 2 == 0)
 		{
-			byte = this->myStoi(line_parse[i]);
+			byte = this->MyStoi(line_parse[i]);
 			if (byte == -1)
 			{
 				res.setStatusCode(400);
@@ -291,11 +291,11 @@ void	Worker::chunkBodyParse(Request &req, Response &res) {
 // {
 // 	std::string result = "";
 // 	size_t i;
-// 	std::vector<Location> locations = this->get_locations();
+// 	std::vector<Location> locations = this->GetLocations();
 
 // 	for (i = 0; i < locations.size(); i++)
 // 	{
-// 		if (locations[i].get_uri() == this->getRequest().getPath())
+// 		if (locations[i].GetUri() == this->getRequest().getPath())
 // 			Location	target = locations[i];
 // 			if (target.getRe)
 // 	}
@@ -309,14 +309,14 @@ void	Worker::chunkBodyParse(Request &req, Response &res) {
 // 	size_t	i;
 // 	size_t	pos;
 
-// 	for (i = 0; i < this->get_locations().size(); i++)
+// 	for (i = 0; i < this->GetLocations().size(); i++)
 // 	{
-// 		pos = this->getRequest()[event_fd].getPath().find(this->get_locations()[i].get_uri());
-// 		if (pos != std::string::npos && this->get_locations()[i].get_uri().size() > slen)
+// 		pos = this->getRequest()[event_fd].getPath().find(this->GetLocations()[i].GetUri());
+// 		if (pos != std::string::npos && this->GetLocations()[i].GetUri().size() > slen)
 // 		{
-// 			str = this->get_locations()[i].get_uri();
-// 			slen = this->get_locations()[i].get_uri().size();
-// 			file = this->getRequest()[event_fd].getPath().substr(pos + this->get_locations()[i].get_uri().size());
+// 			str = this->GetLocations()[i].GetUri();
+// 			slen = this->GetLocations()[i].GetUri().size();
+// 			file = this->getRequest()[event_fd].getPath().substr(pos + this->GetLocations()[i].GetUri().size());
 // 		}
 // 	}
 // 	std::cout << str << std::endl;

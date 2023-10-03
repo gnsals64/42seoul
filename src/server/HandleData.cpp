@@ -12,7 +12,7 @@ int	Webserv::SockReceiveData(void) {
 		buffer_.resize(BUFFER_SIZE);
 		mapter_ = find_fd_.find(curr_event_->ident);
 		for (wit_ = workers_.begin(); wit_ != workers_.end(); ++wit_)
-			if (wit_->getServerSocket() == mapter_->second)
+			if (wit_->GetServerSocket() == mapter_->second)
 				break ;
 		ssize_t len = readData(curr_event_->ident, buffer_.data(), BUFFER_SIZE);
 		if (len > 0) {
@@ -81,7 +81,7 @@ int	Webserv::ReadHeader(void) {
 		eventData_->getRequest().removeCRLF();
 		if (eventData_->getRequest().getHeaders().find("Content-Length") != std::string::npos)
 		{
-			size_t body_size = wit_->checkContentLength(eventData_->getRequest().getHeaders());
+			size_t body_size = wit_->CheckContentLength(eventData_->getRequest().getHeaders());
 			if (body_size <= eventData_->getRequest().getBody().size())
 				eventData_->getRequest().setState(READ_FINISH);
 			else
@@ -107,7 +107,7 @@ void	Webserv::ReadBody(void) {
 	std::string temp(buffer_.begin(), buffer_.end());
 	if (eventData_->getRequest().getHeaders().find("Content-Length") != std::string::npos)
 	{
-		size_t body_size = wit_->checkContentLength(eventData_->getRequest().getHeaders());
+		size_t body_size = wit_->CheckContentLength(eventData_->getRequest().getHeaders());
 		if (body_size <= eventData_->getRequest().getBody().size())	//본문을 다 읽으면
 			eventData_->getRequest().setState(READ_FINISH);
 	}
@@ -119,11 +119,11 @@ void	Webserv::ReadBody(void) {
 }
 
 void	Webserv::ReadFinish(void) {
-	wit_->requestHeaderParse(eventData_->getRequest());
+	wit_->RequestHeaderParse(eventData_->getRequest());
 	if (eventData_->getRequest().getHeaders().find("Transfer-Encoding") != std::string::npos)
 	{
 		eventData_->getRequest().RemoveRNRNOneTime();
-		wit_->chunkBodyParse(eventData_->getRequest(), eventData_->getResponse());
+		wit_->ChunkBodyParse(eventData_->getRequest(), eventData_->getResponse());
 	}
 }
 
@@ -168,10 +168,10 @@ void	Webserv::SetCgiEvent(void) {
  */
 void    Webserv::MakeResponse(const Request &request) {
 	int location_idx = 0;
-	for(int i = 0; i < wit_->get_locations().size(); i++)
+	for(int i = 0; i < wit_->GetLocations().size(); i++)
 	{
-		if (request.getPath().find(wit_->get_locations()[i].get_uri()) != std::string::npos) {
-			if (wit_->get_locations()[i].get_uri().length() != 1)
+		if (request.getPath().find(wit_->GetLocations()[i].GetUri()) != std::string::npos) {
+			if (wit_->GetLocations()[i].GetUri().length() != 1)
 			{
 				location_idx = i;
 				break ;
@@ -186,9 +186,9 @@ void    Webserv::MakeResponse(const Request &request) {
 	// 	throw std::runtime_error("wrong http version");
 	// }
 
-	std::map<int, bool> limit_excepts = wit_->get_locations()[location_idx].get_limit_excepts();
+	std::map<int, bool> limit_excepts = wit_->GetLocations()[location_idx].GetLimitExcepts();
     if (request.getMethod() == "GET" &&  limit_excepts[METHOD_GET])
-        this->eventData_->getResponse().handleGET(eventData_->getRequest(), wit_->get_locations()[location_idx].getIndex());
+        this->eventData_->getResponse().handleGET(eventData_->getRequest(), wit_->GetLocations()[location_idx].GetIndex());
     else if (request.getMethod() == "POST" && limit_excepts[METHOD_POST])
         this->eventData_->getResponse().handlePOST(eventData_->getRequest());
     // else if (method == "PUT" && limit_excepts[METHOD_PUT])

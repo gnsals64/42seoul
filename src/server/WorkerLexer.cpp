@@ -1,11 +1,12 @@
 #include "../../inc/Worker.hpp"
+#include "../../inc/BlockParser.hpp"
 
-void	exitError(std::string msg) {
+void	WorkerThrowError(std::string msg) {
 	std::cerr << msg << std::endl;
-	exit(1);
+	throw ConfigParser::ConfFileError();
 }
 
-Worker setWorker_info(std::vector<std::string>& lines) {
+Worker SetWorkerInfo(std::vector<std::string>& lines) {
 	Worker worker;
 
 	//insert server tokens string : config, bool : appearance
@@ -23,7 +24,7 @@ Worker setWorker_info(std::vector<std::string>& lines) {
 		std::string line = *lineIt;
 		
 		if (line == "location") {
-			lineIt = setLocation(worker, lines, ++lineIt);
+			lineIt = SetLocation(worker, lines, ++lineIt);
 			line = *lineIt;
 		}
 
@@ -36,14 +37,14 @@ Worker setWorker_info(std::vector<std::string>& lines) {
 
 		if (tokenIt != server_tokens.end()) {
 			if (tokenIt->second && tokenIt->first != "location")
-				exitError("Error: Duplicate server token : " + line);
+				WorkerThrowError("Error: Duplicate server token : " + line);
 			else {
-				lineIt = setWorker(worker, lines, lineIt);
+				lineIt = SetWorker(worker, lines, lineIt);
 				tokenIt->second = true;
 			}
 		}
 		else
-			exitError("Error: Invalid server token : " + line);
+			WorkerThrowError("Error: Invalid server token : " + line);
 	}
 	return worker;
 }
@@ -56,9 +57,9 @@ void ParseListen(Worker& worker, const std::string& line) {
 	ss >> value >> suffix;
 
 	if (value && !suffix && value >= 0 && value <= PORT_NUM_MAX)
-		worker.setPort((int)value);
+		worker.SetPort((int)value);
 	else
-		exitError("Error: invalid port");
+		WorkerThrowError("Error: invalid port");
 }
 
 void ParseErrorPage(Worker& worker, std::vector<std::string>& lines, std::vector<std::string>::iterator& lineIt) {
@@ -73,7 +74,7 @@ void ParseErrorPage(Worker& worker, std::vector<std::string>& lines, std::vector
 		if (value && !suffix)
 			worker.AddErrorPage((int)value, *(++lineIt));
 		else
-			exitError("Error: invalid err_no");
+			WorkerThrowError("Error: invalid err_no");
 		lineIt++;
 	}
 	lineIt--;
@@ -87,14 +88,14 @@ void ParseClientMaxBodySize(Worker& worker, const std::string& line) {
 	ss >> value >> suffix;
 
 	if (!suffix && value)
-		worker.setClientMaxBodySize(value);
+		worker.SetClientMaxBodySize(value);
 	else if (tolower(suffix) == 'm')
-		worker.setClientMaxBodySize(value * 1000000);
+		worker.SetClientMaxBodySize(value * 1000000);
 	else
-		exitError("[client_max_body_size] directive invalid value");
+		WorkerThrowError("[client_max_body_size] directive invalid value");
 }
 
-std::vector<std::string>::iterator setWorker(Worker& worker, std::vector<std::string> lines, std::vector<std::string>::iterator& lineIt) {
+std::vector<std::string>::iterator SetWorker(Worker& worker, std::vector<std::string> lines, std::vector<std::string>::iterator& lineIt) {
 	const std::string& line = *lineIt;
 
 	if (line == "location")
@@ -109,12 +110,12 @@ std::vector<std::string>::iterator setWorker(Worker& worker, std::vector<std::st
 	else if (line == "client_max_body_size")
 		ParseClientMaxBodySize(worker, *(++lineIt));
 	else if (line == "root")
-		worker.setRoot(*(++lineIt));
+		worker.SetRoot(*(++lineIt));
 	else if (line == "index")
-		worker.setIndex(*(++lineIt));
+		worker.SetIndex(*(++lineIt));
 
 	lineIt++;
 	if ((*lineIt) != ";")
-		exitError("Error : semicolon not exist");
+		WorkerThrowError("Error : semicolon not exist");
 	return lineIt;
 }

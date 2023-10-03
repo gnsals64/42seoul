@@ -6,8 +6,9 @@ LDFLAGS		:=
 PARSER = $(addprefix parser/, BlockParser Location LocationLexer TokenParseError TokenUtils Tokenizer)
 SERVER = $(addprefix server/, Worker WorkerLexer Webserv ServerUtils HandleData InitServer WorkerData)
 HTTP = ${addprefix http/, Request Response CgiHandler}
+ERROR = ${addprefix error/, ConfigException}
 
-FILES = $(addprefix src/, main  ${PARSER} ${SERVER} ${HTTP})
+FILES = $(addprefix src/, main  ${PARSER} ${SERVER} ${HTTP} ${ERROR})
 
 SRCS = ${FILES:=.cpp}
 

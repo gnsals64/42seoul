@@ -30,20 +30,20 @@ public:
     Worker();
     ~Worker();
     void	set_server_socket(int server_socket);
-    int		get_server_socket();
-    void	set_port(int port);
-    int		get_port();
-	void	set_root(std::string& root);
-    const	std::string& get_root() const;
-	void	set_index(std::string& index);
-    const	std::string& get_index() const;
-    void	add_server_name(std::string& server_name);
+    int		getServerSocket();
+    void	setPort(int port);
+    int		getPort();
+	void	setRoot(std::string& root);
+    const	std::string& getRoot() const;
+	void	setIndex(std::string& index);
+    const	std::string& getIndex() const;
+    void	AddServerName(std::string& server_name);
     const	std::vector<std::string>& get_server_names() const;
-    void	set_client_max_body_size(size_t size);
+    void	setClientMaxBodySize(size_t size);
     size_t	get_client_max_body_size() const;
-    void	add_locations(const Location& location);
+    void	AddLocations(const Location& location);
     const	std::vector<Location>& get_locations() const;
-	void	add_error_page(int error_code, std::string& error_page);
+	void	AddErrorPage(int error_code, std::string& error_page);
     const	std::map<int, std::string>& get_error_page() const;
 	size_t	myStoi(std::string str);
 	std::vector<std::string> splitArgs(std::string line, std::string sep);
@@ -117,11 +117,11 @@ public:
 	};
 };
 
-void	exit_error(std::string msg);
-std::vector<std::string>::iterator set_worker(Worker& worker, std::vector<std::string> lines, std::vector<std::string>::iterator& lineIt);
-Worker set_worker_info(std::vector<std::string>& lines);
-void parse_listen(Worker& worker, const std::string& line);
-void parse_error_page(Worker& worker, std::vector<std::string>& lines, std::vector<std::string>::iterator& lineIt);
-void parse_client_max_body_size(Worker& worker, const std::string& line);
+void	exitError(std::string msg);
+std::vector<std::string>::iterator setWorker(Worker& worker, std::vector<std::string> lines, std::vector<std::string>::iterator& lineIt);
+Worker setWorker_info(std::vector<std::string>& lines);
+void ParseListen(Worker& worker, const std::string& line);
+void ParseErrorPage(Worker& worker, std::vector<std::string>& lines, std::vector<std::string>::iterator& lineIt);
+void ParseClientMaxBodySize(Worker& worker, const std::string& line);
 
 #endif

@@ -21,13 +21,17 @@
 class Worker;
 class Request;
 
-class Response : public Transaction
-{
+enum ResponseType {
+	GENERAL,
+	CGI
+};
+
+class Response : public Transaction {
     private:
         int statusCode;
+		ResponseType type;
         std::string getStatusMessage(int code);
         void readFileToBody(const std::string &path);
-        void generateBody(const Request &request, const std::string index);
         void generateBody_AutoIndexing(const Request &request);
         int checkPath(const std::string path);
         std::vector<std::string> getFilesInDirectory(const std::string &dirPath);
@@ -35,24 +39,25 @@ class Response : public Transaction
     public:
         Response();
         ~Response();
+		Response& operator=(const Response& response);
 
         void parsingFromRequest(Worker &worker, const Request &request);
-        // void send(int fd);
         void handleBodySizeLimit();
         void handleBadRequest();
         void setBody(const std::string body);
         void SendResponse(int fd);
+		ResponseType getResponseType(void) const;
+		void setResponseType(ResponseType type);
 
         void handleGET(const Request &request, const std::string index);
         void handlePOST(const Request &request);
         void handlePUT(const Request &request);
         void handleDELETE(const Request &request);
         void setStatusCode(int data);
-        void setHttpVersion(std::string version);
-
-        void SetCgiResponse(const Request &request);
-
+        void sethttpversion(std::string version);
+		void pushBackBody(char c);
         std::string deleteCheck(std::string path) const;
+		void printBody() const;
 
         enum HttpStatusCode
         {

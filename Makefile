@@ -4,7 +4,7 @@ CXX			:=	c++ -fsanitize=address -g
 LDFLAGS		:=
 
 PARSER = $(addprefix parser/, BlockParser Location LocationLexer TokenParseError TokenUtils Tokenizer)
-SERVER = $(addprefix server/, Worker WorkerLexer Webserv ServerUtils HandleData InitServer)
+SERVER = $(addprefix server/, Worker WorkerLexer Webserv ServerUtils HandleData InitServer WorkerData)
 HTTP = ${addprefix http/, Request Response CgiHandler}
 
 FILES = $(addprefix src/, main  ${PARSER} ${SERVER} ${HTTP})

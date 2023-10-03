@@ -36,25 +36,25 @@ private:
 public:
     Location();
     ~Location();
-	void set_uri(const std::string& uri);
-	void set_root(const std::string& root);
-	void set_index(const std::string& index);
+	void setUri(const std::string& uri);
+	void setRoot(const std::string& root);
+	void setIndex(const std::string& index);
 	void set_redir_status_code(int status);
 	void set_redir_uri(const std::string& uri);
 	void set_limit_excepts(int method, bool access);
 	void set_auto_index(bool access);
 	const std::string& get_uri() const;
-	const std::string& get_root() const;
-	const std::string& get_index() const;
+	const std::string& getRoot() const;
+	const std::string& getIndex() const;
 	int get_redir_status_code() const;
 	const std::string& get_redir_uri() const;
 	std::map<int, bool> get_limit_excepts() const;
 	bool get_auto_index() const;
 };
 
-std::vector<std::string>::iterator set_location_token(Location& location, std::vector<std::string> lines, std::vector<std::string>::iterator& lineIt);
-std::vector<std::string>::iterator set_location(Worker& worker, std::vector<std::string> lines, std::vector<std::string>::iterator& lineIt);
-void	check_location_token(Location& location, std::vector<std::string> lines, std::vector<std::string>::iterator& lineIt);
+std::vector<std::string>::iterator setLocation_token(Location& location, std::vector<std::string> lines, std::vector<std::string>::iterator& lineIt);
+std::vector<std::string>::iterator setLocation(Worker& worker, std::vector<std::string> lines, std::vector<std::string>::iterator& lineIt);
+void	CheckLocationToken(Location& location, std::vector<std::string> lines, std::vector<std::string>::iterator& lineIt);
 void	parse_limit_except(Location& location, std::vector<std::string> lines, std::vector<std::string>::iterator& lineIt);
 void	parse_auto_index(Location& location, const std::string line);
 void	parse_redirection(Location& location, std::vector<std::string>::iterator& lineIt);

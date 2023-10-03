@@ -3,155 +3,175 @@
 #include "../../inc/Transaction.hpp"
 
 int	Webserv::SockReceiveData(void) {
-	//새로운 클라이언트 접속 및 등록
-	if (find(server_sockets.begin(), server_sockets.end(), curr_event->ident) != server_sockets.end())
-	{
+	if (find(server_sockets_.begin(), server_sockets_.end(), curr_event_->ident) != server_sockets_.end()) {
 		if (ConnectNewClient() == -1)
 			return -1;
 	}
-	//클라이언트 등록이 되어있을때 read
-	else if (find(server_sockets.begin(), server_sockets.end(), curr_event->ident) == server_sockets.end())
-	{
-		eventData = (struct workerData *)curr_event->udata;
-		buffer.clear();
-		buffer.resize(BUFFER_SIZE);
-		mapter = find_fd.find(curr_event->ident);
-		for (wit = workers.begin(); wit != workers.end(); ++wit)
-			if (wit->get_server_socket() == mapter->second)
+	else if (find(server_sockets_.begin(), server_sockets_.end(), curr_event_->ident) == server_sockets_.end()) {
+		buffer_.clear();
+		buffer_.resize(BUFFER_SIZE);
+		mapter_ = find_fd_.find(curr_event_->ident);
+		for (wit_ = workers_.begin(); wit_ != workers_.end(); ++wit_)
+			if (wit_->getServerSocket() == mapter_->second)
 				break ;
-		ssize_t len = readData(curr_event->ident, buffer.data(), BUFFER_SIZE);
-		if (len > 0)
-		{
+		ssize_t len = readData(curr_event_->ident, buffer_.data(), BUFFER_SIZE);
+		if (len > 0) {
 			if (StartReceiveData(len) == -1)
 				return -1;
 		}
-		//클라이언트 끊어짐
-		else if (len == 0)
-		{
-			std::cout << "Client " << curr_event->ident << " disconnected." << std::endl;
-			close (curr_event->ident);
+		else if (len == 0) {
+			std::cout << "Client " << curr_event_->ident << " disconnected." << std::endl;
+			close (curr_event_->ident);
 		}
-		//read 오류
 		else
 			return -1;
-		//데이터 다 읽음
-		if (eventData->request.getState() == READ_FINISH)
+		if (eventData_->getRequest().getState() == READ_FINISH) {
 			ReadFinish();
+			CheckRequestError();
+			if (this->eventData_->getRequest().getPath().find(".py") != std::string::npos || (this->eventData_->getRequest().getMethod() == "POST" && this->eventData_->getRequest().getPath().find(".bla") != std::string::npos)) {
+				this->eventData_->getResponse().setResponseType(CGI);
+				this->eventData_->getCgiHandler().setClientWriteIdent(curr_event_->ident);
+				AddCgiEvent();
+			}
+			else {
+				ChangeEvent(change_list_, curr_event_->ident, EVFILT_READ, EV_DISABLE, 0, 0, curr_event_->udata);
+				ChangeEvent(change_list_, curr_event_->ident, EVFILT_WRITE, EV_ENABLE, 0, 0, curr_event_->udata);
+			}
+		}
 	}
 	return 0;
 }
 
 void	Webserv::SockSendData(void) {
-	int	client_sock = curr_event->ident;
-	this->eventData->response.SendResponse(client_sock);
-	std::map<int, int>::iterator tmp_fd_iter = find_fd.find(curr_event->ident);
-	find_fd.erase(tmp_fd_iter);
-	delete ((struct workerData *)curr_event->udata);
-	ChangeEvent(change_list, curr_event->ident, EVFILT_READ, EV_ENABLE, 0, 0, NULL);
-	ChangeEvent(change_list, curr_event->ident, EVFILT_WRITE, EV_DISABLE, 0, 0, NULL);
-	close (curr_event->ident);
+	if (this->eventData_->getResponse().getResponseType() == GENERAL)
+		MakeResponse(this->eventData_->getRequest());
+	this->eventData_->getResponse().SendResponse(curr_event_->ident);
+	std::map<int, int>::iterator tmp_fd_iter = find_fd_.find(curr_event_->ident);
+	find_fd_.erase(tmp_fd_iter);
+	delete ((WorkerData *)curr_event_->udata);
+	ChangeEvent(change_list_, curr_event_->ident, EVFILT_READ, EV_ENABLE, 0, 0, NULL);
+	ChangeEvent(change_list_, curr_event_->ident, EVFILT_WRITE, EV_DISABLE, 0, 0, NULL);
+	close (curr_event_->ident);
 }
 
 int	Webserv::StartReceiveData(int len) {
-	buffer.resize(len);
-	//해더파싱
-	if (eventData->request.getState() == HEADER_READ)
+	buffer_.resize(len);
+	if (eventData_->getRequest().getState() == HEADER_READ)
 	{
 		if (ReadHeader() == -1)
 			return -1;
 	}
-	//바디파싱
-	else if (eventData->request.getState() == BODY_READ)
+	else if (eventData_->getRequest().getState() == BODY_READ)
 		ReadBody();
 
 	return 0;
 }
 
 int	Webserv::ReadHeader(void) {
-	std::string temp_data(buffer.begin(), buffer.end());
-	eventData->request.appendHeader(temp_data);
-	eventData->request.BodyAppendVec(buffer);
-	size_t pos = eventData->request.getHeaders().find("\r\n\r\n");
+	std::string temp_data(buffer_.begin(), buffer_.end());
+	eventData_->getRequest().appendHeader(temp_data);
+	eventData_->getRequest().BodyAppendVec(buffer_);
+	size_t pos = eventData_->getRequest().getHeaders().find("\r\n\r\n");
 	if (pos == std::string::npos)
 		return -1;
 	else
 	{
-		std::string temp = eventData->request.getHeaders();
-		eventData->request.setHeaders(eventData->request.getHeaders().substr(0, pos + 4));
-		eventData->request.removeCRLF();
-		if (eventData->request.getHeaders().find("Content-Length") != std::string::npos)
+		std::string temp = eventData_->getRequest().getHeaders();
+		eventData_->getRequest().setHeaders(eventData_->getRequest().getHeaders().substr(0, pos + 4));
+		eventData_->getRequest().removeCRLF();
+		if (eventData_->getRequest().getHeaders().find("Content-Length") != std::string::npos)
 		{
-			size_t body_size = wit->checkContentLength(eventData->request.getHeaders());
-			if (body_size <= eventData->request.getBody().size())
-				eventData->request.setState(READ_FINISH);
+			size_t body_size = wit_->checkContentLength(eventData_->getRequest().getHeaders());
+			if (body_size <= eventData_->getRequest().getBody().size())
+				eventData_->getRequest().setState(READ_FINISH);
 			else
-				eventData->request.setState(BODY_READ);
+				eventData_->getRequest().setState(BODY_READ);
 		}
-		else if (eventData->request.getHeaders().find("Transfer-Encoding") != std::string::npos)
+		else if (eventData_->getRequest().getHeaders().find("Transfer-Encoding") != std::string::npos)
 		{
-			eventData->request.AddRNRNOneTime();
-			std::string temp = eventData->request.getBodyCharToStr();
-			if (eventData->request.Findrn0rn(temp) == 1)
-				eventData->request.setState(READ_FINISH);
+			eventData_->getRequest().AddRNRNOneTime();
+			std::string temp = eventData_->getRequest().getBodyCharToStr();
+			if (eventData_->getRequest().Findrn0rn(temp) == 1)
+				eventData_->getRequest().setState(READ_FINISH);
 			else
-				eventData->request.setState(BODY_READ);
+				eventData_->getRequest().setState(BODY_READ);
 		}
 		else
-			eventData->request.setState(READ_FINISH);
+			eventData_->getRequest().setState(READ_FINISH);
 	}
 	return 0;
 }
 
 void	Webserv::ReadBody(void) {
-	eventData->request.BodyAppendVec(buffer);
-	std::string temp(buffer.begin(), buffer.end());
-	if (eventData->request.getHeaders().find("Content-Length") != std::string::npos)
+	eventData_->getRequest().BodyAppendVec(buffer_);
+	std::string temp(buffer_.begin(), buffer_.end());
+	if (eventData_->getRequest().getHeaders().find("Content-Length") != std::string::npos)
 	{
-		size_t body_size = wit->checkContentLength(eventData->request.getHeaders());
-		if (body_size <= eventData->request.getBody().size())	//본문을 다 읽으면
-			eventData->request.setState(READ_FINISH);
+		size_t body_size = wit_->checkContentLength(eventData_->getRequest().getHeaders());
+		if (body_size <= eventData_->getRequest().getBody().size())	//본문을 다 읽으면
+			eventData_->getRequest().setState(READ_FINISH);
 	}
-	else if (eventData->request.getHeaders().find("Transfer-Encoding") != std::string::npos)
+	else if (eventData_->getRequest().getHeaders().find("Transfer-Encoding") != std::string::npos)
 	{
-		if (eventData->request.Findrn0rn(temp) == 1)
-			eventData->request.setState(READ_FINISH);
+		if (eventData_->getRequest().Findrn0rn(temp) == 1)
+			eventData_->getRequest().setState(READ_FINISH);
 	}
 }
 
 void	Webserv::ReadFinish(void) {
-	wit->requestHeaderParse(eventData->request);
-	if (eventData->request.getHeaders().find("Transfer-Encoding") != std::string::npos)
+	wit_->requestHeaderParse(eventData_->getRequest());
+	if (eventData_->getRequest().getHeaders().find("Transfer-Encoding") != std::string::npos)
 	{
-		eventData->request.RemoveRNRNOneTime();
-		wit->chunkBodyParse(eventData->request, eventData->response);
-	}
-	ChangeEvent(change_list, curr_event->ident, EVFILT_READ, EV_DISABLE, 0, 0, curr_event->udata);
-	ChangeEvent(change_list, curr_event->ident, EVFILT_WRITE, EV_ENABLE, 0, 0, curr_event->udata);	//write 이벤트 발생
-	try
-	{
-	    MakeResponse(eventData->request);
-    }
-	catch (std::runtime_error &e)
-	{
-		std::cerr << e.what() << std::endl;
-		std::cerr << eventData->request.getMethod() << " " << eventData->request.getFullPath() << std::endl;
+		eventData_->getRequest().RemoveRNRNOneTime();
+		wit_->chunkBodyParse(eventData_->getRequest(), eventData_->getResponse());
 	}
 }
 
+void    Webserv::AddCgiEvent(void) {
+	this->eventData_->getCgiHandler().executeChildProcess(this->eventData_->getRequest());
+	this->SetCgiEvent();
+}
+
+void    Webserv::CheckRequestError(void) {
+	/*
+	 * 요청을 다 읽은 시점에서 예외처리 필요
+	 * 1) 경로가 올바른지?
+	 * 2) 파일 및 폴더 열 수 있는지?
+	 * 3) 지원하지 않는 요청 메서드인지?
+	 * 4) http 버전이 잘못되었는지?
+	 * 5) content length 관련 : client_max_body_size를 넘는지?
+	 * -> Request에 집어넣은 헤더 모두 검사한다고 생각하면 될 듯
+	 *
+	 * 그리고 이 여러 에러를 처리하기 위해서 각 에러를 처리해주는 함수들을 만들면 좋을듯
+	 * 이 함수들은 generateResponse 같은 함수로 이미 들어가있는 헤더를 패킷의 형식으로 만들어서 보내면 될 듯
+	 * -> 찾아보니 우리의 sendResponse 함수를 사용하면 됨, 그러나 수정이 매우 필요해보임
+	 * 즉, 헤더의 값들은 각 함수 내에서 각자의 값으로 바꾼뒤 패킷 만들어서 전송
+	 * ex) Send404Response(), Send405Response()
+	 */
+}
+
+void	Webserv::SetCgiEvent(void) {
+	WorkerData *udata = new WorkerData(eventData_->getRequest(), eventData_->getResponse(), eventData_->getCgiHandler(), CGIEVENT);
+
+	ChangeEvent(change_list_, this->eventData_->getCgiHandler().getReadFd(), EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, udata);
+	ChangeEvent(change_list_, this->eventData_->getCgiHandler().getWriteFd(), EVFILT_WRITE, EV_ADD | EV_ENABLE, 0, 0, udata);
+
+	fcntl(this->eventData_->getCgiHandler().getReadFd(), F_SETFL, O_NONBLOCK, FD_CLOEXEC);
+	fcntl(this->eventData_->getCgiHandler().getWriteFd(), F_SETFL, O_NONBLOCK, FD_CLOEXEC);
+}
+
+/*
+ * 응답 헤더의 흐름
+ * - Response 객체를 만드는 시점에서 헤더 값 default로 두기
+ * - request 파싱이 끝난 시점에서 예외처리 + 헤더값 일부 변경하기
+ * - 또 처리하는 과정에서 헤더 값 수정이 필요한 경우 setter로 변경하기
+ */
 void    Webserv::MakeResponse(const Request &request) {
-    if (this->eventData->request.getPath().find(".py") != std::string::npos)
-    {
-        this->eventData->response.SetCgiResponse(request);
-        return ;
-    }
-
-    std::string method = this->eventData->request.getMethod();
-
 	int location_idx = 0;
-	for(int i = 0; i < wit->get_locations().size(); i++)
+	for(int i = 0; i < wit_->get_locations().size(); i++)
 	{
-		if (request.getPath().find(wit->get_locations()[i].get_uri()) != std::string::npos) {
-			if (wit->get_locations()[i].get_uri().length() != 1)
+		if (request.getPath().find(wit_->get_locations()[i].get_uri()) != std::string::npos) {
+			if (wit_->get_locations()[i].get_uri().length() != 1)
 			{
 				location_idx = i;
 				break ;
@@ -159,24 +179,26 @@ void    Webserv::MakeResponse(const Request &request) {
 			location_idx = i;
 		}
 	}
-	if (request.getScheme().find("1.1") == std::string::npos)
-	{
-		this->eventData->response.setStatusCode(Response::BAD_REQUEST);
-		throw std::runtime_error("wrong http version");
-	}
+	/* should be handled right after reading request */
+	// if (request.getScheme().find("1.1") == std::string::npos)
+	// {
+	// 	this->eventData_->response.setStatusCode(Response::BAD_REQUEST);
+	// 	throw std::runtime_error("wrong http version");
+	// }
 
-	std::map<int, bool> limit_excepts = wit->get_locations()[location_idx].get_limit_excepts();
-    if (method == "GET" &&  limit_excepts[METHOD_GET])
-        this->eventData->response.handleGET(eventData->request, wit->get_locations()[location_idx].get_index());
-    else if (method == "POST" && limit_excepts[METHOD_POST])
-        this->eventData->response.handlePOST(eventData->request);
-    else if (method == "PUT" && limit_excepts[METHOD_PUT])
-        this->eventData->response.handlePOST(eventData->request);
-    else if (method == "DELETE" && limit_excepts[METHOD_DELETE])
-        this->eventData->response.handleDELETE(eventData->request);
+	std::map<int, bool> limit_excepts = wit_->get_locations()[location_idx].get_limit_excepts();
+    if (request.getMethod() == "GET" &&  limit_excepts[METHOD_GET])
+        this->eventData_->getResponse().handleGET(eventData_->getRequest(), wit_->get_locations()[location_idx].getIndex());
+    else if (request.getMethod() == "POST" && limit_excepts[METHOD_POST])
+        this->eventData_->getResponse().handlePOST(eventData_->getRequest());
+    // else if (method == "PUT" && limit_excepts[METHOD_PUT])
+    //     this->eventData_->response.handlePOST(eventData_->request);
+    else if (request.getMethod() == "DELETE" && limit_excepts[METHOD_DELETE])
+        this->eventData_->getResponse().handleDELETE(eventData_->getRequest());
     else {
-		this->eventData->response.setStatusCode(Response::METHOD_NOT_ALLOWED);
-		this->eventData->response.setHttpVersion("HTTP/1.1");
-	    throw std::runtime_error("wrong http method : " + request.getMethod());
+		/* 이런것도 함수로 빼자 (send405Response) */
+		this->eventData_->getResponse().setStatusCode(Response::METHOD_NOT_ALLOWED);
+		this->eventData_->getResponse().sethttpversion("HTTP/1.1");
+	    std::cerr << "wrong http method : " + request.getMethod() << std::endl;
 	}
 }

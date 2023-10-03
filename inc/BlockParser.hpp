@@ -34,24 +34,24 @@ class ConfigParser {
 
 		t_check		check_;
 
-		bool		is_char_true(char c);
-		TokenType	tokenization(std::istream *file, std::string *token);
-		TokenType	set_errorbit(int errorcode);
-		int			block_token_check(std::string token);
-		void		push_back_line(std::string token, std::string *line);
+		bool		IsCharTrue(char c);
+		TokenType	Tokenization(std::istream *file, std::string *token);
+		TokenType	setErrorbit(int errorcode);
+		int			BlockTokenCheck(std::string token);
+		void		PushBackLine(std::string token, std::string *line);
 
 	public:
      	std::vector<std::string>				save_line_;
    		std::vector<std::string>				v_server_;
     	std::vector<std::vector<std::string> >	server_;
-		void		start_parsing(std::istream *file);
-		void		init_parserclass(void);
+		void		StartParsing(std::istream *file);
+		void		InitParserClass(void);
 		int			get_errorbit(void);
 		int			get_errorline(void);
-		int			print_parse_error(std::string filename);
+		int			PrintParseError(std::string filename);
 		std::vector<std::string>	get_directives(void);
 		std::vector<std::string>	get_server_i(int i);
-		std::vector<std::vector<std::string> >	get_server(void);
+		std::vector<std::vector<std::string> >	getServer(void);
 };
 
 int		CheckExtension(std::string filename);

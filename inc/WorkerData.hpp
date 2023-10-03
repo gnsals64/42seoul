@@ -23,6 +23,8 @@ class WorkerData {
 		Response& getResponse(void);
 		CgiHandler& getCgiHandler(void);
 		EventType getEventType(void) const;
+
+		void	setEventType(EventType event);
 };
 
 #endif

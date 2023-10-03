@@ -101,15 +101,12 @@ void CgiHandler::convertEnv() {
         char *str = new char[concat.length() + 1];
         strcpy(str, concat.c_str());
         envp.push_back(str);
+        delete[] str;
     }
     envp.push_back(0);
-	// 끝나고 envp 돌면서 delete 해주기 (+ 구조 바꿀 생각도...)
 }
 
 void CgiHandler::closePipeBeforeRead() {
-//	close(to_cgi[0]);
-//	close(to_cgi[1]);
-//	close(from_cgi[1]);
 }
 
 void CgiHandler::closePipeBeforeWrite() {
@@ -123,7 +120,6 @@ void CgiHandler::closePipeAfterRead() {
 
 void CgiHandler::closePipeAfterWrite() {
 	close(to_cgi[1]);
-//	close(from_cgi[0]);
 }
 
 CgiState CgiHandler::getState() const {

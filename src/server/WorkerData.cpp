@@ -5,7 +5,11 @@ WorkerData::WorkerData(Request &request, Response &response, CgiHandler &cgi, Ev
 	this->event = event;
 }
 
-WorkerData::~WorkerData() {}
+WorkerData::~WorkerData() {
+	delete (&response);
+	delete (&request);
+	delete (&cgi);
+}
 
 Request& WorkerData::getRequest() {
 	return (this->request);
@@ -21,4 +25,8 @@ CgiHandler& WorkerData::getCgiHandler() {
 
 EventType WorkerData::getEventType() const {
 	return (this->event);
+}
+
+void	WorkerData::setEventType(EventType event) {
+	this->event = event;
 }

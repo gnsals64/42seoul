@@ -55,13 +55,10 @@ void Webserv::WriteCgiInput(void) {
 	{
 		std::vector<char> v = eventData_->getRequest().getBody();
 		std::string s(v.begin(), v.end());
-	//  생각해보니 eventData의 fd 가져오면 되는거 아닌가?
-	//  write(curr_event_->ident, s.c_str(), s.length());
 		write(eventData_->getCgiHandler().getWriteFd(), s.c_str(), s.length());
 	}
 	eventData_->getCgiHandler().closePipeAfterWrite();
 	eventData_->getCgiHandler().setState(WRITE_PIPE);
-//	delete ((struct workerData *)curr_event_->udata);
 	ChangeEvent(change_list_, curr_event_->ident, EVFILT_WRITE, EV_DISABLE, 0, 0, NULL);
 	close(curr_event_->ident);
 }
@@ -73,8 +70,6 @@ void Webserv::ReadCgiResponse(void) {
 	ssize_t bytesRead;
 	std::vector<char> body;
 
-	// Read CGI script's output from from_cgi pipe
-	// 생각해보니 eventData의 fd 가져오면 되는거 아닌가?
 	while ((bytesRead = read(eventData_->getCgiHandler().getReadFd(), buff, sizeof(buff))) > 0)
 	{
 		for (int i = 0; i < bytesRead; i++) {
@@ -86,11 +81,10 @@ void Webserv::ReadCgiResponse(void) {
 	eventData_->getCgiHandler().setState(READ_PIPE);
 
 	uintptr_t write_ident = eventData_->getCgiHandler().getClientWriteIdent();
-	WorkerData *udata = new WorkerData(eventData_->getRequest(), eventData_->getResponse(), eventData_->getCgiHandler(), CLIENTEVENT);
-	ChangeEvent(change_list_, write_ident, EVFILT_READ, EV_DISABLE, 0, 0, udata);
-	ChangeEvent(change_list_, write_ident, EVFILT_WRITE, EV_ENABLE, 0, 0, udata);
+	eventData_->setEventType(CLIENTEVENT);
+	ChangeEvent(change_list_, write_ident, EVFILT_READ, EV_DISABLE, 0, 0, eventData_);
+	ChangeEvent(change_list_, write_ident, EVFILT_WRITE, EV_ENABLE, 0, 0, eventData_);
 
-//	delete ((struct workerData *)curr_event_->udata);
 	ChangeEvent(change_list_, curr_event_->ident, EVFILT_READ, EV_DISABLE, 0, 0, NULL);
 	close (curr_event_->ident);
 }

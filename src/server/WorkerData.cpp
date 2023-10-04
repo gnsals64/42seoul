@@ -11,22 +11,22 @@ WorkerData::~WorkerData() {
 	delete (&cgi);
 }
 
-Request& WorkerData::getRequest() {
+Request& WorkerData::GetRequest() {
 	return (this->request);
 }
 
-Response& WorkerData::getResponse() {
+Response& WorkerData::GetResponse() {
 	return (this->response);
 }
 
-CgiHandler& WorkerData::getCgiHandler() {
+CgiHandler& WorkerData::GetCgiHandler() {
 	return (this->cgi);
 }
 
-EventType WorkerData::getEventType() const {
+EventType WorkerData::GetEventType() const {
 	return (this->event);
 }
 
-void	WorkerData::setEventType(EventType event) {
+void	WorkerData::SetEventType(EventType event) {
 	this->event = event;
 }

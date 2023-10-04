@@ -21,35 +21,35 @@ enum CgiState {
 
 class CgiHandler {
 private:
-    pid_t pid;
-    int to_cgi[2];
-    int from_cgi[2];
-    std::string cgi_path;
-    std::string query_string;
-    std::vector<char*> envp;
-    std::map<std::string, std::string> env;
-	CgiState state;
-	uintptr_t client_write_ident;
+    pid_t pid_;
+    int to_cgi_[2];
+    int from_cgi_[2];
+    std::string cgi_path_;
+    std::string query_string_;
+    std::vector<char*> envp_;
+    std::map<std::string, std::string> env_;
+	CgiState state_;
+	uintptr_t client_write_ident_;
 
 public:
     CgiHandler();
     ~CgiHandler();
 	CgiHandler& operator=(const CgiHandler& cgi);
 
-    pid_t getPid() const;
-    int getWriteFd() const;
-    int getReadFd() const;
-	void closePipeBeforeRead();
-	void closePipeBeforeWrite();
-	void closePipeAfterRead();
-	void closePipeAfterWrite();
-    void executeChildProcess(const Request &request);
-    void fillEnv(const Request &request);
-    void convertEnv();
-	CgiState getState() const;
-	void setState(CgiState state);
-	void setClientWriteIdent(uintptr_t ident);
-	uintptr_t getClientWriteIdent(void) const;
+    pid_t GetPid() const;
+    int GetWriteFd() const;
+    int GetReadFd() const;
+	void ClosePipeBeforeRead();
+	void ClosePipeBeforeWrite();
+	void ClosePipeAfterRead();
+	void ClosePipeAfterWrite();
+    void ExecuteChildProcess(const Request &request);
+    void FillEnv(const Request &request);
+    void ConvertEnv();
+	CgiState GetState() const;
+	void SetState(CgiState state);
+	void SetClientWriteIdent(uintptr_t ident);
+	uintptr_t GetClientWriteIdent(void) const;
 };
 
 #endif

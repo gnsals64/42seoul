@@ -1,139 +1,139 @@
 #include "../../inc/CgiHandler.hpp"
 
 CgiHandler::CgiHandler() {
-	this->state = NOT_CALLED;
-    this->query_string = "";
-	this->client_write_ident = -1;
+	this->state_ = NOT_CALLED;
+    this->query_string_ = "";
+	this->client_write_ident_ = -1;
 }
 
 CgiHandler::~CgiHandler() {}
 
 CgiHandler& CgiHandler::operator=(const CgiHandler& cgi) {
-	this->pid = cgi.pid;
-	this->to_cgi[0] = cgi.to_cgi[0];
-	this->to_cgi[1] = cgi.to_cgi[1];
-	this->from_cgi[0] = cgi.from_cgi[0];
-	this->from_cgi[1] = cgi.from_cgi[1];
-	this->cgi_path = cgi.cgi_path;
-	this->query_string = cgi.query_string;
-	this->envp = cgi.envp;
-	this->env = cgi.env;
+	this->pid_ = cgi.pid_;
+	this->to_cgi_[0] = cgi.to_cgi_[0];
+	this->to_cgi_[1] = cgi.to_cgi_[1];
+	this->from_cgi_[0] = cgi.from_cgi_[0];
+	this->from_cgi_[1] = cgi.from_cgi_[1];
+	this->cgi_path_ = cgi.cgi_path_;
+	this->query_string_ = cgi.query_string_;
+	this->envp_ = cgi.envp_;
+	this->env_ = cgi.env_;
 	return *this;
 }
 
-pid_t CgiHandler::getPid() const {
-    return (this->pid);
+pid_t CgiHandler::GetPid() const {
+    return (this->pid_);
 }
 
-int CgiHandler::getWriteFd() const {
-    return (this->to_cgi[1]);
+int CgiHandler::GetWriteFd() const {
+    return (this->to_cgi_[1]);
 }
 
-int CgiHandler::getReadFd() const {
-    return (this->from_cgi[0]);
+int CgiHandler::GetReadFd() const {
+    return (this->from_cgi_[0]);
 }
 
-void CgiHandler::executeChildProcess(const Request &request) {
-    this->cgi_path = request.getFullPath();
+void CgiHandler::ExecuteChildProcess(const Request &request) {
+    this->cgi_path_ = request.GetFullPath();
 
-    if (request.getMethod() == "GET") {
-        int query_index = this->cgi_path.find("?", 0);
+    if (request.GetMethod() == "GET") {
+        int query_index = this->cgi_path_.find("?", 0);
         if (query_index != std::string::npos)
         {
-            this->query_string = this->cgi_path.substr(query_index + 1, this->cgi_path.size() - query_index);
-            this->cgi_path = this->cgi_path.substr(0, query_index);
+            this->query_string_ = this->cgi_path_.substr(query_index + 1, this->cgi_path_.size() - query_index);
+            this->cgi_path_ = this->cgi_path_.substr(0, query_index);
         }
     }
 
     /* should be handled right after reading request */
-    // if (access(this->cgi_path.c_str(), F_OK) != 0)
+    // if (access(this->cgi_path_.c_str(), F_OK) != 0)
     //     throw std::runtime_error("404 not found");
 
 	/* should be handled with function */
-	// if (pipe(this->to_cgi) < 0 || pipe(this->from_cgi) < 0)
+	// if (pipe(this->to_cgi_) < 0 || pipe(this->from_cgi_) < 0)
 	//      throw std::runtime_error("pipe failed");
-	pipe(this->to_cgi);
-	pipe(this->from_cgi);
-	this->state = CREATE_PIPE;
+	pipe(this->to_cgi_);
+	pipe(this->from_cgi_);
+	this->state_ = CREATE_PIPE;
 
-    this->pid = fork();
-    if (this->pid == -1)
+    this->pid_ = fork();
+    if (this->pid_ == -1)
         std::cerr << "fork failed" << std::endl;
-    else if (this->pid == 0)
+    else if (this->pid_ == 0)
     {
-        close(this->to_cgi[1]);
-        close(this->from_cgi[0]);
+        close(this->to_cgi_[1]);
+        close(this->from_cgi_[0]);
 
-        dup2(this->to_cgi[0], STDIN_FILENO);
-        dup2(this->from_cgi[1], STDOUT_FILENO);
+        dup2(this->to_cgi_[0], STDIN_FILENO);
+        dup2(this->from_cgi_[1], STDOUT_FILENO);
 
-        close(this->to_cgi[0]);
-        close(this->from_cgi[1]);
+        close(this->to_cgi_[0]);
+        close(this->from_cgi_[1]);
 
-        fillEnv(request);
+        FillEnv(request);
 
-		if (request.getPath().find(".bla") != std::string::npos)
-			execve("./cgi_tester", NULL, this->envp.data());
+		if (request.GetPath().find(".bla") != std::string::npos)
+			execve("./cgi_tester", NULL, this->envp_.data());
 		else
-        	execve(this->cgi_path.c_str(), NULL, this->envp.data());
+        	execve(this->cgi_path_.c_str(), NULL, this->envp_.data());
     }
 }
 
-void CgiHandler::fillEnv(const Request &request) {
-    if (request.getMethod() == "POST")
+void CgiHandler::FillEnv(const Request &request) {
+    if (request.GetMethod() == "POST")
     {
-        env["CONTENT_LENGTH"] = "1000000000";
-        env["CONTENT_TYPE"] = request.getContentType();
+        env_["CONTENT_LENGTH"] = "1000000000";
+        env_["CONTENT_TYPE"] = request.GetContentType();
     }
-	env["PATH_INFO"] = this->cgi_path;
-	if (request.getMethod() == "GET")
-		env["QUERY_STRING"] = this->query_string;
-	env["REQUEST_METHOD"] = request.getMethod();
-	env["SERVER_PROTOCOL"] = "HTTP/1.1";
-  	convertEnv();
+	env_["PATH_INFO"] = this->cgi_path_;
+	if (request.GetMethod() == "GET")
+		env_["query_string_"] = this->query_string_;
+	env_["REQUEST_METHOD"] = request.GetMethod();
+	env_["SERVER_PROTOCOL"] = "HTTP/1.1";
+  	ConvertEnv();
 }
 
-void CgiHandler::convertEnv() {
+void CgiHandler::ConvertEnv() {
     std::map<std::string, std::string>::iterator it;
-    for (it = env.begin(); it != env.end(); it++)
+    for (it = env_.begin(); it != env_.end(); it++)
     {
         std::string concat = it->first + "=" + it->second;
         char *str = new char[concat.length() + 1];
         strcpy(str, concat.c_str());
-        envp.push_back(str);
+        envp_.push_back(str);
         delete[] str;
     }
-    envp.push_back(0);
+    envp_.push_back(0);
 }
 
-void CgiHandler::closePipeBeforeRead() {
+void CgiHandler::ClosePipeBeforeRead() {
 }
 
-void CgiHandler::closePipeBeforeWrite() {
-	close(to_cgi[0]);
-	close(from_cgi[1]);
+void CgiHandler::ClosePipeBeforeWrite() {
+	close(to_cgi_[0]);
+	close(from_cgi_[1]);
 }
 
-void CgiHandler::closePipeAfterRead() {
-	close(from_cgi[0]);
+void CgiHandler::ClosePipeAfterRead() {
+	close(from_cgi_[0]);
 }
 
-void CgiHandler::closePipeAfterWrite() {
-	close(to_cgi[1]);
+void CgiHandler::ClosePipeAfterWrite() {
+	close(to_cgi_[1]);
 }
 
-CgiState CgiHandler::getState() const {
-	return (this->state);
+CgiState CgiHandler::GetState() const {
+	return (this->state_);
 }
 
-void CgiHandler::setState(CgiState state) {
-	this->state = state;
+void CgiHandler::SetState(CgiState state) {
+	this->state_ = state;
 }
 
-void CgiHandler::setClientWriteIdent(uintptr_t ident) {
-	this->client_write_ident = ident;
+void CgiHandler::SetClientWriteIdent(uintptr_t ident) {
+	this->client_write_ident_ = ident;
 }
 
-uintptr_t CgiHandler::getClientWriteIdent() const {
-	return (this->client_write_ident);
+uintptr_t CgiHandler::GetClientWriteIdent() const {
+	return (this->client_write_ident_);
 }

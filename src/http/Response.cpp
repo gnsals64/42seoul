@@ -2,12 +2,12 @@
 
 
 Response::Response() {
-	this->type = GENERAL;
-	this->statusCode = OK;
-	this->connection = "keep-alive";
-	this->contentType = "text/html";
-	this->httpversion = "HTTP/1.1";
-	this->location = "";
+	this->type_ = GENERAL;
+	this->status_code_ = OK;
+	this->connection_ = "keep-alive";
+	this->contentType_ = "text/html";
+	this->httpversion_ = "HTTP/1.1";
+	this->location_ = "";
 }
 
 Response::~Response() {
@@ -15,15 +15,15 @@ Response::~Response() {
 }
 
 Response& Response::operator=(const Response& response) {
-	this->statusCode = response.statusCode;
-	this->connection = response.connection;
-	this->contentType = response.contentType;
-	this->httpversion = response.httpversion;
-	this->location = response.location;
+	this->status_code_ = response.status_code_;
+	this->connection_ = response.connection_;
+	this->contentType_ = response.contentType_;
+	this->httpversion_ = response.httpversion_;
+	this->location_ = response.location_;
 	return *this;
 }
 
-std::string Response::getStatusMessage(int code) {
+std::string Response::GetStatusMessage(int code) {
 	switch (code)
 	{
 		case OK:
@@ -55,7 +55,7 @@ std::string Response::getStatusMessage(int code) {
 	}
 }
 
-void Response::readFileToBody(const std::string &path) {
+void Response::ReadFileToBody(const std::string &path) {
 	std::ifstream fin;
 	fin.open(path.c_str());
 	if (fin.fail())
@@ -65,31 +65,31 @@ void Response::readFileToBody(const std::string &path) {
 	{
 		line += "\r\n";
 		for (int i = 0; i < line.length(); i++)
-			this->body.push_back(line[i]);
+			this->body_.push_back(line[i]);
 	}
 	fin.close();
 }
 
-void Response::generateBody_AutoIndexing(const Request &request) {
-	this->readFileToBody(AUTO_INDEX_HTML_PATH); // 템플릿 전부 읽기
+void Response::GenerateBodyAutoIndexing(const Request &request) {
+	this->ReadFileToBody(AUTO_INDEX_HTML_PATH); // 템플릿 전부 읽기
 
-	std::vector<char> v = this->body;
+	std::vector<char> v = this->body_;
 	std::string string_body(v.begin(), v.end());
 	size_t toInsert;
 
 	//title 지정
 	toInsert = string_body.find("</title>");
-	string_body.insert(toInsert, "Index of " + request.getPath());
+	string_body.insert(toInsert, "Index of " + request.GetPath());
 
 	//head 지정
 	toInsert = string_body.find("</h1>");
-	string_body.insert(toInsert, "Index of " + request.getPath());
+	string_body.insert(toInsert, "Index of " + request.GetPath());
 
 	// files 이름 지정
-	std::string requestPath = request.getPath();
+	std::string requestPath = request.GetPath();
 	if (requestPath.back() != '/') // request path가 '/'로 끝나지 않는 directory일 때 버그 방지
 		requestPath.push_back('/');
-	std::vector<std::string> fileNames = getFilesInDirectory(request.getFullPath());
+	std::vector<std::string> fileNames = GetFilesInDirectory(request.GetFullPath());
 	for (size_t i = 0; i < fileNames.size(); i++)
 	{
 		toInsert = string_body.rfind("<hr>");
@@ -98,10 +98,10 @@ void Response::generateBody_AutoIndexing(const Request &request) {
 		                            + fileNames[i] + "\">" + fileNames[i] + "</a></pre>\r\n");
 	}
 	std::vector<char> v1(string_body.begin(), string_body.end());
-	this->body = v1;
+	this->body_ = v1;
 }
 
-int Response::checkPath(const std::string path) {
+int Response::CheckPath(const std::string path) {
 	struct stat buf;
 
 	if (stat(path.c_str(), &buf) == -1) // 해당 경로에 파일이 존재 안하면 404Page
@@ -116,7 +116,7 @@ int Response::checkPath(const std::string path) {
 	return 3;
 }
 
-std::vector<std::string> Response::getFilesInDirectory(const std::string &dirPath) {
+std::vector<std::string> Response::GetFilesInDirectory(const std::string &dirPath) {
 	DIR *dir_info;
 	struct dirent *dir_entry;
 	std::vector<std::string> ret;
@@ -139,29 +139,29 @@ std::vector<std::string> Response::getFilesInDirectory(const std::string &dirPat
 
 // void Response::handleBodySizeLimit()
 // {
-// 	this->statusCode = CONTENT_TOO_LARGE;
+// 	this->status_code_ = CONTENT_TOO_LARGE;
 // 	this->connection = "close";
-// 	this->readFileToBody(ERROR_PAGE_413_PATH);
-// 	this->contentLength = this->body.size();
-// 	this->contentType = "text/html";
+// 	this->ReadFileToBody(ERROR_PAGE_413_PATH);
+// 	this->contentLength_ = this->body_.size();
+// 	this->contentType_ = "text/html";
 // }
 
 // void Response::handleBadRequest()
 // {
-// 	this->httpversion = "HTTP/1.1";
-// 	this->statusCode = NOT_FOUND;
+// 	this->httpversion_ = "HTTP/1.1";
+// 	this->status_code_ = NOT_FOUND;
 // 	this->connection = "close";
-// 	this->readFileToBody(ERROR_PAGE_404_PATH);
-// 	this->contentLength = this->body.size();
-// 	this->contentType = "text/html";
+// 	this->ReadFileToBody(ERROR_PAGE_404_PATH);
+// 	this->contentLength_ = this->body_.size();
+// 	this->contentType_ = "text/html";
 // }
 
-void Response::handleGET(const Request &request, const std::string index) {
-	std::string final_path = request.getFullPath();
-	int check_res = this->checkPath(final_path);
+void Response::HandleGET(const Request &request, const std::string index) {
+	std::string final_path = request.GetFullPath();
+	int check_res = this->CheckPath(final_path);
 	if (check_res == 1) // autoindex 해야하는 상황
 	{
-		this->generateBody_AutoIndexing(request);
+		this->GenerateBodyAutoIndexing(request);
 		return;
 	}
 	else if (check_res == 2) // 파일이 없거나 디렉토리인데 구조 이상한 경우
@@ -170,80 +170,80 @@ void Response::handleGET(const Request &request, const std::string index) {
 		int last_slash = final_path.find_last_of("/");
 		std::string last_dir = final_path.substr(0, last_slash + 1);
 		final_path = last_dir + index;
-		int second_check = this->checkPath(final_path);
+		int second_check = this->CheckPath(final_path);
 		if (second_check == 0)
 		{
 			/* 바로 404 응답 보내는 함수 필요 */
-			this->statusCode = NOT_FOUND;
+			this->status_code_ = NOT_FOUND;
 			final_path = ERROR_PAGE_404_PATH;
 		}
 	}
 	else if (check_res == 0) // youpi.bad_extension 파일조차 없거나 원래부터 유효하지 않은 파일인 경우
 	{
 		/* 바로 404 응답 보내는 함수 필요 */
-		this->statusCode = NOT_FOUND;
+		this->status_code_ = NOT_FOUND;
 		final_path = ERROR_PAGE_404_PATH;
 	}
-	this->readFileToBody(final_path);
+	this->ReadFileToBody(final_path);
 }
 
-void Response::handlePOST(const Request &request) {
+void Response::HandlePOST(const Request &request) {
 	DIR *dir_info;
 
 	/* 405 응답 보내는 함수 필요 */
-	if ((dir_info = opendir(request.getPath().c_str())) != NULL) {
-		this->sethttpversion("HTTP/1.1");
-		this->setStatusCode(405);
-		this->contentType = request.getContentType();
-		this->connection = "Close";
+	if ((dir_info = opendir(request.GetPath().c_str())) != NULL) {
+		this->Sethttpversion("HTTP/1.1");
+		this->SetStatusCode(405);
+		this->contentType_ = request.GetContentType();
+		this->connection_ = "Close";
 		closedir(dir_info);
 		return ;
 	}
 }
 
-void Response::handlePUT(const Request &request) {}
+void Response::HandlePUT(const Request &request) {}
 
-void Response::handleDELETE(const Request &request) {
-	std::string path = request.getFullPath();
+void Response::HandleDELETE(const Request &request) {
+	std::string path = request.GetFullPath();
 //	try
 //	{
-		std::string body = deleteCheck(path);
-		std::vector<char> v(body.begin(), body.end());
-		this->body = v;
+		std::string body_ = DeleteCheck(path);
+		std::vector<char> v(body_.begin(), body_.end());
+		this->body_ = v;
 //	}
 //	catch (std::runtime_error &e)
 //	{
 //		std::cout << e.what() << std::endl;
-//		this->statusCode = NOT_FOUND;
+//		this->status_code_ = NOT_FOUND;
 //		std::string failed = "delete failed\n";
 //		std::vector<char> v(failed.begin(), failed.end());
-//		this->body = v;
+//		this->body_ = v;
 //		return ;
 //	}
 }
 
-void Response::setStatusCode(int data) {
-	this->statusCode = data;
+void Response::SetStatusCode(int data) {
+	this->status_code_ = data;
 }
 
 void    Response::SendResponse(int fd) {
 	std::string toSend;
 
 	// 임시 하드코딩
-	toSend += this->httpversion;
-	toSend += " " + std::to_string(this->statusCode);
-	toSend += " " + this->getStatusMessage(this->statusCode);
+	toSend += this->httpversion_;
+	toSend += " " + std::to_string(this->status_code_);
+	toSend += " " + this->GetStatusMessage(this->status_code_);
 	toSend += "\r\n";
 
-	if (!this->contentType.empty())
-		toSend += "Content-Type: " + this->contentType + "\r\n";
-	if (!this->body.empty())
-		toSend += "Content-Length: " + std::to_string(this->body.size()) + "\r\n";
-	if (!this->connection.empty())
-		toSend += "Connection: " + this->connection + "\r\n";
+	if (!this->contentType_.empty())
+		toSend += "Content-Type: " + this->contentType_ + "\r\n";
+	if (!this->body_.empty())
+		toSend += "Content-Length: " + std::to_string(this->body_.size()) + "\r\n";
+	if (!this->connection_.empty())
+		toSend += "Connection: " + this->connection_ + "\r\n";
 	toSend += "\r\n";
 
-	std::string tmp(this->body.begin(), this->body.end());
+	std::string tmp(this->body_.begin(), this->body_.end());
 
 	toSend += tmp;
 	// write error 처리 필요
@@ -251,7 +251,7 @@ void    Response::SendResponse(int fd) {
 		std::cerr << "write error" << std::endl;
 }
 
-std::string Response::deleteCheck(std::string path) const {
+std::string Response::DeleteCheck(std::string path) const {
 	if (access(path.c_str(), F_OK) == 0)
 	{
 		if (access(path.c_str(), W_OK) == 0)
@@ -266,25 +266,25 @@ std::string Response::deleteCheck(std::string path) const {
 		return "404 not found";
 }
 
-void    Response::sethttpversion(std::string version) {
-	this->httpversion = version;
+void    Response::Sethttpversion(std::string version) {
+	this->httpversion_ = version;
 }
 
-void    Response::pushBackBody(char c) {
-	this->body.push_back(c);
+void    Response::PushBackBody(char c) {
+	this->body_.push_back(c);
 }
 
-void    Response::printBody() const {
-	std::cerr << "-- print body --" << std::endl;
-	for(int i=0; i<this->body.size(); i++)
-		std::cerr << this->body[i];
+void    Response::PrintBody() const {
+	std::cerr << "-- print body_ --" << std::endl;
+	for(int i=0; i<this->body_.size(); i++)
+		std::cerr << this->body_[i];
 	std::cerr << "-- finish --" << std::endl;
 }
 
-ResponseType Response::getResponseType() const {
-	return (this->type);
+ResponseType Response::GetResponseType() const {
+	return (this->type_);
 }
 
-void    Response::setResponseType(ResponseType type) {
-	this->type = type;
+void    Response::SetResponseType(ResponseType type) {
+	this->type_ = type;
 }

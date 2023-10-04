@@ -141,16 +141,16 @@ void	Worker::ReqFirstLineParse(Request &req, std::string first_line) {
 	int	tmp = 0;
 	std::vector <std::string> fir_line_parse;
 	fir_line_parse = this->Split(first_line, ' ', tmp);
-	req.setMethod(fir_line_parse[0]);
+	req.SetMethod(fir_line_parse[0]);
 	// for (int i = 0; i < this->GetLocations().size(); i++)
 	// {
-	// 	if (req.getPath() == GetLocations()[i].GetUri())
+	// 	if (req.GetPath() == GetLocations()[i].GetUri())
 	// 		break ;
 	// 	else
 	// }
-	req.setPath(fir_line_parse[1]);
-    req.setFullPath(this->root_ + req.getPath());
-	req.setScheme(fir_line_parse[2]);
+	req.SetPath(fir_line_parse[1]);
+    req.SetFullPath(this->root_ + req.GetPath());
+	req.SetScheme(fir_line_parse[2]);
 }
 
 void	Worker::ParseHost(Request &req, std::vector<std::string> colon_parse) {
@@ -163,8 +163,8 @@ void	Worker::ParseHost(Request &req, std::vector<std::string> colon_parse) {
 		tmp += colon_parse[1][i];
 		i++;
 	}
-	req.pushBackHost(tmp);
-	req.pushBackHost(colon_parse[2]);
+	req.PushBackHost(tmp);
+	req.PushBackHost(colon_parse[2]);
 }
 
 void	Worker::ParseConnection(Request &req, std::vector<std::string> colon_parse) {
@@ -177,7 +177,7 @@ void	Worker::ParseConnection(Request &req, std::vector<std::string> colon_parse)
 		tmp += colon_parse[1][i];
 		i++;
 	}
-	req.setConnection(tmp);
+	req.SetConnection(tmp);
 }
 
 void	Worker::ParseContentLength(Request &req, std::vector<std::string> colon_parse) {
@@ -190,7 +190,7 @@ void	Worker::ParseContentLength(Request &req, std::vector<std::string> colon_par
 		tmp += colon_parse[1][i];
 		i++;
 	}
-	req.setContentLength(tmp);
+	req.SetContentLength(tmp);
 }
 
 void	Worker::ParseOther(Request &req, std::vector<std::string> line_parse, int line_cnt) {
@@ -209,30 +209,30 @@ void	Worker::ParseOther(Request &req, std::vector<std::string> line_parse, int l
 		else if (colon_parse[0] == "Content-Length")
 			this->ParseContentLength(req, colon_parse);
 		else if (colon_parse[0] == "Content-Type")
-			req.setContentType(colon_parse[1]);
+			req.SetContentType(colon_parse[1]);
 	}
 }
 
 void	Worker::RequestHeaderParse(Request &req) {
 	int	line_cnt = 0;
 	std::vector <std::string> line_parse;
-	std::string header = req.getHeaders();
+	std::string header = req.GetHeaders();
 
 	line_parse = this->SplitArgs(header, "\r\n");
 	this->ReqFirstLineParse(req, line_parse[0]);
 	line_cnt = line_parse.size();
 	this->ParseOther(req, line_parse, line_cnt);
-	//std::cout << "head = " << req.getHeaders() << std::endl;
-	// std::cout << "method : " << req.getMethod() << std::endl;
-	// std::cout << "path : " << req.getPath() << std::endl;
-	// std::cout << "scheme : " << req.getScheme() << std::endl;
-	// std::cout << "host[0] : " << req.getHost()[0] << std::endl;
-	// std::cout << "host[1] : " << req.getHost()[1] << std::endl;
-	// std::cout << "connection : " << req.getConnection() << std::endl;
-	// std::cout << "content-length : " << req.getContentLength() << std::endl;
+	//std::cout << "head = " << req.GetHeaders() << std::endl;
+	// std::cout << "method : " << req.GetMethod() << std::endl;
+	// std::cout << "path : " << req.GetPath() << std::endl;
+	// std::cout << "scheme : " << req.GetScheme() << std::endl;
+	// std::cout << "host[0] : " << req.GetHost()[0] << std::endl;
+	// std::cout << "host[1] : " << req.GetHost()[1] << std::endl;
+	// std::cout << "connection : " << req.GetConnection() << std::endl;
+	// std::cout << "content-length : " << req.GetContentLength() << std::endl;
 	// std::cout << "body : ";
-	// for(int i = 0; i < req.getBody().size(); i++)
-	// 	std::cout << req.getBody()[i];
+	// for(int i = 0; i < req.GetBody().size(); i++)
+	// 	std::cout << req.GetBody()[i];
 	// std::cout << std::endl;
 	//여기서 바디랑 길이 맞는지 확인하고 아니면 에러
 }
@@ -243,25 +243,25 @@ void	Worker::RequestHeaderParse(Request &req) {
 
 // 	for(int i = 0; i < this->GetLocations().size(); i++)
 // 	{
-// 		if (this->GetLocations()[i].GetRoot() == req.getPath())
+// 		if (this->GetLocations()[i].GetRoot() == req.GetPath())
 // 		break ;
 // 	}
-// 	if (req.getMethod() == "GET")
+// 	if (req.GetMethod() == "GET")
 // 		method = 0;
-// 	else if (req.getMethod() == "POST")
+// 	else if (req.GetMethod() == "POST")
 // 		method = 1;
-// 	else if (req.getMethod() == )
+// 	else if (req.GetMethod() == )
 // }
 
 void	Worker::ChunkBodyParse(Request &req, Response &res) {
 	size_t	byte;
 	std::vector <std::string> line_parse;
-	std::string tmp_body = req.getBodyStr();
-	// std::vector <char> body = req.getBody();
+	std::string tmp_body = req.GetBodyStr();
+	// std::vector <char> body = req.GetBody();
 	// std::string tmp_body(body.begin(), body.end());
 
 	line_parse = this->SplitArgs(tmp_body, "\r\n");
-	req.setBodyClear();
+	req.SetBodyClear();
 	for (int i = 0; i < line_parse.size(); i++)
 	{
 		if (i % 2 == 0)
@@ -269,7 +269,7 @@ void	Worker::ChunkBodyParse(Request &req, Response &res) {
 			byte = this->MyStoi(line_parse[i]);
 			if (byte == -1)
 			{
-				res.setStatusCode(400);
+				res.SetStatusCode(400);
 				break ;
 			}
 			if (byte == 0)
@@ -279,11 +279,11 @@ void	Worker::ChunkBodyParse(Request &req, Response &res) {
 		{
 			size_t	body_size = line_parse[i].size();
 			if (byte != body_size)
-				res.setStatusCode(400);
+				res.SetStatusCode(400);
 			for (int j = 0; j < line_parse[i].size(); j++)
-				req.pushPostBody(line_parse[i][j]);
-			// req.pushPostBody('\r');
-			// req.pushPostBody('\n');
+				req.PushPostBody(line_parse[i][j]);
+			// req.PushPostBody('\r');
+			// req.PushPostBody('\n');
 		}
 	}
 }
@@ -295,7 +295,7 @@ void	Worker::ChunkBodyParse(Request &req, Response &res) {
 
 // 	for (i = 0; i < locations.size(); i++)
 // 	{
-// 		if (locations[i].GetUri() == this->getRequest().getPath())
+// 		if (locations[i].GetUri() == this->GetRequest().GetPath())
 // 			Location	target = locations[i];
 // 			if (target.getRe)
 // 	}
@@ -311,17 +311,17 @@ void	Worker::ChunkBodyParse(Request &req, Response &res) {
 
 // 	for (i = 0; i < this->GetLocations().size(); i++)
 // 	{
-// 		pos = this->getRequest()[event_fd].getPath().find(this->GetLocations()[i].GetUri());
+// 		pos = this->GetRequest()[event_fd].GetPath().find(this->GetLocations()[i].GetUri());
 // 		if (pos != std::string::npos && this->GetLocations()[i].GetUri().size() > slen)
 // 		{
 // 			str = this->GetLocations()[i].GetUri();
 // 			slen = this->GetLocations()[i].GetUri().size();
-// 			file = this->getRequest()[event_fd].getPath().substr(pos + this->GetLocations()[i].GetUri().size());
+// 			file = this->GetRequest()[event_fd].GetPath().substr(pos + this->GetLocations()[i].GetUri().size());
 // 		}
 // 	}
 // 	std::cout << str << std::endl;
 // 	std::cout << file << std::endl;
 
-// 	this->getRequest()[event_fd].setPath(str);
-// 	this->getRequest()[event_fd].setBody(file);
+// 	this->GetRequest()[event_fd].SetPath(str);
+// 	this->GetRequest()[event_fd].setBody(file);
 // }

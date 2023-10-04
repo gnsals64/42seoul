@@ -3,7 +3,6 @@
 
 # include "Worker.hpp"
 # include "WorkerData.hpp"
-# include "Transaction.hpp"
 # include "Request.hpp"
 # include "BlockParser.hpp"
 # include "CgiHandler.hpp"
@@ -30,10 +29,10 @@ class Webserv {
 		std::vector<char>				buffer_;
 		struct kevent					events_[1024];
 
-		ssize_t	readData(int fd, char *buffer_, size_t buffer_size);
+		ssize_t	ReadData(int fd, char *buffer_, size_t buffer_size);
 		void	ReadyToConnect(int i);
-		void	send_response(int client_socket, int status_code, const std::string &content);
-		void	handle_request(int client_socket);
+		void	SendResponse(int client_socket, int status_code, const std::string &content);
+		void	HandleRequest(int client_socket);
 		int		ConnectNewClient(void);
 		int		StartReceiveData(int len);
 		int		SockReceiveData(void);

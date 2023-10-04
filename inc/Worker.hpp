@@ -17,111 +17,90 @@ class Response;
 
 class Worker {
 private:
-    int server_socket;
-    int port;
-	std::string root;
-	std::string index;
-    std::vector<std::string> server_names;
-    std::map<int, std::string> error_pages;
-    size_t client_max_body_size;
-	std::vector<Location> locations;
+    int 						server_socket_;
+    int 						port_;
+	std::string 				root_;
+	std::string 				index_;
+    std::vector<std::string>	server_names_;
+    std::map<int, std::string>	error_pages_;
+    size_t						client_max_body_size_worker_;
+	std::vector<Location>		locations_;
 
 public:
     Worker();
     ~Worker();
-    void	set_server_socket(int server_socket);
-    int		getServerSocket();
-    void	setPort(int port);
-    int		getPort();
-	void	setRoot(std::string& root);
-    const	std::string& getRoot() const;
-	void	setIndex(std::string& index);
-    const	std::string& getIndex() const;
+    void	SetServerSocket(int server_socket_);
+    int		GetServerSocket();
+    void	SetPort(int port);
+    int		GetPort();
+	void	SetRoot(std::string& root);
+    const	std::string& GetRoot() const;
+	void	SetIndex(std::string& index);
+    const	std::string& GetIndex() const;
     void	AddServerName(std::string& server_name);
-    const	std::vector<std::string>& get_server_names() const;
-    void	setClientMaxBodySize(size_t size);
-    size_t	get_client_max_body_size() const;
+    const	std::vector<std::string>& GetServerNames() const;
+    void	SetClientMaxBodySize(size_t size);
+    size_t	GetClientMaxBodySize() const;
     void	AddLocations(const Location& location);
-    const	std::vector<Location>& get_locations() const;
+    const	std::vector<Location>& GetLocations() const;
 	void	AddErrorPage(int error_code, std::string& error_page);
-    const	std::map<int, std::string>& get_error_page() const;
-	size_t	myStoi(std::string str);
-	std::vector<std::string> splitArgs(std::string line, std::string sep);
-	size_t	checkContentLength(std::string headers);
-	std::vector<std::string> split(std::string input, char dlim, int &result_cnt);
-	void	reqFirstLineParse(Request &req, std::string first_line);
-	void	parseHost(Request &req, std::vector<std::string> colon_parse);
-	void	parseConnection(Request &req, std::vector<std::string> colon_parse);
-	void	parseContentLength(Request &req, std::vector<std::string> colon_parse);
-	void	parseOther(Request &req, std::vector <std::string> line_parse, int line_cnt);
+    const	std::map<int, std::string>& GetErrorPage() const;
+	size_t	MyStoi(std::string str);
+	std::vector<std::string> SplitArgs(std::string line, std::string sep);
+	size_t	CheckContentLength(std::string headers);
+	std::vector<std::string> Split(std::string input, char dlim, int &result_cnt);
+	void	ReqFirstLineParse(Request &req, std::string first_line);
+	void	ParseHost(Request &req, std::vector<std::string> colon_parse);
+	void	ParseConnection(Request &req, std::vector<std::string> colon_parse);
+	void	ParseContentLength(Request &req, std::vector<std::string> colon_parse);
+	void	ParseOther(Request &req, std::vector <std::string> line_parse, int line_cnt);
 	// void	CheckPossibleMethod(Request &req);
-	void	requestHeaderParse(Request &req);
-	void	chunkBodyParse(Request &req, Response &res);
+	void	RequestHeaderParse(Request &req);
+	void	ChunkBodyParse(Request &req, Response &res);
 	// void	urlSearch(int event_fd);
 	// std::string checkReturnVal();
-	class	bindError: public std::exception
+	class	BindError: public std::exception
 	{
 		public:
-			virtual const char	*what() const throw()
-			{
-				return ("bind error");
-			}
+			virtual const char	*what() const throw();
 	};
-	class	listenError: public std::exception
+	class	ListenError: public std::exception
 	{
 		public:
-			virtual const char	*what() const throw()
-			{
-				return ("listen error");
-			}
+			virtual const char	*what() const throw();
 	};
-	class	kqueueError: public std::exception
+	class	KqueueError: public std::exception
 	{
 		public:
-			virtual const char	*what() const throw()
-			{
-				return ("kqueue error");
-			}
+			virtual const char	*what() const throw();
 	};
-	class	keventError: public std::exception
+	class	KeventError: public std::exception
 	{
 		public:
-			virtual const char	*what() const throw()
-			{
-				return ("kevent error");
-			}
+			virtual const char	*what() const throw();
 	};
-	class	acceptError: public std::exception
+	class	AcceptError: public std::exception
 	{
 		public:
-			virtual const char	*what() const throw()
-			{
-				return ("accept error");
-			}
+			virtual const char	*what() const throw();
 	};
-	class	readError: public std::exception
+	class	ReadError: public std::exception
 	{
 		public:
-			virtual const char	*what() const throw()
-			{
-				return ("read error");
-			}
+			virtual const char	*what() const throw();
 	};
-	class	unkownError: public std::exception
+	class	UnkownError: public std::exception
 	{
 		public:
-			virtual const char	*what() const throw()
-			{
-				return ("unkown error");
-			}
+			virtual const char	*what() const throw();
 	};
 };
-
-void	exitError(std::string msg);
-std::vector<std::string>::iterator setWorker(Worker& worker, std::vector<std::string> lines, std::vector<std::string>::iterator& lineIt);
-Worker setWorker_info(std::vector<std::string>& lines);
+void	WorkerThrowError(std::string msg);
+std::vector<std::string>::iterator SetWorker(Worker& worker, std::vector<std::string> lines, std::vector<std::string>::iterator& lineIt);
+Worker SetWorkerInfo(std::vector<std::string>& lines);
 void ParseListen(Worker& worker, const std::string& line);
 void ParseErrorPage(Worker& worker, std::vector<std::string>& lines, std::vector<std::string>::iterator& lineIt);
 void ParseClientMaxBodySize(Worker& worker, const std::string& line);
+
 
 #endif

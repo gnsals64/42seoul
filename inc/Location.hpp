@@ -25,39 +25,39 @@ class Worker;
 
 class Location {
 private:
-	std::string uri;
-    std::string root;
-    std::string index;
-    bool auto_index;
-	int	redir_status_code;
-	std::string redir_uri;
-    std::map<int, bool> limit_excepts;
+	std::string			uri_;
+    std::string			root_;
+    std::string			index_;
+    bool				auto_index_;
+	int					redir_status_code_;
+	std::string			redir_uri;
+	size_t				client_max_body_size_worker_location_;
+    std::map<int, bool> limit_excepts_;
 
 public:
     Location();
     ~Location();
-	void setUri(const std::string& uri);
-	void setRoot(const std::string& root);
-	void setIndex(const std::string& index);
-	void set_redir_status_code(int status);
-	void set_redir_uri(const std::string& uri);
-	void set_limit_excepts(int method, bool access);
-	void set_auto_index(bool access);
-	const std::string& get_uri() const;
-	const std::string& getRoot() const;
-	const std::string& getIndex() const;
-	int get_redir_status_code() const;
-	const std::string& get_redir_uri() const;
-	std::map<int, bool> get_limit_excepts() const;
-	bool get_auto_index() const;
+	void SetUri(const std::string& uri);
+	void SetRoot(const std::string& root);
+	void SetIndex(const std::string& index);
+	void SetRedirStatusCode(int status);
+	void SetRedirUri(const std::string& uri);
+	void SetLimitExcepts(int method, bool access);
+	void SetAutoIndex(bool access);
+	const std::string& GetUri() const;
+	const std::string& GetRoot() const;
+	const std::string& GetIndex() const;
+	int GetRedirStatusCode() const;
+	const std::string& GetRedirUri() const;
+	std::map<int, bool> GetLimitExcepts() const;
+	bool GetAutoIndex() const;
 };
 
-std::vector<std::string>::iterator setLocation_token(Location& location, std::vector<std::string> lines, std::vector<std::string>::iterator& lineIt);
-std::vector<std::string>::iterator setLocation(Worker& worker, std::vector<std::string> lines, std::vector<std::string>::iterator& lineIt);
+std::vector<std::string>::iterator SetLocationToken(Location& location, std::vector<std::string> lines, std::vector<std::string>::iterator& lineIt);
+std::vector<std::string>::iterator SetLocation(Worker& worker, std::vector<std::string> lines, std::vector<std::string>::iterator& lineIt);
 void	CheckLocationToken(Location& location, std::vector<std::string> lines, std::vector<std::string>::iterator& lineIt);
-void	parse_limit_except(Location& location, std::vector<std::string> lines, std::vector<std::string>::iterator& lineIt);
-void	parse_auto_index(Location& location, const std::string line);
-void	parse_redirection(Location& location, std::vector<std::string>::iterator& lineIt);
-void	print_worker_info(Worker& worker);
+void	ParseLimitExcept(Location& location, std::vector<std::string> lines, std::vector<std::string>::iterator& lineIt);
+void	ParseAutoIndex(Location& location, const std::string line);
+void	ParseRedirection(Location& location, std::vector<std::string>::iterator& lineIt);
 
 #endif

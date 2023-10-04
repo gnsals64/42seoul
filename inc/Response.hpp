@@ -9,7 +9,6 @@
 #include <fcntl.h>
 #include <fstream>
 
-#include "Transaction.hpp"
 #include "Worker.hpp"
 #include "Request.hpp"
 #include "CgiHandler.hpp"
@@ -26,38 +25,44 @@ enum ResponseType {
 	CGI
 };
 
-class Response : public Transaction {
+class Response {
     private:
-        int statusCode;
-		ResponseType type;
-        std::string getStatusMessage(int code);
-        void readFileToBody(const std::string &path);
-        void generateBody_AutoIndexing(const Request &request);
-        int checkPath(const std::string path);
-        std::vector<std::string> getFilesInDirectory(const std::string &dirPath);
+        int             status_code_;
+		ResponseType    type_;
+        std::string     httpversion_;
+   	 	std::string     connection_;
+   		std::string     location_; // 300번대 응답에서 redirect 시 사용.
+   		std::string     contentType_;
+		std::vector     <char> body_;
+
+        std::string GetStatusMessage(int code);
+        void ReadFileToBody(const std::string &path);
+        void GenerateBodyAutoIndexing(const Request &request);
+        int CheckPath(const std::string path);
+        std::vector<std::string> GetFilesInDirectory(const std::string &dirPath);
 
     public:
         Response();
         ~Response();
 		Response& operator=(const Response& response);
 
-        void parsingFromRequest(Worker &worker, const Request &request);
-        void handleBodySizeLimit();
-        void handleBadRequest();
-        void setBody(const std::string body);
+        void ParsingFromRequest(Worker &worker, const Request &request);
+        void HandleBodySizeLimit();
+        void HandleBadRequest();
+        void SetBody(const std::string body);
         void SendResponse(int fd);
-		ResponseType getResponseType(void) const;
-		void setResponseType(ResponseType type);
+		ResponseType GetResponseType(void) const;
+		void SetResponseType(ResponseType type);
 
-        void handleGET(const Request &request, const std::string index);
-        void handlePOST(const Request &request);
-        void handlePUT(const Request &request);
-        void handleDELETE(const Request &request);
-        void setStatusCode(int data);
-        void sethttpversion(std::string version);
-		void pushBackBody(char c);
-        std::string deleteCheck(std::string path) const;
-		void printBody() const;
+        void HandleGet(const Request &request, const std::string index);
+        void HandlePost(const Request &request);
+        void HandlePut(const Request &request);
+        void HandleDelete(const Request &request);
+        void SetStatusCode(int data);
+        void Sethttpversion(std::string version);
+		void PushBackBody(char c);
+        std::string DeleteCheck(std::string path) const;
+		void PrintBody() const;
 
         enum HttpStatusCode
         {

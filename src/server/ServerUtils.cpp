@@ -7,7 +7,7 @@ void	Webserv::ChangeEvent(std::vector<struct kevent>& change_list_, uintptr_t id
 	change_list_.push_back(temp_event);
 }
 
-ssize_t	Webserv::readData(int fd, char *buffer_, size_t buffer_size) {
+ssize_t	Webserv::ReadData(int fd, char *buffer_, size_t buffer_size) {
     ssize_t len = recv(fd, buffer_, buffer_size, 0);
     if (len == 0) {
         return (0);
@@ -17,7 +17,7 @@ ssize_t	Webserv::readData(int fd, char *buffer_, size_t buffer_size) {
     return -1;
 }
 
-void	Webserv::send_response(int client_socket, int status_code, const std::string &content) {
+void	Webserv::SendResponse(int client_socket, int status_code, const std::string &content) {
 	std::stringstream response;
 	response << "HTTP/1.1 " << status_code << " " << status_messages_[status_code] << CRLF;
 	response << "Content-Type: text/html" << CRLF;
@@ -30,7 +30,7 @@ void	Webserv::send_response(int client_socket, int status_code, const std::strin
 	// close (client_socket);
 }
 
-void	Webserv::handle_request(int client_socket) {
+void	Webserv::HandleRequest(int client_socket) {
     const std::string response_content = "<html><body><h1>Hello, HTTP 1.1 Server!</h1></body></html>";
-    send_response(client_socket, 200, response_content);
+    SendResponse(client_socket, 200, response_content);
 }

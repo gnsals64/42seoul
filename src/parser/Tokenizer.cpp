@@ -53,21 +53,21 @@ ConfigParser::TokenType	ConfigParser::Tokenization(std::istream *file, std::stri
 int	ConfigParser::BlockTokenCheck(std::string token) {
 	if (token == "http") {
 		if (check_.http_ == true) {
-			setErrorbit(2);
+			SetErrorbit(2);
 			return -1;
 		}
 		check_.http_ = true;
 	}
 	if (token == "server") {
 		if (check_.server_ == true) {
-			setErrorbit(3);
+			SetErrorbit(3);
 			return -1;
 		}
 		check_.server_ = true;
 	}
 	if (token == "location") {
 		if (check_.location_ == true) {
-			setErrorbit(4);
+			SetErrorbit(4);
 			return -1;
 		}
 		check_.location_ = true;
@@ -120,7 +120,7 @@ void	ConfigParser::StartParsing(std::istream *file) {
 
 		if (token_type == TOKEN_TYPE_SEMICOLON) {
 			if (last_type == TOKEN_TYPE_START_BLOCK || last_type == TOKEN_TYPE_END_BLOCK || last_type == TOKEN_TYPE_SEMICOLON) {
-				last_type = setErrorbit(1);
+				last_type = SetErrorbit(1);
 				continue ;
 			}
 			line += token;
@@ -129,7 +129,7 @@ void	ConfigParser::StartParsing(std::istream *file) {
 
 		if (token_type == TOKEN_TYPE_NEWLINE) {
 			if (last_type == TOKEN_TYPE_NORMAL) {
-                last_type = setErrorbit(1);
+                last_type = SetErrorbit(1);
                 continue ;
             }
 			line_num_++;
@@ -137,7 +137,7 @@ void	ConfigParser::StartParsing(std::istream *file) {
 
 		if (token_type == TOKEN_TYPE_START_BLOCK) {
 			if (last_type == TOKEN_TYPE_SEMICOLON) {
-				last_type = setErrorbit(1);
+				last_type = SetErrorbit(1);
 				continue;
 			}
 			if (check_.http_ == true && token_tmp == "http") {
@@ -161,7 +161,7 @@ void	ConfigParser::StartParsing(std::istream *file) {
                 token_tmp.clear();
                 continue ;
             }
-			last_type = setErrorbit(1);
+			last_type = SetErrorbit(1);
 			continue;
 		}
 		if (token_type == TOKEN_TYPE_END_BLOCK) {
@@ -194,7 +194,7 @@ void	ConfigParser::StartParsing(std::istream *file) {
                 check_.location_ = false;
                 continue ;
             }
-			last_type = setErrorbit(1);
+			last_type = SetErrorbit(1);
 			continue;
 		}
 		last_type = token_type;

@@ -4,61 +4,63 @@
 # define HEADER_READ 0
 # define BODY_READ 1
 # define READ_FINISH 2
-#include "Transaction.hpp"
 #include "Worker.hpp"
 #include <sys/time.h>
 
-class Request : public Transaction{
+class Request {
 	private:
-		std::string headers;
-		std::string httpMethod;
-        std::string path;
-        std::string full_path;
-        std::string	scheme;
-        std::vector <std::string> host;
-        std::string	connection;
-        std::string	contentLength;
-		std::string	body_str;
-		int	state;
+		std::string headers_;
+		std::string httpmethod_;
+        std::string path_;
+        std::string full_path_;
+        std::string	scheme_;
+        std::vector <std::string> host_;
+        std::string	connection_;
+        std::string	contentLength_;
+		std::string	body_str_;
+		int			state_;
+		std::string httpversion_;
+   		std::string location_; 
+   		std::string contentType_;
+		std::vector <char> body_;
 
 	public:
 		Request();
 		~Request();
 		Request& operator=(const Request& request);
 
-		void	setMethod(std::string method);
-		void	setPath(std::string path);
-        void    setFullPath(std::string full_path);
-		void	setScheme(std::string scheme);
-		void	pushBackHost(std::string host);
-		void	setConnection(std::string connection);
-		void	setContentLength(std::string contentLength);
-		void	setState(int setstate);
-		void	setHeaders(std::string data);
-		void	setBodyClear();
-		void	setContentType(std::string type);
-		std::string	getMethod() const;
-		std::string	getPath() const;
-        std::string getFullPath() const;
-		std::string	getScheme() const;
-		std::vector<std::string>	getHost() const;
-		std::string	getConnection() const;
-		std::string getContentLength() const;
-		std::string getHeaders() const;
-		int	getState() const;
-		std::vector<char> getBody() const;
-        std::string getContentType() const;
-		std::string getBodyStr() const;
-		std::string getBodyCharToStr() const;
+		void	SetMethod(std::string method);
+		void	SetPath(std::string path);
+        void    SetFullPath(std::string full_path_);
+		void	SetScheme(std::string scheme);
+		void	PushBackHost(std::string host);
+		void	SetConnection(std::string connection);
+		void	SetContentLength(std::string contentLength_);
+		void	SetState(int SetState);
+		void	SetHeaders(std::string data);
+		void	SetBodyClear();
+		void	SetContentType(std::string type);
+		std::string	GetMethod() const;
+		std::string	GetPath() const;
+        std::string GetFullPath() const;
+		std::string	GetScheme() const;
+		std::vector<std::string>	GetHost() const;
+		std::string	GetConnection() const;
+		std::string GetContentLength() const;
+		std::string GetHeaders() const;
+		int	GetState() const;
+		std::vector<char> GetBody() const;
+        std::string GetContentType() const;
+		std::string GetBodyStr() const;
+		std::string GetBodyCharToStr() const;
 
-		void	appendHeader(std::string data);
-		void	appendBodyStr(std::string data);
-		void	pushPostBody(char data);
+		void	AppendHeader(std::string data);
+		void	AppendBodyStr(std::string data);
+		void	PushPostBody(char data);
 		void	BodyAppendVec(std::vector<char> data);
-		void	removeCRLF();
-		void	parsingFromData(std::string data);
+		void	RemoveCRLF();
 
-		int	Findrn0rn(std::string temp);
+		int		Findrn0rn(std::string temp);
 		void	AddRNRNOneTime();
 		void	RemoveRNRNOneTime();
 };

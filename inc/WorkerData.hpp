@@ -19,12 +19,12 @@ class WorkerData {
 		WorkerData(Request &request, Response &response, CgiHandler &cgi, EventType event);
 		~WorkerData();
 
-		Request& getRequest(void);
-		Response& getResponse(void);
-		CgiHandler& getCgiHandler(void);
-		EventType getEventType(void) const;
+		Request& GetRequest(void);
+		Response& GetResponse(void);
+		CgiHandler& GetCgiHandler(void);
+		EventType GetEventType(void) const;
 
-		void	setEventType(EventType event);
+		void	SetEventType(EventType event);
 };
 
 #endif

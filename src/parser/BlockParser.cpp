@@ -1,25 +1,24 @@
 #include "../../inc/BlockParser.hpp"
 
-int	CheckExtension(std::string filename) {
+void	CheckExtension(std::string filename) {
 	std::string	extention;
 	int			index;
 
 	index = filename.find(".");
 	if (index == -1)
-		return (-1);
+		throw ConfigParser::ConfFileNameError();
 	extention = filename.substr(index);
 	if (extention.compare(".conf") != 0)
-		return (-1);
-	return (1);
+		throw ConfigParser::ConfFileNameError();
 }
 
-int	CheckBlock(std::string filename, ConfigParser *parser) {
+void	CheckBlock(std::string filename, ConfigParser *parser) {
 	std::ifstream	ifs(filename, std::ifstream::in);
 
 	if (ifs.is_open() == false)
-		return (-1);
+		throw ConfigParser::ConfFileOpenError();
 	parser->InitParserClass();
 	parser->StartParsing(&ifs);
+	parser->CheckHttpBlock();
 	parser->PrintParseError(filename);
-	return (0);
 }

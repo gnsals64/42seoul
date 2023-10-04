@@ -1,12 +1,12 @@
 #include "../../inc/Request.hpp"
 
 Request::Request() {
-	this->httpMethod = "";
-	this->path = "";
-	this->scheme = "";
-	this->connection = "";
-	this->contentLength = "0";
-	this->state = HEADER_READ;
+	this->httpmethod_ = "";
+	this->path_ = "";
+	this->scheme_ = "";
+	this->connection_ = "";
+	this->contentLength_ = "0";
+	this->state_ = HEADER_READ;
 }
 
 Request::~Request() {
@@ -14,24 +14,24 @@ Request::~Request() {
 }
 
 Request& Request::operator=(const Request& request) {
-	this->headers = request.headers;
-	this->httpMethod = request.httpMethod;
-	this->path = request.path;
-	this->full_path = request.full_path;
-	this->scheme = request.scheme;
-	this->host = request.host;
-	this->connection = request.connection;
-	this->contentLength = request.contentLength;
-	this->body_str = request.body_str;
-	this->state = request.state;
+	this->headers_ = request.headers_;
+	this->httpmethod_ = request.httpmethod_;
+	this->path_ = request.path_;
+	this->full_path_ = request.full_path_;
+	this->scheme_ = request.scheme_;
+	this->host_ = request.host_;
+	this->connection_ = request.connection_;
+	this->contentLength_ = request.contentLength_;
+	this->body_str_ = request.body_str_;
+	this->state_ = request.state_;
 	return *this;
 }
 
-void	Request::setMethod(std::string method) {
-	this->httpMethod = method;
+void	Request::SetMethod(std::string method) {
+	this->httpmethod_ = method;
 }
 
-void	Request::setPath(std::string path) {
+void	Request::SetPath(std::string path) {
 	if (path[0] == '/') {
 		while(true) {
 			if (path[1] != '/')
@@ -40,117 +40,117 @@ void	Request::setPath(std::string path) {
 				path.erase(1, 1);
 		}
 	}
-	this->path = path;
+	this->path_ = path;
 }
 
-void    Request::setFullPath(std::string full_path) {
-    this->full_path = full_path;
+void    Request::SetFullPath(std::string full_path) {
+    this->full_path_ = full_path;
 }
 
-void	Request::setScheme(std::string scheme) {
-	this->scheme = scheme;
+void	Request::SetScheme(std::string scheme) {
+	this->scheme_ = scheme;
 }
 
-void	Request::pushBackHost(std::string host) {
-	this->host.push_back(host);
+void	Request::PushBackHost(std::string host) {
+	this->host_.push_back(host);
 }
 
-void	Request::setConnection(std::string connection) {
-	this->connection = connection;
+void	Request::SetConnection(std::string connection) {
+	this->connection_ = connection;
 }
 
-void	Request::setContentLength(std::string contentLength) {
-	this->contentLength = contentLength;
+void	Request::SetContentLength(std::string contentLength_) {
+	this->contentLength_ = contentLength_;
 }
 
-void	Request::setState(int data) {
-	this->state = data;
+void	Request::SetState(int data) {
+	this->state_ = data;
 }
 
-void	Request::setHeaders(std::string data) {
-	this->headers = data;
+void	Request::SetHeaders(std::string data) {
+	this->headers_ = data;
 }
 
-void	Request::setBodyClear() {
-	this->body.clear();
+void	Request::SetBodyClear() {
+	this->body_.clear();
 }
 
-std::string	Request::getMethod() const {
-	return (this->httpMethod);
+std::string	Request::GetMethod() const {
+	return (this->httpmethod_);
 }
 
-std::string Request::getFullPath() const {
-    return (this->full_path);
+std::string Request::GetFullPath() const {
+    return (this->full_path_);
 }
 
-std::string	Request::getPath() const {
-	return (this->path);
+std::string	Request::GetPath() const {
+	return (this->path_);
 }
 
-std::string	Request::getScheme() const {
-	return (this->scheme);
+std::string	Request::GetScheme() const {
+	return (this->scheme_);
 }
 
-std::vector<std::string>	Request::getHost() const {
-	return (this->host);
+std::vector<std::string>	Request::GetHost() const {
+	return (this->host_);
 }
 
-std::string	Request::getConnection() const {
-	return (this->connection);
+std::string	Request::GetConnection() const {
+	return (this->connection_);
 }
 
-std::string	Request::getContentLength() const {
-	return (this->contentLength);
+std::string	Request::GetContentLength() const {
+	return (this->contentLength_);
 }
 
-std::vector<char> Request::getBody() const {
-	return (this->body);
+std::vector<char> Request::GetBody() const {
+	return (this->body_);
 }
 
-std::string Request::getBodyStr() const {
-	return (this->body_str);
+std::string Request::GetBodyStr() const {
+	return (this->body_str_);
 }
 
-std::string Request::getBodyCharToStr() const {
-	std::string temp(this->body.begin(), this->body.end());
+std::string Request::GetBodyCharToStr() const {
+	std::string temp(this->body_.begin(), this->body_.end());
 	return (temp);
 }
 
-std::string Request::getHeaders() const {
-	return (this->headers);
+std::string Request::GetHeaders() const {
+	return (this->headers_);
 }
 
-int	Request::getState() const {
-	return (this->state);
+int	Request::GetState() const {
+	return (this->state_);
 }
 
-std::string Request::getContentType() const {
-    return this->contentType;
+std::string Request::GetContentType() const {
+    return this->contentType_;
 }
 
-void	Request::appendHeader(std::string data) {
-	this->headers.append(data);
+void	Request::AppendHeader(std::string data) {
+	this->headers_.append(data);
 }
 
-void	Request::pushPostBody(char data) {
-	this->body.push_back(data);
+void	Request::PushPostBody(char data) {
+	this->body_.push_back(data);
 }
 
 void	Request::BodyAppendVec(std::vector<char> data) {
-	this->body.insert(this->body.end(), data.begin(), data.end());
+	this->body_.insert(this->body_.end(), data.begin(), data.end());
 }
 
-void	Request::appendBodyStr(std::string data) {
-	this->body_str.append(data);
+void	Request::AppendBodyStr(std::string data) {
+	this->body_str_.append(data);
 }
 
-void	Request::setContentType(std::string type) {
-	this->contentType = type;
+void	Request::SetContentType(std::string type) {
+	this->contentType_ = type;
 }
 
-void	Request::removeCRLF() {
+void	Request::RemoveCRLF() {
 	std::vector <char>::iterator it;
-	for (it = this->body.begin(); it != this->body.end(); it++)
+	for (it = this->body_.begin(); it != this->body_.end(); it++)
 	{
 		if (*it == '\r')
 		{
@@ -160,7 +160,7 @@ void	Request::removeCRLF() {
 				{
 					if (*(it + 3) == '\n')
 					{
-						this->body.erase(this->body.begin(), it + 4);
+						this->body_.erase(this->body_.begin(), it + 4);
 						break;
 					}
 				}
@@ -177,11 +177,11 @@ int	Request::Findrn0rn(std::string temp) {
 }
 
 void	Request::AddRNRNOneTime() {
-	this->body.insert(this->body.begin(), '\n');
-	this->body.insert(this->body.begin(), '\r');
+	this->body_.insert(this->body_.begin(), '\n');
+	this->body_.insert(this->body_.begin(), '\r');
 }
 
 void	Request::RemoveRNRNOneTime() {
-	this->body.erase(this->body.begin());
-	this->body.erase(this->body.begin());
+	this->body_.erase(this->body_.begin());
+	this->body_.erase(this->body_.begin());
 }

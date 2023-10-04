@@ -54,10 +54,10 @@ class Response {
 		ResponseType GetResponseType(void) const;
 		void SetResponseType(ResponseType type);
 
-        void HandleGET(const Request &request, const std::string index);
-        void HandlePOST(const Request &request);
-        void HandlePUT(const Request &request);
-        void HandleDELETE(const Request &request);
+        void HandleGet(const Request &request, const std::string index);
+        void HandlePost(const Request &request);
+        void HandlePut(const Request &request);
+        void HandleDelete(const Request &request);
         void SetStatusCode(int data);
         void Sethttpversion(std::string version);
 		void PushBackBody(char c);

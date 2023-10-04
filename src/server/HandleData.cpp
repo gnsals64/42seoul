@@ -187,13 +187,13 @@ void    Webserv::MakeResponse(const Request &request) {
 
 	std::map<int, bool> limit_excepts = wit_->GetLocations()[location_idx].GetLimitExcepts();
     if (request.GetMethod() == "GET" &&  limit_excepts[METHOD_GET])
-        this->eventData_->GetResponse().HandleGET(eventData_->GetRequest(), wit_->GetLocations()[location_idx].GetIndex());
+        this->eventData_->GetResponse().HandleGet(eventData_->GetRequest(), wit_->GetLocations()[location_idx].GetIndex());
     else if (request.GetMethod() == "POST" && limit_excepts[METHOD_POST])
-        this->eventData_->GetResponse().HandlePOST(eventData_->GetRequest());
+        this->eventData_->GetResponse().HandlePost(eventData_->GetRequest());
     // else if (method == "PUT" && limit_excepts[METHOD_PUT])
-    //     this->eventData_->response.HandlePOST(eventData_->request);
+    //     this->eventData_->response.HandlePost(eventData_->request);
     else if (request.GetMethod() == "DELETE" && limit_excepts[METHOD_DELETE])
-        this->eventData_->GetResponse().HandleDELETE(eventData_->GetRequest());
+        this->eventData_->GetResponse().HandleDelete(eventData_->GetRequest());
     else {
 		/* 이런것도 함수로 빼자 (send405Response) */
 		this->eventData_->GetResponse().SetStatusCode(Response::METHOD_NOT_ALLOWED);

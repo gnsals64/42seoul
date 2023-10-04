@@ -156,7 +156,7 @@ std::vector<std::string> Response::GetFilesInDirectory(const std::string &dirPat
 // 	this->contentType_ = "text/html";
 // }
 
-void Response::HandleGET(const Request &request, const std::string index) {
+void Response::HandleGet(const Request &request, const std::string index) {
 	std::string final_path = request.GetFullPath();
 	int check_res = this->CheckPath(final_path);
 	if (check_res == 1) // autoindex 해야하는 상황
@@ -187,7 +187,7 @@ void Response::HandleGET(const Request &request, const std::string index) {
 	this->ReadFileToBody(final_path);
 }
 
-void Response::HandlePOST(const Request &request) {
+void Response::HandlePost(const Request &request) {
 	DIR *dir_info;
 
 	/* 405 응답 보내는 함수 필요 */
@@ -201,9 +201,9 @@ void Response::HandlePOST(const Request &request) {
 	}
 }
 
-void Response::HandlePUT(const Request &request) {}
+void Response::HandlePut(const Request &request) {}
 
-void Response::HandleDELETE(const Request &request) {
+void Response::HandleDelete(const Request &request) {
 	std::string path = request.GetFullPath();
 //	try
 //	{

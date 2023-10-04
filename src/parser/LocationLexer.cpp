@@ -7,7 +7,8 @@ std::vector<std::string>::iterator SetLocation(Worker& worker, std::vector<std::
 	location.SetRoot(worker.GetRoot());
 	location.SetIndex(worker.GetIndex());
 	location.SetUri(*(lineIt++));
-
+	if (worker.GetClientMaxBodySize() != -1)
+		location.SetClientMaxBodySize(worker.GetClientMaxBodySize());
 	CheckLocationToken(location, lines, lineIt);
 	worker.AddLocations(location);
 	return ++lineIt;
@@ -77,8 +78,8 @@ std::vector<std::string>::iterator SetLocationToken(Location& location, std::vec
 		location.SetIndex(*(++lineIt));
 	else if (line == "autoindex")
 		ParseAutoIndex(location, *(++lineIt));
-	// else if (line == "client_max_body_size")
-	// 	parse_client_max_body_size(location, *(++lineIt));
+	else if (line == "client_max_body_size")
+		ParseClientMaxBodySizeLocation(location, *(++lineIt));
 	else if (line == "return")
 		ParseRedirection(location, ++lineIt);
 	
@@ -125,4 +126,19 @@ void	CheckLocationToken(Location& location, std::vector<std::string> lines, std:
 
 	if (*lineIt != "}")
 		WorkerThrowError("Error : location block close");
+}
+
+void ParseClientMaxBodySizeLocation(Location& location, const std::string& line) {
+	std::stringstream ss(line);
+	double value = 0.0;
+	char suffix = '\0';
+
+	ss >> value >> suffix;
+
+	if (!suffix && value)
+		location.SetClientMaxBodySize(value);
+	else if (tolower(suffix) == 'm')
+		location.SetClientMaxBodySize(value * 1000000);
+	else
+		WorkerThrowError("[client_max_body_size] directive invalid value");
 }

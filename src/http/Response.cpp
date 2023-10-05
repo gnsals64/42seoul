@@ -30,26 +30,28 @@ std::string Response::GetStatusMessage(int code) {
 			return "OK";
 		case CREATED:
 			return "Created";
-		case ACCEPTED:
-			return "Accepted";
 		case NO_CONTENT:
 			return "No Content";
+		case MOVED_PERMANENTLY:
+			return "Moved Permanently";
 		case BAD_REQUEST:
 			return "Bad Request";
-		case UNAUTHORIZED:
-			return "Unauthorized";
-		case FORBIDDEN:
-			return "Forbidden";
 		case NOT_FOUND:
 			return "Not Found";
-		case INTERNAL_SERVER_ERROR:
-			return "Internal Server Error";
+		case METHOD_NOT_ALLOWED:
+			return "Method Not Allowed";
+		case LENGTH_REQUIRED:
+			return "Length Required";
+		case PAYLOAD_TOO_LARGE:
+			return "Payload Too Large";
+		case URL_TOO_LONG:
+			return "URL Too Long";
+		case UNSUPPORTED_MEDIA_TYPE:
+			return "Unsupported Media Type";
 		case NOT_IMPLEMENTED:
 			return "Not Implemented";
-		case SERVICE_UNAVAILABLE:
-			return "Service Unavailable";
-		case CONTENT_TOO_LARGE:
-			return "Content Too Large";
+		case HTTP_VERSION_NOT_SUPPORTED:
+			return "Http Version Not Supported";
 		default:
 			return "Unknown";
 	}

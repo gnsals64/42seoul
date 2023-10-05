@@ -8,7 +8,7 @@ std::vector<std::string>::iterator SetLocation(Worker& worker, std::vector<std::
 	location.SetIndex(worker.GetIndex());
 	location.SetUri(*(lineIt++));
 	if (worker.GetClientMaxBodySize() != -1)
-		location.SetClientMaxBodySize(worker.GetClientMaxBodySize());
+		location.SetClientMaxBodySizeLocation(worker.GetClientMaxBodySize());
 	CheckLocationToken(location, lines, lineIt);
 	worker.AddLocations(location);
 	return ++lineIt;
@@ -136,9 +136,9 @@ void ParseClientMaxBodySizeLocation(Location& location, const std::string& line)
 	ss >> value >> suffix;
 
 	if (!suffix && value)
-		location.SetClientMaxBodySize(value);
+		location.SetClientMaxBodySizeLocation(value);
 	else if (tolower(suffix) == 'm')
-		location.SetClientMaxBodySize(value * 1000000);
+		location.SetClientMaxBodySizeLocation(value * 1000000);
 	else
 		WorkerThrowError("[client_max_body_size] directive invalid value");
 }

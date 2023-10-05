@@ -10,18 +10,18 @@
 class Request {
 	private:
 		std::string headers_;
-		std::string httpmethod_;
+		std::string http_method_;
         std::string path_;
         std::string full_path_;
         std::string	scheme_;
         std::vector <std::string> host_;
         std::string	connection_;
-        std::string	contentLength_;
+        std::string	content_length_;
 		std::string	body_str_;
 		int			state_;
-		std::string httpversion_;
+		std::string http_version_;
    		std::string location_; 
-   		std::string contentType_;
+   		std::string content_type_;
 		std::vector <char> body_;
 
 	public:
@@ -35,7 +35,7 @@ class Request {
 		void	SetScheme(std::string scheme);
 		void	PushBackHost(std::string host);
 		void	SetConnection(std::string connection);
-		void	SetContentLength(std::string contentLength_);
+		void	SetContentLength(std::string content_length_);
 		void	SetState(int SetState);
 		void	SetHeaders(std::string data);
 		void	SetBodyClear();

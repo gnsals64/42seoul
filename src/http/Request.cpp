@@ -1,11 +1,11 @@
 #include "../../inc/Request.hpp"
 
 Request::Request() {
-	this->httpmethod_ = "";
+	this->http_method_ = "";
 	this->path_ = "";
 	this->scheme_ = "";
 	this->connection_ = "";
-	this->contentLength_ = "0";
+	this->content_length_ = "0";
 	this->state_ = HEADER_READ;
 }
 
@@ -15,20 +15,20 @@ Request::~Request() {
 
 Request& Request::operator=(const Request& request) {
 	this->headers_ = request.headers_;
-	this->httpmethod_ = request.httpmethod_;
+	this->http_method_ = request.http_method_;
 	this->path_ = request.path_;
 	this->full_path_ = request.full_path_;
 	this->scheme_ = request.scheme_;
 	this->host_ = request.host_;
 	this->connection_ = request.connection_;
-	this->contentLength_ = request.contentLength_;
+	this->content_length_ = request.content_length_;
 	this->body_str_ = request.body_str_;
 	this->state_ = request.state_;
 	return *this;
 }
 
 void	Request::SetMethod(std::string method) {
-	this->httpmethod_ = method;
+	this->http_method_ = method;
 }
 
 void	Request::SetPath(std::string path) {
@@ -59,8 +59,8 @@ void	Request::SetConnection(std::string connection) {
 	this->connection_ = connection;
 }
 
-void	Request::SetContentLength(std::string contentLength_) {
-	this->contentLength_ = contentLength_;
+void	Request::SetContentLength(std::string content_length_) {
+	this->content_length_ = content_length_;
 }
 
 void	Request::SetState(int data) {
@@ -76,7 +76,7 @@ void	Request::SetBodyClear() {
 }
 
 std::string	Request::GetMethod() const {
-	return (this->httpmethod_);
+	return (this->http_method_);
 }
 
 std::string Request::GetFullPath() const {
@@ -100,7 +100,7 @@ std::string	Request::GetConnection() const {
 }
 
 std::string	Request::GetContentLength() const {
-	return (this->contentLength_);
+	return (this->content_length_);
 }
 
 std::vector<char> Request::GetBody() const {
@@ -125,7 +125,7 @@ int	Request::GetState() const {
 }
 
 std::string Request::GetContentType() const {
-    return this->contentType_;
+    return this->content_type_;
 }
 
 void	Request::AppendHeader(std::string data) {
@@ -145,7 +145,7 @@ void	Request::AppendBodyStr(std::string data) {
 }
 
 void	Request::SetContentType(std::string type) {
-	this->contentType_ = type;
+	this->content_type_ = type;
 }
 
 void	Request::RemoveCRLF() {

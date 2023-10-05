@@ -25,7 +25,7 @@ class Webserv {
 		std::vector<Worker>::iterator	wit_;
 		std::map<int, int>::iterator	mapter_;
 		std::map<int, std::string>		status_messages_;
-		WorkerData	        			*eventData_;
+		WorkerData	        			*event_data_;
 		std::vector<char>				buffer_;
 		struct kevent					events_[1024];
 

@@ -5,8 +5,8 @@ Response::Response() {
 	this->type_ = GENERAL;
 	this->status_code_ = OK;
 	this->connection_ = "keep-alive";
-	this->contentType_ = "text/html";
-	this->httpversion_ = "HTTP/1.1";
+	this->content_type_ = "text/html";
+	this->http_version_ = "HTTP/1.1";
 	this->location_ = "";
 }
 
@@ -17,8 +17,8 @@ Response::~Response() {
 Response& Response::operator=(const Response& response) {
 	this->status_code_ = response.status_code_;
 	this->connection_ = response.connection_;
-	this->contentType_ = response.contentType_;
-	this->httpversion_ = response.httpversion_;
+	this->content_type_ = response.content_type_;
+	this->http_version_ = response.http_version_;
 	this->location_ = response.location_;
 	return *this;
 }
@@ -142,18 +142,18 @@ std::vector<std::string> Response::GetFilesInDirectory(const std::string &dirPat
 // 	this->status_code_ = CONTENT_TOO_LARGE;
 // 	this->connection = "close";
 // 	this->ReadFileToBody(ERROR_PAGE_413_PATH);
-// 	this->contentLength_ = this->body_.size();
-// 	this->contentType_ = "text/html";
+// 	this->content_length_ = this->body_.size();
+// 	this->content_type_ = "text/html";
 // }
 
 // void Response::handleBadRequest()
 // {
-// 	this->httpversion_ = "HTTP/1.1";
+// 	this->http_version_ = "HTTP/1.1";
 // 	this->status_code_ = NOT_FOUND;
 // 	this->connection = "close";
 // 	this->ReadFileToBody(ERROR_PAGE_404_PATH);
-// 	this->contentLength_ = this->body_.size();
-// 	this->contentType_ = "text/html";
+// 	this->content_length_ = this->body_.size();
+// 	this->content_type_ = "text/html";
 // }
 
 void Response::HandleGet(const Request &request, const std::string index) {
@@ -194,7 +194,7 @@ void Response::HandlePost(const Request &request) {
 	if ((dir_info = opendir(request.GetPath().c_str())) != NULL) {
 		this->Sethttpversion("HTTP/1.1");
 		this->SetStatusCode(405);
-		this->contentType_ = request.GetContentType();
+		this->content_type_ = request.GetContentType();
 		this->connection_ = "Close";
 		closedir(dir_info);
 		return ;
@@ -230,13 +230,13 @@ void    Response::SendResponse(int fd) {
 	std::string toSend;
 
 	// 임시 하드코딩
-	toSend += this->httpversion_;
+	toSend += this->http_version_;
 	toSend += " " + std::to_string(this->status_code_);
 	toSend += " " + this->GetStatusMessage(this->status_code_);
 	toSend += "\r\n";
 
-	if (!this->contentType_.empty())
-		toSend += "Content-Type: " + this->contentType_ + "\r\n";
+	if (!this->content_type_.empty())
+		toSend += "Content-Type: " + this->content_type_ + "\r\n";
 	if (!this->body_.empty())
 		toSend += "Content-Length: " + std::to_string(this->body_.size()) + "\r\n";
 	if (!this->connection_.empty())
@@ -267,7 +267,7 @@ std::string Response::DeleteCheck(std::string path) const {
 }
 
 void    Response::Sethttpversion(std::string version) {
-	this->httpversion_ = version;
+	this->http_version_ = version;
 }
 
 void    Response::PushBackBody(char c) {

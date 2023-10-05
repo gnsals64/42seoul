@@ -29,10 +29,10 @@ class Response {
     private:
         int             status_code_;
 		ResponseType    type_;
-        std::string     httpversion_;
+        std::string     http_version_;
    	 	std::string     connection_;
    		std::string     location_; // 300번대 응답에서 redirect 시 사용.
-   		std::string     contentType_;
+   		std::string     content_type_;
 		std::vector     <char> body_;
 
         std::string GetStatusMessage(int code);

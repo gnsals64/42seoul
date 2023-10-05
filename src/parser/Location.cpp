@@ -1,6 +1,6 @@
 #include "../../inc/Location.hpp"
 
-Location::Location() : uri_("default"), root_("default"), index_("index.html"), auto_index_(false) {
+Location::Location() : uri_("default"), root_("default"), index_("index.html"), auto_index_(false), redir_status_code_(200), client_max_body_size_location_(-1), redir_uri("/") {
 	//access ok : true
 	this->limit_excepts_[METHOD_GET] = true;
 	this->limit_excepts_[METHOD_POST] = true;
@@ -27,11 +27,15 @@ void Location::SetRedirStatusCode(int status) {
 }
 
 void Location::SetRedirUri(const std::string& uri) {
-	this->redir_uri = uri_;
+	this->redir_uri = uri;
 }
 
 void Location::SetLimitExcepts(int method, bool access) {
 	this->limit_excepts_[method] = access;
+}
+
+void Location::SetClientMaxBodySizeLocation(int size) {
+	this->client_max_body_size_location_ = size;
 }
 
 void Location::SetAutoIndex(bool access) {

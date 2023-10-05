@@ -91,7 +91,7 @@ void CgiHandler::FillEnv(const Request &request) {
     }
 	env_["PATH_INFO"] = this->cgi_path_;
 	if (request.GetMethod() == "GET")
-		env_["QUERY_STRING"] = this->query_string_;
+		env_["query_string_"] = this->query_string_;
 	env_["REQUEST_METHOD"] = request.GetMethod();
 	env_["SERVER_PROTOCOL"] = "HTTP/1.1";
   	ConvertEnv();
@@ -105,6 +105,7 @@ void CgiHandler::ConvertEnv() {
         char *str = new char[concat.length() + 1];
         strcpy(str, concat.c_str());
         envp_.push_back(str);
+        delete[] str;
     }
     envp_.push_back(0);
 }

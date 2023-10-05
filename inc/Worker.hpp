@@ -23,7 +23,7 @@ private:
 	std::string 				index_;
     std::vector<std::string>	server_names_;
     std::map<int, std::string>	error_pages_;
-    size_t						client_max_body_size_worker_;
+    int							client_max_body_size_worker_;
 	std::vector<Location>		locations_;
 
 public:
@@ -39,8 +39,8 @@ public:
     const	std::string& GetIndex() const;
     void	AddServerName(std::string& server_name);
     const	std::vector<std::string>& GetServerNames() const;
-    void	SetClientMaxBodySize(size_t size);
-    size_t	GetClientMaxBodySize() const;
+    void	SetClientMaxBodySize(int size);
+    int		GetClientMaxBodySize() const;
     void	AddLocations(const Location& location);
     const	std::vector<Location>& GetLocations() const;
 	void	AddErrorPage(int error_code, std::string& error_page);

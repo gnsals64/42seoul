@@ -1,4 +1,4 @@
-CXX			:=	c++ -fsanitize=address -g
+CXX			:=	c++  -g #-fsanitize=address
 # CXXFLAGS	:= -std=c++98 -g
 #-Wall -Wextra -Werror
 LDFLAGS		:=
@@ -6,7 +6,7 @@ LDFLAGS		:=
 PARSER = $(addprefix parser/, BlockParser Location LocationLexer TokenParseError TokenUtils Tokenizer)
 SERVER = $(addprefix server/, Worker WorkerLexer Webserv ServerUtils HandleData InitServer WorkerData)
 HTTP = ${addprefix http/, Request Response CgiHandler}
-ERROR = ${addprefix error/, ConfigException}
+ERROR = ${addprefix exception/, ConfigException}
 
 FILES = $(addprefix src/, main  ${PARSER} ${SERVER} ${HTTP} ${ERROR})
 

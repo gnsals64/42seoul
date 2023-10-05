@@ -31,7 +31,7 @@ private:
     bool				auto_index_;
 	int					redir_status_code_;
 	std::string			redir_uri;
-	size_t				client_max_body_size_worker_location_;
+	int					client_max_body_size_location_;
     std::map<int, bool> limit_excepts_;
 
 public:
@@ -44,6 +44,7 @@ public:
 	void SetRedirUri(const std::string& uri);
 	void SetLimitExcepts(int method, bool access);
 	void SetAutoIndex(bool access);
+	void SetClientMaxBodySizeLocation(int size);
 	const std::string& GetUri() const;
 	const std::string& GetRoot() const;
 	const std::string& GetIndex() const;
@@ -59,5 +60,6 @@ void	CheckLocationToken(Location& location, std::vector<std::string> lines, std:
 void	ParseLimitExcept(Location& location, std::vector<std::string> lines, std::vector<std::string>::iterator& lineIt);
 void	ParseAutoIndex(Location& location, const std::string line);
 void	ParseRedirection(Location& location, std::vector<std::string>::iterator& lineIt);
+void	ParseClientMaxBodySizeLocation(Location& location, const std::string& line);
 
 #endif

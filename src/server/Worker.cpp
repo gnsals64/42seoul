@@ -1,6 +1,6 @@
 #include "../../inc/Worker.hpp"
 
-Worker::Worker() : server_socket_(0), port_(80), root_("default"), index_("index.html"), server_names_(0), client_max_body_size_worker_(0) {
+Worker::Worker() : server_socket_(0), port_(80), root_("default"), index_("index.html"), server_names_(0), client_max_body_size_worker_(-1) {
 	server_socket_ = socket(AF_INET, SOCK_STREAM, 0);
 	const int value = 1;
 	setsockopt(server_socket_, SOL_SOCKET, SO_REUSEADDR, &value, sizeof(value));
@@ -50,11 +50,11 @@ const std::vector<std::string>& Worker::GetServerNames() const {
     return this->server_names_;
 }
 
-void Worker::SetClientMaxBodySize(size_t size) {
+void Worker::SetClientMaxBodySize(int size) {
     this->client_max_body_size_worker_ = size;
 }
 
-size_t Worker::GetClientMaxBodySize() const {
+int Worker::GetClientMaxBodySize() const {
     return this->client_max_body_size_worker_;
 }
 

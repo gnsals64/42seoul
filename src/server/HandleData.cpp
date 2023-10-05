@@ -150,10 +150,9 @@ void    Webserv::CheckRequestError(void) {
 }
 
 void	Webserv::SetCgiEvent(void) {
-	WorkerData *udata = new WorkerData(eventData_->GetRequest(), eventData_->GetResponse(), eventData_->GetCgiHandler(), CGIEVENT);
-
-	ChangeEvent(change_list_, this->eventData_->GetCgiHandler().GetReadFd(), EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, udata);
-	ChangeEvent(change_list_, this->eventData_->GetCgiHandler().GetWriteFd(), EVFILT_WRITE, EV_ADD | EV_ENABLE, 0, 0, udata);
+	eventData_->SetEventType(CGIEVENT);
+	ChangeEvent(change_list_, this->eventData_->GetCgiHandler().GetReadFd(), EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, eventData_);
+	ChangeEvent(change_list_, this->eventData_->GetCgiHandler().GetWriteFd(), EVFILT_WRITE, EV_ADD | EV_ENABLE, 0, 0, eventData_);
 
 	fcntl(this->eventData_->GetCgiHandler().GetReadFd(), F_SETFL, O_NONBLOCK, FD_CLOEXEC);
 	fcntl(this->eventData_->GetCgiHandler().GetWriteFd(), F_SETFL, O_NONBLOCK, FD_CLOEXEC);

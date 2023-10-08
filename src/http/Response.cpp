@@ -62,11 +62,11 @@ std::string Response::GetStatusMessage(int code) {
 void Response::ReadFileToBody(const std::string &path) {
 	this->body_.clear();
 	if (access(path.c_str(), F_OK) != 0)
-		return Set404Response();
+		return MakeStatusResponse(NOT_FOUND);
 	std::ifstream fin;
 	fin.open(path.c_str());
 	if (fin.fail())
-		return Set500Response();
+		return MakeStatusResponse(INTERNAL_SERVER_ERROR);
 	std::string line;
 	while (getline(fin, line)) {
 		line += "\r\n";
@@ -113,7 +113,7 @@ std::vector<std::string> Response::GetFilesInDirectory(const std::string &dirPat
 	std::vector<std::string> ret;
 
 	if ((dir_info = opendir(dirPath.c_str())) == NULL)
-		Set500Response();
+		MakeStatusResponse(INTERNAL_SERVER_ERROR);
 	while ((dir_entry = readdir(dir_info)))
 	{
 		if (std::strcmp(dir_entry->d_name, ".") == 0)
@@ -161,8 +161,6 @@ void Response::HandlePost(const Request &request) {
 	}
 }
 
-void Response::HandlePut(const Request &request) {}
-
 void Response::HandleDelete(const Request &request) {
 	std::string path = request.GetFullPath();
 //	try
@@ -180,6 +178,10 @@ void Response::HandleDelete(const Request &request) {
 //		this->body_ = v;
 //		return ;
 //	}
+}
+
+void Response::SetErrorPages(std::map<int, std::string> error_pages) {
+	this->error_pages_ = error_pages;
 }
 
 void Response::SetAllow(std::string allow) {
@@ -242,13 +244,6 @@ void    Response::PushBackBody(char c) {
 	this->body_.push_back(c);
 }
 
-void    Response::PrintBody() const {
-	std::cerr << "-- print body_ --" << std::endl;
-	for(int i=0; i<this->body_.size(); i++)
-		std::cerr << this->body_[i];
-	std::cerr << "-- finish --" << std::endl;
-}
-
 void Response::MakeIndexResponse(std::string full_path, std::string index_path) {
 	int last_slash = full_path.find_last_of("/");
 	std::string last_dir = full_path.substr(0, last_slash + 1);
@@ -264,60 +259,5 @@ void    Response::SetResponseType(ResponseType type) {
 }
 
 void    Response::MakeStatusResponse(int status) {
-	switch (status) {
-		case OK:
-			return ;
-		case CREATED:
-			return ;
-		case NO_CONTENT:
-			return ;
-		case MOVED_PERMANENTLY:
-			return ;
-		case BAD_REQUEST:
-			return ;
-		case NOT_FOUND:
-			return Set404Response();
-		case METHOD_NOT_ALLOWED:
-			return Set405Response();
-		case LENGTH_REQUIRED:
-			return ;
-		case PAYLOAD_TOO_LARGE:
-			return Set413Response();
-		case URL_TOO_LONG:
-			return ;
-		case UNSUPPORTED_MEDIA_TYPE:
-			return ;
-		case INTERNAL_SERVER_ERROR:
-			return Set500Response();
-		case NOT_IMPLEMENTED:
-			return Set501Response();
-		case HTTP_VERSION_NOT_SUPPORTED:
-			return Set505Response();
-		default:
-			return ;
-	}
-}
-
-void    Response::Set404Response() {
-	ReadFileToBody("./templates/404error.html");
-}
-
-void    Response::Set405Response() {
-	ReadFileToBody("./templates/405error.html");
-}
-
-void    Response::Set413Response() {
-	ReadFileToBody("./templates/413error.html");
-}
-
-void    Response::Set500Response() {
-	ReadFileToBody("./templates/500error.html");
-}
-
-void    Response::Set501Response() {
-	ReadFileToBody("./templates/501error.html");
-}
-
-void    Response::Set505Response() {
-	ReadFileToBody("./templates/505error.html");
+    ReadFileToBody(error_pages_[status]);
 }

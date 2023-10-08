@@ -42,6 +42,7 @@ int	Webserv::SockReceiveData() {
 }
 
 void	Webserv::SockSendData() {
+	event_data_->GetResponse().SetErrorPages(wit_->GetErrorPage());
 	if (event_data_->GetResponse().GetStatusCode() != OK)
 		event_data_->GetResponse().MakeStatusResponse(event_data_->GetResponse().GetStatusCode());
 	else if (this->event_data_->GetResponse().GetResponseType() == GENERAL)
@@ -196,6 +197,6 @@ void    Webserv::MakeResponse() {
         event_data_->GetResponse().HandleGet(event_data_->GetRequest(), wit_->GetLocations()[location_idx_].GetIndex(), wit_->GetLocations()[location_idx_].GetAutoIndex());
     else if (method == "POST")
         event_data_->GetResponse().HandlePost(event_data_->GetRequest());
-    else if (method == "DELETE" )
+    else if (method == "DELETE")
         event_data_->GetResponse().HandleDelete(event_data_->GetRequest());
 }

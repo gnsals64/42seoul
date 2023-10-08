@@ -51,43 +51,32 @@ class Response {
    		std::string     location_; // 300번대 응답에서 redirect 시 사용.
    		std::string     content_type_;
 		std::vector     <char> body_;
+		std::map<int, std::string> error_pages_;
 
         std::string GetStatusMessage(int code);
         void ReadFileToBody(const std::string &path);
         void GenerateBodyAutoIndexing(const Request &request);
         std::vector<std::string> GetFilesInDirectory(const std::string &dirPath);
 
-		void Set404Response();
-		void Set405Response();
-		void Set413Response();
-		void Set500Response();
-		void Set501Response();
-		void Set505Response();
-
     public:
         Response();
         ~Response();
 		Response& operator=(const Response& response);
 
+		void SetErrorPages(std::map<int, std::string> error_pages);
 		void SetAllow(std::string allow) ;
 		HttpStatusCode GetStatusCode() const;
         void SetStatusCode(HttpStatusCode status);
-        void ParsingFromRequest(Worker &worker, const Request &request);
-        void HandleBodySizeLimit();
-        void HandleBadRequest();
-        void SetBody(const std::string body);
         void SendResponse(int fd);
 		ResponseType GetResponseType(void) const;
 		void SetResponseType(ResponseType type);
 
         void HandleGet(const Request &request, const std::string index, const bool autoindex);
         void HandlePost(const Request &request);
-        void HandlePut(const Request &request);
         void HandleDelete(const Request &request);
         void SetHttpVersion(std::string version);
 		void PushBackBody(char c);
         std::string DeleteCheck(std::string path) const;
-		void PrintBody() const;
 		void MakeIndexResponse(std::string full_path, std::string index_path);
 
 		void MakeStatusResponse(int status);

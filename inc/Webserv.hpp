@@ -1,6 +1,7 @@
 #ifndef WEBSERV_HPP
 # define WEBSERV_HPP
 
+# include <unistd.h>
 # include "Worker.hpp"
 # include "WorkerData.hpp"
 # include "Request.hpp"

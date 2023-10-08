@@ -43,7 +43,7 @@ public:
 	void ClosePipeBeforeWrite();
 	void ClosePipeAfterRead();
 	void ClosePipeAfterWrite();
-    void ExecuteChildProcess(const Request &request);
+    void ExecuteChildProcess(const Request &request, Response &response);
     void FillEnv(const Request &request);
     void ConvertEnv();
 	CgiState GetState() const;

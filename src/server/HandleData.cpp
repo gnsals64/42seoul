@@ -129,8 +129,13 @@ void	Webserv::ReadFinish() {
 }
 
 void    Webserv::AddCgiEvent() {
-	this->event_data_->GetCgiHandler().ExecuteChildProcess(this->event_data_->GetRequest());
-	this->SetCgiEvent();
+	event_data_->GetCgiHandler().ExecuteChildProcess(event_data_->GetRequest());
+	if (event_data_->GetResponse().GetStatusCode() == OK)
+		SetCgiEvent();
+	else {
+		ChangeEvent(change_list_, curr_event_->ident, EVFILT_READ, EV_DISABLE, 0, 0, curr_event_->udata);
+		ChangeEvent(change_list_, curr_event_->ident, EVFILT_WRITE, EV_ENABLE, 0, 0, curr_event_->udata);
+	}
 }
 
 void    Webserv::CheckRequestError() {

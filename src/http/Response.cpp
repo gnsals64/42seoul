@@ -44,8 +44,8 @@ std::string Response::GetStatusMessage(int code) {
 			return "Length Required";
 		case PAYLOAD_TOO_LARGE:
 			return "Payload Too Large";
-		case URL_TOO_LONG:
-			return "URL Too Long";
+		case URI_TOO_LONG:
+			return "URI Too Long";
 		case UNSUPPORTED_MEDIA_TYPE:
 			return "Unsupported Media Type";
 		case INTERNAL_SERVER_ERROR:

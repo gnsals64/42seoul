@@ -196,6 +196,9 @@ void    Webserv::CheckRequestError() {
 		&& event_data_->GetRequest().GetContentLength() == 0
 		&& event_data_->GetRequest().GetTransferEncoding() != "chunked")
 		return event_data_->GetResponse().SetStatusCode(LENGTH_REQUIRED);
+
+	if (event_data_->GetRequest().GetPath().length() > 2048)
+		return event_data_->GetResponse().SetStatusCode(URI_TOO_LONG);
 }
 
 void    Webserv::CheckRedirection() {

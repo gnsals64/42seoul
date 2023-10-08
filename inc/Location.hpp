@@ -52,6 +52,7 @@ public:
 	const std::string& GetRedirUri() const;
 	std::map<int, bool> GetLimitExcepts() const;
 	bool GetAutoIndex() const;
+	int GetClientMaxBodySizeLocation() const;
 };
 
 std::vector<std::string>::iterator SetLocationToken(Location& location, std::vector<std::string> lines, std::vector<std::string>::iterator& lineIt);

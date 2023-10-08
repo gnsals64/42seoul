@@ -1,17 +1,18 @@
 #include "../../inc/Request.hpp"
 
 Request::Request() {
+	this->headers_ = "";
 	this->http_method_ = "";
 	this->path_ = "";
+	this->full_path_ = "";
 	this->scheme_ = "";
 	this->connection_ = "";
-	this->content_length_ = "0";
+	this->content_length_ = 0;
+	this->body_str_ = "";
 	this->state_ = HEADER_READ;
 }
 
-Request::~Request() {
-
-}
+Request::~Request() {}
 
 Request& Request::operator=(const Request& request) {
 	this->headers_ = request.headers_;
@@ -59,16 +60,16 @@ void	Request::SetConnection(std::string connection) {
 	this->connection_ = connection;
 }
 
-void	Request::SetContentLength(std::string content_length_) {
-	this->content_length_ = content_length_;
+void	Request::SetContentLength(int length) {
+	this->content_length_ = length;
 }
 
-void	Request::SetState(int data) {
-	this->state_ = data;
+void	Request::SetState(int state) {
+	this->state_ = state;
 }
 
-void	Request::SetHeaders(std::string data) {
-	this->headers_ = data;
+void	Request::SetHeaders(std::string headers) {
+	this->headers_ = headers;
 }
 
 void	Request::SetBodyClear() {
@@ -91,7 +92,7 @@ std::string	Request::GetScheme() const {
 	return (this->scheme_);
 }
 
-std::vector<std::string>	Request::GetHost() const {
+std::vector<std::string> Request::GetHost() const {
 	return (this->host_);
 }
 
@@ -99,7 +100,7 @@ std::string	Request::GetConnection() const {
 	return (this->connection_);
 }
 
-std::string	Request::GetContentLength() const {
+int	Request::GetContentLength() const {
 	return (this->content_length_);
 }
 

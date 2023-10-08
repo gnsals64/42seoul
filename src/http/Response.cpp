@@ -58,6 +58,7 @@ std::string Response::GetStatusMessage(int code) {
 }
 
 void Response::ReadFileToBody(const std::string &path) {
+	this->body_.clear();
 	std::ifstream fin;
 	fin.open(path.c_str());
 	if (fin.fail()) {
@@ -321,7 +322,7 @@ void    Response::MakeStatusResponse(int status) {
 		case LENGTH_REQUIRED:
 			return ;
 		case PAYLOAD_TOO_LARGE:
-			return ;
+			return Set413Response();
 		case URL_TOO_LONG:
 			return ;
 		case UNSUPPORTED_MEDIA_TYPE:
@@ -337,6 +338,10 @@ void    Response::MakeStatusResponse(int status) {
 
 void    Response::Set405Response() {
 	this->ReadFileToBody("./templates/405error.html");
+}
+
+void    Response::Set413Response() {
+	this->ReadFileToBody("./templates/413error.html");
 }
 
 void    Response::Set501Response() {

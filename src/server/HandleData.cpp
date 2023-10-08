@@ -170,13 +170,16 @@ void    Webserv::CheckRequestError(void) {
 
 	if (event_data_->GetRequest().GetScheme() != "HTTP/1.1")
 		return event_data_->GetResponse().SetStatusCode(HTTP_VERSION_NOT_SUPPORTED);
+
+	if (event_data_->GetRequest().GetContentLength() > wit_->GetLocations()[location_idx_].GetClientMaxBodySizeLocation())
+		return event_data_->GetResponse().SetStatusCode(PAYLOAD_TOO_LARGE);
 	/*
 	 * 요청을 다 읽은 시점에서 예외처리 필요
 	 * ㅁ 경로가 올바른지?
 	 * ㅁ 파일 및 폴더 열 수 있는지?
 	 * V 지원하지 않는 요청 메서드인지?
 	 * V http 버전이 잘못되었는지?
-	 * ㅁ content length 관련 : client_max_body_size를 넘는지?
+	 * V content length 관련 : client_max_body_size를 넘는지?
 	 * -> Request에 집어넣은 헤더 모두 검사한다고 생각하면 될 듯
 	 *
 	 * 그리고 이 여러 에러를 처리하기 위해서 각 에러를 처리해주는 함수들을 만들면 좋을듯

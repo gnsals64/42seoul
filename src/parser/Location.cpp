@@ -69,3 +69,7 @@ std::map<int, bool> Location::GetLimitExcepts() const {
 bool Location::GetAutoIndex() const {
 	return this->auto_index_;
 }
+
+int Location::GetClientMaxBodySizeLocation() const {
+	return this->client_max_body_size_location_;
+}

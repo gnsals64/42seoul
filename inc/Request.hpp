@@ -16,7 +16,7 @@ class Request {
         std::string	scheme_;
         std::vector <std::string> host_;
         std::string	connection_;
-        std::string	content_length_;
+        int	        content_length_;
 		std::string	body_str_;
 		int			state_;
 		std::string http_version_;
@@ -31,11 +31,11 @@ class Request {
 
 		void	SetMethod(std::string method);
 		void	SetPath(std::string path);
-        void    SetFullPath(std::string full_path_);
+        void    SetFullPath(std::string full_path);
 		void	SetScheme(std::string scheme);
 		void	PushBackHost(std::string host);
 		void	SetConnection(std::string connection);
-		void	SetContentLength(std::string content_length_);
+		void	SetContentLength(int length);
 		void	SetState(int SetState);
 		void	SetHeaders(std::string data);
 		void	SetBodyClear();
@@ -46,7 +46,7 @@ class Request {
 		std::string	GetScheme() const;
 		std::vector<std::string>	GetHost() const;
 		std::string	GetConnection() const;
-		std::string GetContentLength() const;
+		int GetContentLength() const;
 		std::string GetHeaders() const;
 		int	GetState() const;
 		std::vector<char> GetBody() const;

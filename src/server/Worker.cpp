@@ -182,15 +182,21 @@ void	Worker::ParseConnection(Request &req, std::vector<std::string> colon_parse)
 
 void	Worker::ParseContentLength(Request &req, std::vector<std::string> colon_parse) {
 	int	i = 1;
-	std::string tmp;
+	std::string s;
 	while (colon_parse[1][i])
 	{
 		if (colon_parse[1][i] == ' ')
 			break ;
-		tmp += colon_parse[1][i];
+		s += colon_parse[1][i];
 		i++;
 	}
-	req.SetContentLength(tmp);
+	int pow = 1;
+	int content_length = 0;
+	for (int i = s.length() - 1; i >= 0; i--) {
+		content_length += (s[i] - '0') * pow;
+		pow *= 10;
+	}
+	req.SetContentLength(content_length);
 }
 
 void	Worker::ParseOther(Request &req, std::vector<std::string> line_parse, int line_cnt) {

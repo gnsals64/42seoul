@@ -60,6 +60,7 @@ class Response {
         std::vector<std::string> GetFilesInDirectory(const std::string &dirPath);
 
 		void Set405Response();
+		void Set413Response();
 		void Set501Response();
 		void Set505Response();
 

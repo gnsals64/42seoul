@@ -222,43 +222,12 @@ void	Worker::RequestHeaderParse(Request &req) {
 	this->ReqFirstLineParse(req, line_parse[0]);
 	line_cnt = line_parse.size();
 	this->ParseOther(req, line_parse, line_cnt);
-	//std::cout << "head = " << req.GetHeaders() << std::endl;
-	// std::cout << "method : " << req.GetMethod() << std::endl;
-	// std::cout << "path : " << req.GetPath() << std::endl;
-	// std::cout << "scheme : " << req.GetScheme() << std::endl;
-	// std::cout << "host[0] : " << req.GetHost()[0] << std::endl;
-	// std::cout << "host[1] : " << req.GetHost()[1] << std::endl;
-	// std::cout << "connection : " << req.GetConnection() << std::endl;
-	// std::cout << "content-length : " << req.GetContentLength() << std::endl;
-	// std::cout << "body : ";
-	// for(int i = 0; i < req.GetBody().size(); i++)
-	// 	std::cout << req.GetBody()[i];
-	// std::cout << std::endl;
-	//여기서 바디랑 길이 맞는지 확인하고 아니면 에러
 }
-
-// void	Worker::CheckPossibleMethod(Request &req)
-// {
-// 	int	method;
-
-// 	for(int i = 0; i < this->GetLocations().size(); i++)
-// 	{
-// 		if (this->GetLocations()[i].GetRoot() == req.GetPath())
-// 		break ;
-// 	}
-// 	if (req.GetMethod() == "GET")
-// 		method = 0;
-// 	else if (req.GetMethod() == "POST")
-// 		method = 1;
-// 	else if (req.GetMethod() == )
-// }
 
 void	Worker::ChunkBodyParse(Request &req, Response &res) {
 	size_t	byte;
 	std::vector <std::string> line_parse;
 	std::string tmp_body = req.GetBodyStr();
-	// std::vector <char> body = req.GetBody();
-	// std::string tmp_body(body.begin(), body.end());
 
 	line_parse = this->SplitArgs(tmp_body, "\r\n");
 	req.SetBodyClear();
@@ -282,46 +251,6 @@ void	Worker::ChunkBodyParse(Request &req, Response &res) {
 				res.SetStatusCode(BAD_REQUEST);
 			for (int j = 0; j < line_parse[i].size(); j++)
 				req.PushPostBody(line_parse[i][j]);
-			// req.PushPostBody('\r');
-			// req.PushPostBody('\n');
 		}
 	}
 }
-// std::string Worker::checkReturnVal()
-// {
-// 	std::string result = "";
-// 	size_t i;
-// 	std::vector<Location> locations = this->GetLocations();
-
-// 	for (i = 0; i < locations.size(); i++)
-// 	{
-// 		if (locations[i].GetUri() == this->GetRequest().GetPath())
-// 			Location	target = locations[i];
-// 			if (target.getRe)
-// 	}
-// }
-
-// void	Worker::urlSearch(int event_fd)
-// {
-// 	std::string str = "";
-// 	std::string file = "";
-// 	size_t	slen = 0;
-// 	size_t	i;
-// 	size_t	pos;
-
-// 	for (i = 0; i < this->GetLocations().size(); i++)
-// 	{
-// 		pos = this->GetRequest()[event_fd].GetPath().find(this->GetLocations()[i].GetUri());
-// 		if (pos != std::string::npos && this->GetLocations()[i].GetUri().size() > slen)
-// 		{
-// 			str = this->GetLocations()[i].GetUri();
-// 			slen = this->GetLocations()[i].GetUri().size();
-// 			file = this->GetRequest()[event_fd].GetPath().substr(pos + this->GetLocations()[i].GetUri().size());
-// 		}
-// 	}
-// 	std::cout << str << std::endl;
-// 	std::cout << file << std::endl;
-
-// 	this->GetRequest()[event_fd].SetPath(str);
-// 	this->GetRequest()[event_fd].setBody(file);
-// }

@@ -1,7 +1,7 @@
 #include "../../inc/Webserv.hpp"
 #include "../../inc/CgiHandler.hpp"
 
-int	Webserv::SockReceiveData(void) {
+int	Webserv::SockReceiveData() {
 	if (find(server_sockets_.begin(), server_sockets_.end(), curr_event_->ident) != server_sockets_.end()) {
 		if (ConnectNewClient() == -1)
 			return -1;
@@ -41,7 +41,7 @@ int	Webserv::SockReceiveData(void) {
 	return 0;
 }
 
-void	Webserv::SockSendData(void) {
+void	Webserv::SockSendData() {
 	if (event_data_->GetResponse().GetStatusCode() != OK)
 		event_data_->GetResponse().MakeStatusResponse(event_data_->GetResponse().GetStatusCode());
 	else if (this->event_data_->GetResponse().GetResponseType() == GENERAL)
@@ -68,7 +68,7 @@ int	Webserv::StartReceiveData(int len) {
 	return 0;
 }
 
-int	Webserv::ReadHeader(void) {
+int	Webserv::ReadHeader() {
 	std::string temp_data(buffer_.begin(), buffer_.end());
 	event_data_->GetRequest().AppendHeader(temp_data);
 	event_data_->GetRequest().BodyAppendVec(buffer_);
@@ -103,7 +103,7 @@ int	Webserv::ReadHeader(void) {
 	return 0;
 }
 
-void	Webserv::ReadBody(void) {
+void	Webserv::ReadBody() {
 	event_data_->GetRequest().BodyAppendVec(buffer_);
 	std::string temp(buffer_.begin(), buffer_.end());
 	if (event_data_->GetRequest().GetHeaders().find("Content-Length") != std::string::npos)
@@ -119,7 +119,7 @@ void	Webserv::ReadBody(void) {
 	}
 }
 
-void	Webserv::ReadFinish(void) {
+void	Webserv::ReadFinish() {
 	wit_->RequestHeaderParse(event_data_->GetRequest());
 	if (event_data_->GetRequest().GetHeaders().find("Transfer-Encoding") != std::string::npos)
 	{
@@ -128,12 +128,12 @@ void	Webserv::ReadFinish(void) {
 	}
 }
 
-void    Webserv::AddCgiEvent(void) {
+void    Webserv::AddCgiEvent() {
 	this->event_data_->GetCgiHandler().ExecuteChildProcess(this->event_data_->GetRequest());
 	this->SetCgiEvent();
 }
 
-void    Webserv::CheckRequestError(void) {
+void    Webserv::CheckRequestError() {
 	for (int i = 0; i < wit_->GetLocations().size(); i++)
 	{
 		if (event_data_->GetRequest().GetPath().find(wit_->GetLocations()[i].GetUri()) != std::string::npos) {
@@ -184,7 +184,7 @@ void    Webserv::CheckRequestError(void) {
 	 */
 }
 
-void	Webserv::SetCgiEvent(void) {
+void	Webserv::SetCgiEvent() {
 	event_data_->SetEventType(CGIEVENT);
 	ChangeEvent(change_list_, this->event_data_->GetCgiHandler().GetReadFd(), EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, event_data_);
 	ChangeEvent(change_list_, this->event_data_->GetCgiHandler().GetWriteFd(), EVFILT_WRITE, EV_ADD | EV_ENABLE, 0, 0, event_data_);

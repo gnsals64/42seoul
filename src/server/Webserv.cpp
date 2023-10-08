@@ -1,7 +1,7 @@
 #include "../../inc/Webserv.hpp"
 #include <iostream>
 
-void	Webserv::Run(void) {
+void	Webserv::Run() {
 	for (int i = 0; i < workers_.size(); i++)
 		server_sockets_.push_back(workers_[i].GetServerSocket());
 	while (true) {
@@ -47,7 +47,7 @@ void	Webserv::Run(void) {
 	}
 }
 
-void Webserv::WriteCgiInput(void) {
+void Webserv::WriteCgiInput() {
 	event_data_->GetCgiHandler().ClosePipeBeforeWrite();
 
 	if (event_data_->GetRequest().GetMethod() == "POST")
@@ -62,7 +62,7 @@ void Webserv::WriteCgiInput(void) {
 	close(curr_event_->ident);
 }
 
-void Webserv::ReadCgiResponse(void) {
+void Webserv::ReadCgiResponse() {
 	event_data_->GetCgiHandler().ClosePipeBeforeRead();
 
 	char buff[4096];

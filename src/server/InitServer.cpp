@@ -14,7 +14,7 @@ void	Webserv::ConfParse(char *conf_file) {
     }
 }
 
-void	Webserv::Init(void) {
+void	Webserv::Init() {
 	// configfile에서 지정해준 정보로 소켓을 열어서 데이터 받을 준비
 	for(int i = 0; i < this->workers_.size(); i++)
 		ReadyToConnect(i);
@@ -30,7 +30,7 @@ void	Webserv::Init(void) {
 		ChangeEvent(change_list_, this->workers_[i].GetServerSocket(), EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, NULL);
 }
 
-int	Webserv::ConnectNewClient(void) {
+int	Webserv::ConnectNewClient() {
 	it = find(server_sockets_.begin(),  server_sockets_.end(), curr_event_->ident);
 	int tmp_cli_sock = accept(*it, NULL, NULL);
 	if (tmp_cli_sock== -1)

@@ -5,7 +5,7 @@ import os
 from urllib.parse import quote
 
 # 허용된 파일 확장자
-ALLOWED_EXTENSIONS = {'txt', 'cpp', 'jpeg'} # 파일 형식
+ALLOWED_EXTENSIONS = {'txt', 'jpg', 'html'} # 파일 형식
 
 def allowed_file(filename):
     return '.' in filename and \
@@ -15,7 +15,7 @@ form = cgi.FieldStorage()
 
 fileitem = form['filename']
 
-path = "./src/cgi-bin/file"
+path = "./html/upload/"
 
 isExist = os.path.exists(path)
 

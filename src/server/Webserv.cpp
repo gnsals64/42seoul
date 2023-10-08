@@ -77,10 +77,10 @@ void Webserv::ReadCgiResponse() {
 	event_data_->GetCgiHandler().SetState(READ_PIPE);
 
 	if (event_data_->GetRequest().GetMethod() == "POST") {
-		if (event_data_->GetResponse().FindStringInBody("success"))
-			event_data_->GetResponse().SetStatusCode(CREATED);
-		else
+		if (event_data_->GetResponse().FindStringInBody("Invalid file extension"))
 			event_data_->GetResponse().SetStatusCode(UNSUPPORTED_MEDIA_TYPE);
+		else
+			event_data_->GetResponse().SetStatusCode(CREATED);
 	}
 
 	uintptr_t write_ident = event_data_->GetCgiHandler().GetClientWriteIdent();

@@ -45,7 +45,7 @@ void	Webserv::SockSendData(void) {
 	if (event_data_->GetResponse().GetStatusCode() != OK)
 		event_data_->GetResponse().MakeStatusResponse(event_data_->GetResponse().GetStatusCode());
 	else if (this->event_data_->GetResponse().GetResponseType() == GENERAL)
-		MakeResponse(this->event_data_->GetRequest());
+		MakeResponse();
 	this->event_data_->GetResponse().SendResponse(curr_event_->ident);
 	std::map<int, int>::iterator tmp_fd_iter = find_fd_.find(curr_event_->ident);
 	find_fd_.erase(tmp_fd_iter);
@@ -181,12 +181,6 @@ void    Webserv::CheckRequestError(void) {
 	 * V http 버전이 잘못되었는지?
 	 * V content length 관련 : client_max_body_size를 넘는지?
 	 * -> Request에 집어넣은 헤더 모두 검사한다고 생각하면 될 듯
-	 *
-	 * 그리고 이 여러 에러를 처리하기 위해서 각 에러를 처리해주는 함수들을 만들면 좋을듯
-	 * 이 함수들은 generateResponse 같은 함수로 이미 들어가있는 헤더를 패킷의 형식으로 만들어서 보내면 될 듯
-	 * -> 찾아보니 우리의 sendResponse 함수를 사용하면 됨, 그러나 수정이 매우 필요해보임
-	 * 즉, 헤더의 값들은 각 함수 내에서 각자의 값으로 바꾼뒤 패킷 만들어서 전송
-	 * ex) Send404Response(), Send405Response()
 	 */
 }
 
@@ -205,20 +199,14 @@ void	Webserv::SetCgiEvent(void) {
  * - request 파싱이 끝난 시점에서 예외처리 + 헤더값 일부 변경하기
  * - 또 처리하는 과정에서 헤더 값 수정이 필요한 경우 setter로 변경하기
  */
-void    Webserv::MakeResponse(const Request &request) {
-	std::map<int, bool> limit_excepts = wit_->GetLocations()[location_idx_].GetLimitExcepts();
-    if (request.GetMethod() == "GET" &&  limit_excepts[METHOD_GET])
-        this->event_data_->GetResponse().HandleGet(event_data_->GetRequest(), wit_->GetLocations()[location_idx_].GetIndex());
-    else if (request.GetMethod() == "POST" && limit_excepts[METHOD_POST])
-        this->event_data_->GetResponse().HandlePost(event_data_->GetRequest());
+void    Webserv::MakeResponse() {
+	std::string method = event_data_->GetRequest().GetMethod();
+    if (method == "GET")
+        event_data_->GetResponse().HandleGet(event_data_->GetRequest(), wit_->GetLocations()[location_idx_].GetIndex());
+    else if (method == "POST")
+        event_data_->GetResponse().HandlePost(event_data_->GetRequest());
     // else if (method == "PUT" && limit_excepts[METHOD_PUT])
     //     this->event_data_->response.HandlePost(event_data_->request);
-    else if (request.GetMethod() == "DELETE" && limit_excepts[METHOD_DELETE])
-        this->event_data_->GetResponse().HandleDelete(event_data_->GetRequest());
-    else {
-		/* 이런것도 함수로 빼자 (send405Response) */
-		this->event_data_->GetResponse().SetStatusCode(METHOD_NOT_ALLOWED);
-	    this->event_data_->GetResponse().SetHttpVersion("HTTP/1.1");
-	    std::cerr << "wrong http method : " + request.GetMethod() << std::endl;
-	}
+    else if (method == "DELETE" )
+        event_data_->GetResponse().HandleDelete(event_data_->GetRequest());
 }

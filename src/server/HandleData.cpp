@@ -94,7 +94,6 @@ int	Webserv::ReadHeader() {
 		}
 		else if (event_data_->GetRequest().GetHeaders().find("Transfer-Encoding") != std::string::npos)
 		{
-			std::cerr << event_data_->GetRequest().GetHeaders() << std::endl;
 			event_data_->GetRequest().SetTransferEncoding("chunked");
 			event_data_->GetRequest().AddRNRNOneTime();
 			std::string temp = event_data_->GetRequest().GetBodyCharToStr();

@@ -9,7 +9,7 @@ Request::Request() {
 	this->connection_ = "";
 	this->content_length_ = 0;
 	this->body_str_ = "";
-	this->state_ = HEADER_READ;
+	this->parse_state_ = HEADER_READ;
 }
 
 Request::~Request() {}
@@ -24,7 +24,7 @@ Request& Request::operator=(const Request& request) {
 	this->connection_ = request.connection_;
 	this->content_length_ = request.content_length_;
 	this->body_str_ = request.body_str_;
-	this->state_ = request.state_;
+	this->parse_state_ = request.parse_state_;
 	return *this;
 }
 
@@ -64,8 +64,8 @@ void	Request::SetContentLength(int length) {
 	this->content_length_ = length;
 }
 
-void	Request::SetState(int state) {
-	this->state_ = state;
+void	Request::SetState(ParseState state) {
+	this->parse_state_ = state;
 }
 
 void	Request::SetHeaders(std::string headers) {
@@ -121,8 +121,8 @@ std::string Request::GetHeaders() const {
 	return (this->headers_);
 }
 
-int	Request::GetState() const {
-	return (this->state_);
+ParseState	Request::GetState() const {
+	return (this->parse_state_);
 }
 
 std::string Request::GetContentType() const {
@@ -170,8 +170,8 @@ void	Request::RemoveCRLF() {
 	}
 }
 
-int	Request::Findrn0rn(std::string temp) {
-	if (temp.find("\r\n0\r\n") != std::string::npos)
+int	Request::Findrn0rn(std::string str) {
+	if (str.find("\r\n0\r\n") != std::string::npos)
 		return (1);
 	else
 		return (0);

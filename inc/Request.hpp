@@ -1,14 +1,18 @@
 #ifndef REQUEST_HPP
 #define REQUEST_HPP
 
-# define HEADER_READ 0
-# define BODY_READ 1
-# define READ_FINISH 2
 #include "Worker.hpp"
 #include <sys/time.h>
 
+enum ParseState {
+	HEADER_READ,
+	BODY_READ,
+	READ_FINISH
+};
+
 class Request {
 	private:
+		ParseState	parse_state_;
 		std::string headers_;
 		std::string http_method_;
         std::string path_;
@@ -18,7 +22,6 @@ class Request {
         std::string	connection_;
         int	        content_length_;
 		std::string	body_str_;
-		int			state_;
 		std::string http_version_;
    		std::string location_; 
    		std::string content_type_;
@@ -36,7 +39,7 @@ class Request {
 		void	PushBackHost(std::string host);
 		void	SetConnection(std::string connection);
 		void	SetContentLength(int length);
-		void	SetState(int SetState);
+		void	SetState(ParseState state);
 		void	SetHeaders(std::string data);
 		void	SetBodyClear();
 		void	SetContentType(std::string type);
@@ -48,7 +51,7 @@ class Request {
 		std::string	GetConnection() const;
 		int GetContentLength() const;
 		std::string GetHeaders() const;
-		int	GetState() const;
+		ParseState	GetState() const;
 		std::vector<char> GetBody() const;
         std::string GetContentType() const;
 		std::string GetBodyStr() const;
@@ -60,7 +63,7 @@ class Request {
 		void	BodyAppendVec(std::vector<char> data);
 		void	RemoveCRLF();
 
-		int		Findrn0rn(std::string temp);
+		int		Findrn0rn(std::string str);
 		void	AddRNRNOneTime();
 		void	RemoveRNRNOneTime();
 };

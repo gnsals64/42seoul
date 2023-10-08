@@ -50,8 +50,8 @@ class Response {
    	 	std::string     connection_;
    		std::string     location_; // 300번대 응답에서 redirect 시 사용.
    		std::string     content_type_;
-		std::vector     <char> body_;
-		std::map<int, std::string> error_pages_;
+		std::vector<char>           body_;
+		std::map<int, std::string>  error_pages_;
 
         std::string GetStatusMessage(int code);
         void ReadFileToBody(const std::string &path);
@@ -76,8 +76,8 @@ class Response {
         void HandleDelete(const Request &request);
         void SetHttpVersion(std::string version);
 		void PushBackBody(char c);
-        std::string DeleteCheck(std::string path) const;
 		void MakeIndexResponse(std::string full_path, std::string index_path);
+		int FindStringInBody(std::string str);
 
 		void MakeStatusResponse(int status);
 };

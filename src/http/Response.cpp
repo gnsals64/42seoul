@@ -163,21 +163,18 @@ void Response::HandlePost(const Request &request) {
 
 void Response::HandleDelete(const Request &request) {
 	std::string path = request.GetFullPath();
-//	try
-//	{
-		std::string body_ = DeleteCheck(path);
-		std::vector<char> v(body_.begin(), body_.end());
-		this->body_ = v;
-//	}
-//	catch (std::runtime_error &e)
-//	{
-//		std::cout << e.what() << std::endl;
-//		this->status_code_ = NOT_FOUND;
-//		std::string failed = "delete failed\n";
-//		std::vector<char> v(failed.begin(), failed.end());
-//		this->body_ = v;
-//		return ;
-//	}
+	if (access(path.c_str(), F_OK) == 0)
+	{
+		if (access(path.c_str(), W_OK) == 0)
+		{
+			if (unlink(path.c_str()) == 0)
+				return;
+			return MakeStatusResponse(INTERNAL_SERVER_ERROR);
+		}
+		return MakeStatusResponse(INTERNAL_SERVER_ERROR);
+	}
+	else
+		return MakeStatusResponse(NOT_FOUND);
 }
 
 void Response::SetErrorPages(std::map<int, std::string> error_pages) {
@@ -221,21 +218,6 @@ void    Response::SendResponse(int fd) {
 		std::cerr << "write error" << std::endl;
 }
 
-std::string Response::DeleteCheck(std::string path) const {
-	if (access(path.c_str(), F_OK) == 0)
-	{
-		if (access(path.c_str(), W_OK) == 0)
-		{
-			if (unlink(path.c_str()) == 0)
-				return path + " deleted\n";
-			return "unlink error";
-		}
-		return "permission error";
-	}
-	else
-		return "404 not found";
-}
-
 void    Response::SetHttpVersion(std::string version) {
 	this->http_version_ = version;
 }
@@ -260,4 +242,12 @@ void    Response::SetResponseType(ResponseType type) {
 
 void    Response::MakeStatusResponse(int status) {
     ReadFileToBody(error_pages_[status]);
+}
+
+int     Response::FindStringInBody(std::string str) {
+	std::string s(body_.begin(), body_.end());
+	if (s.find(str) != std::string::npos)
+		return 1;
+	else
+		return 0;
 }

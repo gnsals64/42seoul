@@ -76,6 +76,13 @@ void Webserv::ReadCgiResponse() {
 	event_data_->GetCgiHandler().ClosePipeAfterRead();
 	event_data_->GetCgiHandler().SetState(READ_PIPE);
 
+	if (event_data_->GetRequest().GetMethod() == "POST") {
+		if (event_data_->GetResponse().FindStringInBody("success"))
+			event_data_->GetResponse().SetStatusCode(CREATED);
+		else
+			event_data_->GetResponse().SetStatusCode(UNSUPPORTED_MEDIA_TYPE);
+	}
+
 	uintptr_t write_ident = event_data_->GetCgiHandler().GetClientWriteIdent();
 	event_data_->SetEventType(CLIENTEVENT);
 	ChangeEvent(change_list_, write_ident, EVFILT_READ, EV_DISABLE, 0, 0, event_data_);

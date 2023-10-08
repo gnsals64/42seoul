@@ -48,12 +48,14 @@ std::string Response::GetStatusMessage(int code) {
 			return "URL Too Long";
 		case UNSUPPORTED_MEDIA_TYPE:
 			return "Unsupported Media Type";
+		case INTERNAL_SERVER_ERROR:
+			return "Internal Server Error";
 		case NOT_IMPLEMENTED:
 			return "Not Implemented";
 		case HTTP_VERSION_NOT_SUPPORTED:
 			return "Http Version Not Supported";
 		default:
-			return "Unknown";
+			return "Unknown Status Message";
 	}
 }
 
@@ -63,7 +65,6 @@ void Response::ReadFileToBody(const std::string &path) {
 	fin.open(path.c_str());
 	if (fin.fail())
 		return Set404Response();
-		std::cerr << "file open error" << std::endl;
 	std::string line;
 	while (getline(fin, line)) {
 		line += "\r\n";
@@ -110,7 +111,7 @@ std::vector<std::string> Response::GetFilesInDirectory(const std::string &dirPat
 	std::vector<std::string> ret;
 
 	if ((dir_info = opendir(dirPath.c_str())) == NULL)
-		std::cerr << "opendir error" << std::endl;
+		Set500Response();
 	while ((dir_entry = readdir(dir_info)))
 	{
 		if (std::strcmp(dir_entry->d_name, ".") == 0)
@@ -286,6 +287,8 @@ void    Response::MakeStatusResponse(int status) {
 			return ;
 		case UNSUPPORTED_MEDIA_TYPE:
 			return ;
+		case INTERNAL_SERVER_ERROR:
+			return Set500Response();
 		case NOT_IMPLEMENTED:
 			return Set501Response();
 		case HTTP_VERSION_NOT_SUPPORTED:
@@ -296,21 +299,25 @@ void    Response::MakeStatusResponse(int status) {
 }
 
 void    Response::Set404Response() {
-	this->ReadFileToBody("./templates/404error.html");
+	ReadFileToBody("./templates/404error.html");
 }
 
 void    Response::Set405Response() {
-	this->ReadFileToBody("./templates/405error.html");
+	ReadFileToBody("./templates/405error.html");
 }
 
 void    Response::Set413Response() {
-	this->ReadFileToBody("./templates/413error.html");
+	ReadFileToBody("./templates/413error.html");
+}
+
+void    Response::Set500Response() {
+	ReadFileToBody("./templates/500error.html");
 }
 
 void    Response::Set501Response() {
-	this->ReadFileToBody("./templates/501error.html");
+	ReadFileToBody("./templates/501error.html");
 }
 
 void    Response::Set505Response() {
-	this->ReadFileToBody("./templates/505error.html");
+	ReadFileToBody("./templates/505error.html");
 }

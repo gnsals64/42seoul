@@ -36,6 +36,7 @@ enum HttpStatusCode
 	PAYLOAD_TOO_LARGE = 413,
 	URL_TOO_LONG = 414,
 	UNSUPPORTED_MEDIA_TYPE = 415,
+	INTERNAL_SERVER_ERROR = 500,
 	NOT_IMPLEMENTED = 501,
 	HTTP_VERSION_NOT_SUPPORTED = 505
 };
@@ -59,6 +60,7 @@ class Response {
 		void Set404Response();
 		void Set405Response();
 		void Set413Response();
+		void Set500Response();
 		void Set501Response();
 		void Set505Response();
 

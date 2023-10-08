@@ -88,6 +88,8 @@ void Webserv::ReadCgiResponse(void) {
 	close (curr_event_->ident);
 }
 
-Webserv::Webserv() {}
+Webserv::Webserv() {
+	this->location_idx_ = 0;
+}
 
 Webserv::~Webserv() {}

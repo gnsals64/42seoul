@@ -269,7 +269,7 @@ void	Worker::ChunkBodyParse(Request &req, Response &res) {
 			byte = this->MyStoi(line_parse[i]);
 			if (byte == -1)
 			{
-				res.SetStatusCode(400);
+				res.SetStatusCode(NOT_FOUND);
 				break ;
 			}
 			if (byte == 0)
@@ -279,7 +279,7 @@ void	Worker::ChunkBodyParse(Request &req, Response &res) {
 		{
 			size_t	body_size = line_parse[i].size();
 			if (byte != body_size)
-				res.SetStatusCode(400);
+				res.SetStatusCode(BAD_REQUEST);
 			for (int j = 0; j < line_parse[i].size(); j++)
 				req.PushPostBody(line_parse[i][j]);
 			// req.PushPostBody('\r');

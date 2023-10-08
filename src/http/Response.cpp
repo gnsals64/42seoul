@@ -4,15 +4,13 @@
 Response::Response() {
 	this->type_ = GENERAL;
 	this->status_code_ = OK;
-	this->connection_ = "keep-alive";
-	this->content_type_ = "text/html";
 	this->http_version_ = "HTTP/1.1";
+	this->connection_ = "keep-alive";
 	this->location_ = "";
+	this->content_type_ = "text/html";
 }
 
-Response::~Response() {
-
-}
+Response::~Response() {}
 
 Response& Response::operator=(const Response& response) {
 	this->status_code_ = response.status_code_;
@@ -24,8 +22,7 @@ Response& Response::operator=(const Response& response) {
 }
 
 std::string Response::GetStatusMessage(int code) {
-	switch (code)
-	{
+	switch (code) {
 		case OK:
 			return "OK";
 		case CREATED:
@@ -194,8 +191,8 @@ void Response::HandlePost(const Request &request) {
 
 	/* 405 응답 보내는 함수 필요 */
 	if ((dir_info = opendir(request.GetPath().c_str())) != NULL) {
-		this->Sethttpversion("HTTP/1.1");
-		this->SetStatusCode(405);
+		this->SetHttpVersion("HTTP/1.1");
+		this->SetStatusCode(METHOD_NOT_ALLOWED);
 		this->content_type_ = request.GetContentType();
 		this->connection_ = "Close";
 		closedir(dir_info);
@@ -224,8 +221,12 @@ void Response::HandleDelete(const Request &request) {
 //	}
 }
 
-void Response::SetStatusCode(int data) {
-	this->status_code_ = data;
+HttpStatusCode Response::GetStatusCode() const {
+	return this->status_code_;
+}
+
+void Response::SetStatusCode(HttpStatusCode status) {
+	this->status_code_ = status;
 }
 
 void    Response::SendResponse(int fd) {
@@ -268,7 +269,7 @@ std::string Response::DeleteCheck(std::string path) const {
 		return "404 not found";
 }
 
-void    Response::Sethttpversion(std::string version) {
+void    Response::SetHttpVersion(std::string version) {
 	this->http_version_ = version;
 }
 
@@ -289,4 +290,41 @@ ResponseType Response::GetResponseType() const {
 
 void    Response::SetResponseType(ResponseType type) {
 	this->type_ = type;
+}
+
+void    Response::Set505Response() {
+	this->ReadFileToBody("./templates/505error.html");
+}
+
+void    Response::SetStatusResponse(int status) {
+	switch (status) {
+		case OK:
+			return ;
+		case CREATED:
+			return ;
+		case NO_CONTENT:
+			return ;
+		case MOVED_PERMANENTLY:
+			return ;
+		case BAD_REQUEST:
+			return ;
+		case NOT_FOUND:
+			return ;
+		case METHOD_NOT_ALLOWED:
+			return ;
+		case LENGTH_REQUIRED:
+			return ;
+		case PAYLOAD_TOO_LARGE:
+			return ;
+		case URL_TOO_LONG:
+			return ;
+		case UNSUPPORTED_MEDIA_TYPE:
+			return ;
+		case NOT_IMPLEMENTED:
+			return ;
+		case HTTP_VERSION_NOT_SUPPORTED:
+			return Set505Response();
+		default:
+			return ;
+	}
 }

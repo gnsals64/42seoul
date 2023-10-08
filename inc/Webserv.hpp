@@ -23,6 +23,7 @@ class Webserv {
 		std::vector<int>				server_sockets_;
 		std::vector<int>::iterator		it;
 		std::vector<Worker>::iterator	wit_;
+		int                             location_idx_;
 		std::map<int, int>::iterator	mapter_;
 		std::map<int, std::string>		status_messages_;
 		WorkerData	        			*event_data_;
@@ -54,7 +55,6 @@ class Webserv {
 		void	ConfParse(char *conf_file);
 		void	Init(void);
 		void	Run(void);
-
 };
 
 #endif

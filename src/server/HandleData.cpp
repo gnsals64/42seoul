@@ -42,7 +42,9 @@ int	Webserv::SockReceiveData(void) {
 }
 
 void	Webserv::SockSendData(void) {
-	if (this->event_data_->GetResponse().GetResponseType() == GENERAL)
+	if (event_data_->GetResponse().GetStatusCode() != OK)
+		event_data_->GetResponse().SetStatusResponse(event_data_->GetResponse().GetStatusCode());
+	else if (this->event_data_->GetResponse().GetResponseType() == GENERAL)
 		MakeResponse(this->event_data_->GetRequest());
 	this->event_data_->GetResponse().SendResponse(curr_event_->ident);
 	std::map<int, int>::iterator tmp_fd_iter = find_fd_.find(curr_event_->ident);
@@ -132,13 +134,27 @@ void    Webserv::AddCgiEvent(void) {
 }
 
 void    Webserv::CheckRequestError(void) {
+	for (int i = 0; i < wit_->GetLocations().size(); i++)
+	{
+		if (event_data_->GetRequest().GetPath().find(wit_->GetLocations()[i].GetUri()) != std::string::npos) {
+			if (wit_->GetLocations()[i].GetUri().length() != 1)
+			{
+				location_idx_ = i;
+				break ;
+			}
+			location_idx_ = i;
+		}
+	}
+
+	if (event_data_->GetRequest().GetScheme() != "HTTP/1.1")
+		return event_data_->GetResponse().SetStatusCode(HTTP_VERSION_NOT_SUPPORTED);
 	/*
 	 * 요청을 다 읽은 시점에서 예외처리 필요
-	 * 1) 경로가 올바른지?
-	 * 2) 파일 및 폴더 열 수 있는지?
-	 * 3) 지원하지 않는 요청 메서드인지?
-	 * 4) http 버전이 잘못되었는지?
-	 * 5) content length 관련 : client_max_body_size를 넘는지?
+	 * ㅁ 경로가 올바른지?
+	 * ㅁ 파일 및 폴더 열 수 있는지?
+	 * ㅁ 지원하지 않는 요청 메서드인지?
+	 * V http 버전이 잘못되었는지?
+	 * ㅁ content length 관련 : client_max_body_size를 넘는지?
 	 * -> Request에 집어넣은 헤더 모두 검사한다고 생각하면 될 듯
 	 *
 	 * 그리고 이 여러 에러를 처리하기 위해서 각 에러를 처리해주는 함수들을 만들면 좋을듯
@@ -165,28 +181,9 @@ void	Webserv::SetCgiEvent(void) {
  * - 또 처리하는 과정에서 헤더 값 수정이 필요한 경우 setter로 변경하기
  */
 void    Webserv::MakeResponse(const Request &request) {
-	int location_idx = 0;
-	for(int i = 0; i < wit_->GetLocations().size(); i++)
-	{
-		if (request.GetPath().find(wit_->GetLocations()[i].GetUri()) != std::string::npos) {
-			if (wit_->GetLocations()[i].GetUri().length() != 1)
-			{
-				location_idx = i;
-				break ;
-			}
-			location_idx = i;
-		}
-	}
-	/* should be handled right after reading request */
-	// if (request.GetScheme().find("1.1") == std::string::npos)
-	// {
-	// 	this->event_data_->response.SetStatusCode(Response::BAD_REQUEST);
-	// 	throw std::runtime_error("wrong http version");
-	// }
-
-	std::map<int, bool> limit_excepts = wit_->GetLocations()[location_idx].GetLimitExcepts();
+	std::map<int, bool> limit_excepts = wit_->GetLocations()[location_idx_].GetLimitExcepts();
     if (request.GetMethod() == "GET" &&  limit_excepts[METHOD_GET])
-        this->event_data_->GetResponse().HandleGet(event_data_->GetRequest(), wit_->GetLocations()[location_idx].GetIndex());
+        this->event_data_->GetResponse().HandleGet(event_data_->GetRequest(), wit_->GetLocations()[location_idx_].GetIndex());
     else if (request.GetMethod() == "POST" && limit_excepts[METHOD_POST])
         this->event_data_->GetResponse().HandlePost(event_data_->GetRequest());
     // else if (method == "PUT" && limit_excepts[METHOD_PUT])
@@ -195,8 +192,8 @@ void    Webserv::MakeResponse(const Request &request) {
         this->event_data_->GetResponse().HandleDelete(event_data_->GetRequest());
     else {
 		/* 이런것도 함수로 빼자 (send405Response) */
-		this->event_data_->GetResponse().SetStatusCode(Response::METHOD_NOT_ALLOWED);
-		this->event_data_->GetResponse().Sethttpversion("HTTP/1.1");
+		this->event_data_->GetResponse().SetStatusCode(METHOD_NOT_ALLOWED);
+	    this->event_data_->GetResponse().SetHttpVersion("HTTP/1.1");
 	    std::cerr << "wrong http method : " + request.GetMethod() << std::endl;
 	}
 }

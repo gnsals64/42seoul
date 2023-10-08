@@ -25,10 +25,27 @@ enum ResponseType {
 	CGI
 };
 
+enum HttpStatusCode
+{
+	OK = 200,
+	CREATED = 201,
+	NO_CONTENT = 204,
+	MOVED_PERMANENTLY = 301,
+	BAD_REQUEST = 400,
+	NOT_FOUND = 404,
+	METHOD_NOT_ALLOWED = 405,
+	LENGTH_REQUIRED = 411,
+	PAYLOAD_TOO_LARGE = 413,
+	URL_TOO_LONG = 414,
+	UNSUPPORTED_MEDIA_TYPE = 415,
+	NOT_IMPLEMENTED = 501,
+	HTTP_VERSION_NOT_SUPPORTED = 505
+};
+
 class Response {
     private:
-        int             status_code_;
 		ResponseType    type_;
+        HttpStatusCode  status_code_;
         std::string     http_version_;
    	 	std::string     connection_;
    		std::string     location_; // 300번대 응답에서 redirect 시 사용.
@@ -41,11 +58,15 @@ class Response {
         int CheckPath(const std::string path);
         std::vector<std::string> GetFilesInDirectory(const std::string &dirPath);
 
+		void Set505Response();
+
     public:
         Response();
         ~Response();
 		Response& operator=(const Response& response);
 
+		HttpStatusCode GetStatusCode() const;
+        void SetStatusCode(HttpStatusCode status);
         void ParsingFromRequest(Worker &worker, const Request &request);
         void HandleBodySizeLimit();
         void HandleBadRequest();
@@ -58,28 +79,12 @@ class Response {
         void HandlePost(const Request &request);
         void HandlePut(const Request &request);
         void HandleDelete(const Request &request);
-        void SetStatusCode(int data);
-        void Sethttpversion(std::string version);
+        void SetHttpVersion(std::string version);
 		void PushBackBody(char c);
         std::string DeleteCheck(std::string path) const;
 		void PrintBody() const;
 
-        enum HttpStatusCode
-        {
-            OK = 200,
-            CREATED = 201,
-            NO_CONTENT = 204,
-			MOVED_PERMANENTLY = 301,
-            BAD_REQUEST = 400,
-            NOT_FOUND = 404,
-            METHOD_NOT_ALLOWED = 405,
-			LENGTH_REQUIRED = 411,
-            PAYLOAD_TOO_LARGE = 413,
-			URL_TOO_LONG = 414,
-			UNSUPPORTED_MEDIA_TYPE = 415,
-            NOT_IMPLEMENTED = 501,
-            HTTP_VERSION_NOT_SUPPORTED = 505
-        };
+		void SetStatusResponse(int status);
 };
 
 #endif

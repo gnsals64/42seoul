@@ -33,14 +33,6 @@ void	Request::SetMethod(std::string method) {
 }
 
 void	Request::SetPath(std::string path) {
-	if (path[0] == '/') {
-		while(true) {
-			if (path[1] != '/')
-				break ;
-			if (path[1] == '/')
-				path.erase(1, 1);
-		}
-	}
 	this->path_ = path;
 }
 

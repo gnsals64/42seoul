@@ -126,12 +126,12 @@ std::vector <std::string> Worker::Split(std::string input, char dlim, int &resul
 	std::vector<std::string> result;
 
 	std::stringstream ss;
-	std::string stringBuffer;
+	std::string buf;
 	ss.str(input);
 
-	while (getline(ss, stringBuffer, dlim))
+	while (getline(ss, buf, dlim))
 	{
-		result.push_back(stringBuffer);
+		result.push_back(buf);
 		result_cnt++;
 	}
 	return result;
@@ -142,12 +142,6 @@ void	Worker::ReqFirstLineParse(Request &req, std::string first_line) {
 	std::vector <std::string> fir_line_parse;
 	fir_line_parse = this->Split(first_line, ' ', tmp);
 	req.SetMethod(fir_line_parse[0]);
-	// for (int i = 0; i < this->GetLocations().size(); i++)
-	// {
-	// 	if (req.GetPath() == GetLocations()[i].GetUri())
-	// 		break ;
-	// 	else
-	// }
 	req.SetPath(fir_line_parse[1]);
     req.SetFullPath(this->root_ + req.GetPath());
 	req.SetScheme(fir_line_parse[2]);

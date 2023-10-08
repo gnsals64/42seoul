@@ -140,6 +140,12 @@ void    Webserv::AddCgiEvent() {
 }
 
 void    Webserv::CheckRequestError() {
+	std::string path = event_data_->GetRequest().GetPath();
+	for (int i = 0; i < path.length() - 1; i++) {
+		if (path[i] == '/' && path[i + 1] == '/')
+			event_data_->GetResponse().SetStatusCode(NOT_FOUND);
+	}
+
 	for (int i = 0; i < wit_->GetLocations().size(); i++)
 	{
 		if (event_data_->GetRequest().GetPath().find(wit_->GetLocations()[i].GetUri()) != std::string::npos) {

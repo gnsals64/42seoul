@@ -42,6 +42,7 @@ class Webserv {
 		void	ReadFinish();
 		void    AddCgiEvent();
 		void    CheckRequestError();
+		void    CheckRedirection();
 		void	SockSendData();
 		void	MakeResponse();
 		void	ChangeEvent(std::vector<struct kevent>& change_list_, uintptr_t ident, int16_t filter,	uint16_t flags, uint32_t fflags, intptr_t data, void *udata);

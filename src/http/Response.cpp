@@ -62,11 +62,11 @@ std::string Response::GetStatusMessage(int code) {
 void Response::ReadFileToBody(const std::string &path) {
 	this->body_.clear();
 	if (access(path.c_str(), F_OK) != 0)
-		return MakeStatusResponse(NOT_FOUND);
+		return MakeErrorResponse(NOT_FOUND);
 	std::ifstream fin;
 	fin.open(path.c_str());
 	if (fin.fail())
-		return MakeStatusResponse(INTERNAL_SERVER_ERROR);
+		return MakeErrorResponse(INTERNAL_SERVER_ERROR);
 	std::string line;
 	while (getline(fin, line)) {
 		line += "\r\n";
@@ -113,7 +113,7 @@ std::vector<std::string> Response::GetFilesInDirectory(const std::string &dirPat
 	std::vector<std::string> ret;
 
 	if ((dir_info = opendir(dirPath.c_str())) == NULL)
-		MakeStatusResponse(INTERNAL_SERVER_ERROR);
+		MakeErrorResponse(INTERNAL_SERVER_ERROR);
 	while ((dir_entry = readdir(dir_info)))
 	{
 		if (std::strcmp(dir_entry->d_name, ".") == 0)
@@ -169,12 +169,12 @@ void Response::HandleDelete(const Request &request) {
 		{
 			if (unlink(path.c_str()) == 0)
 				return;
-			return MakeStatusResponse(INTERNAL_SERVER_ERROR);
+			return MakeErrorResponse(INTERNAL_SERVER_ERROR);
 		}
-		return MakeStatusResponse(INTERNAL_SERVER_ERROR);
+		return MakeErrorResponse(INTERNAL_SERVER_ERROR);
 	}
 	else
-		return MakeStatusResponse(NOT_FOUND);
+		return MakeErrorResponse(NOT_FOUND);
 }
 
 void Response::SetErrorPages(std::map<int, std::string> error_pages) {
@@ -203,6 +203,8 @@ void    Response::SendResponse(int fd) {
 
 	if (this->status_code_ == METHOD_NOT_ALLOWED)
 		toSend += "Allow: " + this->allow_ + "\r\n";
+	if (this->status_code_ == MOVED_PERMANENTLY)
+		toSend += "Location: " + this->location_ + "\r\n";
 	if (!this->content_type_.empty())
 		toSend += "Content-Type: " + this->content_type_ + "\r\n";
 	if (!this->body_.empty())
@@ -240,8 +242,14 @@ void    Response::SetResponseType(ResponseType type) {
 	this->type_ = type;
 }
 
-void    Response::MakeStatusResponse(int status) {
+void    Response::MakeErrorResponse(int status) {
     ReadFileToBody(error_pages_[status]);
+}
+
+void    Response::MakeRedirectionResponse(std::string redir_path) {
+	std::cerr << "make response: " <<  redir_path << std::endl;
+	this->location_ = redir_path;
+	ReadFileToBody(REDIRECTION_HTML_PATH);
 }
 
 int     Response::FindStringInBody(std::string str) {

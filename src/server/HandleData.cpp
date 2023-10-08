@@ -27,6 +27,7 @@ int	Webserv::SockReceiveData() {
 		if (event_data_->GetRequest().GetState() == READ_FINISH) {
 			ReadFinish();
 			CheckRequestError();
+			CheckRedirection();
 			if (this->event_data_->GetRequest().GetPath().find(".py") != std::string::npos || (this->event_data_->GetRequest().GetMethod() == "POST" && this->event_data_->GetRequest().GetPath().find(".bla") != std::string::npos)) {
 				this->event_data_->GetResponse().SetResponseType(CGI);
 				this->event_data_->GetCgiHandler().SetClientWriteIdent(curr_event_->ident);
@@ -43,8 +44,10 @@ int	Webserv::SockReceiveData() {
 
 void	Webserv::SockSendData() {
 	event_data_->GetResponse().SetErrorPages(wit_->GetErrorPage());
-	if (event_data_->GetResponse().GetStatusCode() != OK && event_data_->GetResponse().GetStatusCode() != CREATED)
-		event_data_->GetResponse().MakeStatusResponse(event_data_->GetResponse().GetStatusCode());
+	if (event_data_->GetResponse().GetStatusCode() == MOVED_PERMANENTLY)
+		event_data_->GetResponse().MakeRedirectionResponse(wit_->GetLocations()[location_idx_].GetRedirUri());
+	else if (event_data_->GetResponse().GetStatusCode() != OK && event_data_->GetResponse().GetStatusCode() != CREATED)
+		event_data_->GetResponse().MakeErrorResponse(event_data_->GetResponse().GetStatusCode());
 	else if (this->event_data_->GetResponse().GetResponseType() == GENERAL)
 		MakeResponse();
 	this->event_data_->GetResponse().SendResponse(curr_event_->ident);
@@ -186,6 +189,11 @@ void    Webserv::CheckRequestError() {
 
 	if (event_data_->GetRequest().GetContentLength() > loc.GetClientMaxBodySizeLocation())
 		return event_data_->GetResponse().SetStatusCode(PAYLOAD_TOO_LARGE);
+}
+
+void    Webserv::CheckRedirection() {
+	if (wit_->GetLocations()[location_idx_].GetRedirStatusCode() == MOVED_PERMANENTLY)
+		return event_data_->GetResponse().SetStatusCode(MOVED_PERMANENTLY);
 }
 
 void	Webserv::SetCgiEvent() {

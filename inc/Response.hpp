@@ -14,6 +14,7 @@
 #include "CgiHandler.hpp"
 
 #define AUTO_INDEX_HTML_PATH "./templates/autoindex.html"
+#define REDIRECTION_HTML_PATH "./templates/301redirection.html"
 
 class Worker;
 class Request;
@@ -48,7 +49,7 @@ class Response {
         std::string     http_version_;
 		std::string     allow_;
    	 	std::string     connection_;
-   		std::string     location_; // 300번대 응답에서 redirect 시 사용.
+   		std::string     location_;
    		std::string     content_type_;
 		std::vector<char>           body_;
 		std::map<int, std::string>  error_pages_;
@@ -79,7 +80,8 @@ class Response {
 		void MakeIndexResponse(std::string full_path, std::string index_path);
 		int FindStringInBody(std::string str);
 
-		void MakeStatusResponse(int status);
+		void MakeErrorResponse(int status);
+		void MakeRedirectionResponse(std::string redir_path);
 };
 
 #endif

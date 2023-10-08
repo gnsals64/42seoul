@@ -28,6 +28,7 @@ class Request {
         std::vector <std::string> host_;
         std::string	connection_;
         int	        content_length_;
+		std::string transfer_encoding_;
 		std::string	body_str_;
 		std::string http_version_;
    		std::string location_; 
@@ -51,6 +52,7 @@ class Request {
 		void	SetHeaders(std::string data);
 		void	SetBodyClear();
 		void	SetContentType(std::string type);
+		void    SetTransferEncoding(std::string type);
 		std::string	GetMethod() const;
 		std::string	GetPath() const;
         std::string GetFullPath() const;
@@ -64,6 +66,7 @@ class Request {
         std::string GetContentType() const;
 		std::string GetBodyStr() const;
 		std::string GetBodyCharToStr() const;
+		std::string GetTransferEncoding() const;
 		PathInfo    GetPathInfo() const;
 
 		void	AppendHeader(std::string data);

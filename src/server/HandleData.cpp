@@ -94,6 +94,8 @@ int	Webserv::ReadHeader() {
 		}
 		else if (event_data_->GetRequest().GetHeaders().find("Transfer-Encoding") != std::string::npos)
 		{
+			std::cerr << event_data_->GetRequest().GetHeaders() << std::endl;
+			event_data_->GetRequest().SetTransferEncoding("chunked");
 			event_data_->GetRequest().AddRNRNOneTime();
 			std::string temp = event_data_->GetRequest().GetBodyCharToStr();
 			if (event_data_->GetRequest().Findrn0rn(temp) == 1)
@@ -189,6 +191,11 @@ void    Webserv::CheckRequestError() {
 
 	if (event_data_->GetRequest().GetContentLength() > loc.GetClientMaxBodySizeLocation())
 		return event_data_->GetResponse().SetStatusCode(PAYLOAD_TOO_LARGE);
+
+	if (event_data_->GetRequest().GetMethod() == "POST"
+		&& event_data_->GetRequest().GetContentLength() == 0
+		&& event_data_->GetRequest().GetTransferEncoding() != "chunked")
+		return event_data_->GetResponse().SetStatusCode(LENGTH_REQUIRED);
 }
 
 void    Webserv::CheckRedirection() {

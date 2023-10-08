@@ -247,7 +247,6 @@ void    Response::MakeErrorResponse(int status) {
 }
 
 void    Response::MakeRedirectionResponse(std::string redir_path) {
-	std::cerr << "make response: " <<  redir_path << std::endl;
 	this->location_ = redir_path;
 	ReadFileToBody(REDIRECTION_HTML_PATH);
 }

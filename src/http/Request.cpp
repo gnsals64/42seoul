@@ -110,6 +110,10 @@ std::string Request::GetBodyCharToStr() const {
 	return (temp);
 }
 
+std::string Request::GetTransferEncoding() const {
+	return this->transfer_encoding_;
+}
+
 std::string Request::GetHeaders() const {
 	return (this->headers_);
 }
@@ -144,6 +148,10 @@ void	Request::AppendBodyStr(std::string data) {
 
 void	Request::SetContentType(std::string type) {
 	this->content_type_ = type;
+}
+
+void    Request::SetTransferEncoding(std::string type) {
+	this->transfer_encoding_ = type;
 }
 
 void	Request::RemoveCRLF() {

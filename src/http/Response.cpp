@@ -30,12 +30,8 @@ std::string Response::GetStatusMessage(int code) {
 			return "OK";
 		case CREATED:
 			return "Created";
-		case NO_CONTENT:
-			return "No Content";
 		case MOVED_PERMANENTLY:
 			return "Moved Permanently";
-		case BAD_REQUEST:
-			return "Bad Request";
 		case NOT_FOUND:
 			return "Not Found";
 		case METHOD_NOT_ALLOWED:

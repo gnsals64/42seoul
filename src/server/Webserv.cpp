@@ -79,6 +79,8 @@ void Webserv::ReadCgiResponse() {
 	if (event_data_->GetRequest().GetMethod() == "POST") {
 		if (event_data_->GetResponse().FindStringInBody("Invalid file extension"))
 			event_data_->GetResponse().SetStatusCode(UNSUPPORTED_MEDIA_TYPE);
+		else if (event_data_->GetResponse().FindStringInBody("A problem occurred in a Python script."))
+			event_data_->GetResponse().SetStatusCode(BAD_REQUEST);
 		else
 			event_data_->GetResponse().SetStatusCode(CREATED);
 	}

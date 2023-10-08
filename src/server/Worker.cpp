@@ -149,29 +149,29 @@ void	Worker::ReqFirstLineParse(Request &req, std::string first_line) {
 
 void	Worker::ParseHost(Request &req, std::vector<std::string> colon_parse) {
 	int	i = 1;
-	std::string	tmp;
+	std::string	s;
 	while (colon_parse[1][i])
 	{
 		if (colon_parse[1][i] == ' ')
 			break ;
-		tmp += colon_parse[1][i];
+		s += colon_parse[1][i];
 		i++;
 	}
-	req.PushBackHost(tmp);
+	req.PushBackHost(s);
 	req.PushBackHost(colon_parse[2]);
 }
 
 void	Worker::ParseConnection(Request &req, std::vector<std::string> colon_parse) {
 	int	i = 1;
-	std::string	tmp;
+	std::string	s;
 	while (colon_parse[1][i])
 	{
 		if (colon_parse[1][i] == ' ')
 			break ;
-		tmp += colon_parse[1][i];
+		s += colon_parse[1][i];
 		i++;
 	}
-	req.SetConnection(tmp);
+	req.SetConnection(s);
 }
 
 void	Worker::ParseContentLength(Request &req, std::vector<std::string> colon_parse) {
@@ -193,6 +193,19 @@ void	Worker::ParseContentLength(Request &req, std::vector<std::string> colon_par
 	req.SetContentLength(content_length);
 }
 
+void	Worker::ParseContentType(Request &req, std::vector<std::string> colon_parse) {
+	int	i = 1;
+	std::string	s;
+	while (colon_parse[1][i])
+	{
+		if (colon_parse[1][i] == ' ')
+			break ;
+		s += colon_parse[1][i];
+		i++;
+	}
+	req.SetContentType(s);
+}
+
 void	Worker::ParseOther(Request &req, std::vector<std::string> line_parse, int line_cnt) {
 	int tmp;
 	std::vector <std::string> colon_parse;
@@ -209,16 +222,15 @@ void	Worker::ParseOther(Request &req, std::vector<std::string> line_parse, int l
 		else if (colon_parse[0] == "Content-Length")
 			this->ParseContentLength(req, colon_parse);
 		else if (colon_parse[0] == "Content-Type")
-			req.SetContentType(colon_parse[1]);
+			this->ParseContentType(req, colon_parse);
 	}
 }
 
 void	Worker::RequestHeaderParse(Request &req) {
 	int	line_cnt = 0;
 	std::vector <std::string> line_parse;
-	std::string header = req.GetHeaders();
 
-	line_parse = this->SplitArgs(header, "\r\n");
+	line_parse = this->SplitArgs(req.GetHeaders(), "\r\n");
 	this->ReqFirstLineParse(req, line_parse[0]);
 	line_cnt = line_parse.size();
 	this->ParseOther(req, line_parse, line_cnt);

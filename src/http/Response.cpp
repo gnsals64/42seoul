@@ -32,6 +32,8 @@ std::string Response::GetStatusMessage(int code) {
 			return "Created";
 		case MOVED_PERMANENTLY:
 			return "Moved Permanently";
+		case BAD_REQUEST:
+			return "Bad Request";
 		case NOT_FOUND:
 			return "Not Found";
 		case METHOD_NOT_ALLOWED:
@@ -144,17 +146,9 @@ void Response::HandleGet(const Request &request, const std::string index_path, c
 }
 
 void Response::HandlePost(const Request &request) {
-	DIR *dir_info;
-
-	/* 405 응답 보내는 함수 필요 */
-	if ((dir_info = opendir(request.GetPath().c_str())) != NULL) {
-		this->SetHttpVersion("HTTP/1.1");
-		this->SetStatusCode(METHOD_NOT_ALLOWED);
-		this->content_type_ = request.GetContentType();
-		this->connection_ = "Close";
-		closedir(dir_info);
-		return ;
-	}
+	this->body_ = request.GetBody();
+	this->content_type_ = request.GetContentType();
+	this->status_code_ = CREATED;
 }
 
 void Response::HandleDelete(const Request &request) {

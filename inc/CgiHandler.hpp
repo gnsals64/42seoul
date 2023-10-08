@@ -8,8 +8,10 @@
 #include <unistd.h>
 
 #include "Request.hpp"
+#include "Response.hpp"
 
 class Request;
+class Response;
 class Webserv;
 
 enum CgiState {

@@ -129,7 +129,7 @@ void	Webserv::ReadFinish() {
 }
 
 void    Webserv::AddCgiEvent() {
-	event_data_->GetCgiHandler().ExecuteChildProcess(event_data_->GetRequest());
+	event_data_->GetCgiHandler().ExecuteChildProcess(event_data_->GetRequest(), event_data_->GetResponse());
 	if (event_data_->GetResponse().GetStatusCode() == OK)
 		SetCgiEvent();
 	else {

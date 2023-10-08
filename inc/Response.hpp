@@ -13,8 +13,6 @@
 #include "Request.hpp"
 #include "CgiHandler.hpp"
 
-#define ERROR_PAGE_404_PATH "./templates/404error.html"
-#define ERROR_PAGE_413_PATH "./templates/413error.html"
 #define AUTO_INDEX_HTML_PATH "./templates/autoindex.html"
 
 class Worker;
@@ -56,9 +54,9 @@ class Response {
         std::string GetStatusMessage(int code);
         void ReadFileToBody(const std::string &path);
         void GenerateBodyAutoIndexing(const Request &request);
-        int CheckPath(const std::string path);
         std::vector<std::string> GetFilesInDirectory(const std::string &dirPath);
 
+		void Set404Response();
 		void Set405Response();
 		void Set413Response();
 		void Set501Response();
@@ -80,7 +78,7 @@ class Response {
 		ResponseType GetResponseType(void) const;
 		void SetResponseType(ResponseType type);
 
-        void HandleGet(const Request &request, const std::string index);
+        void HandleGet(const Request &request, const std::string index, const bool autoindex);
         void HandlePost(const Request &request);
         void HandlePut(const Request &request);
         void HandleDelete(const Request &request);
@@ -88,6 +86,7 @@ class Response {
 		void PushBackBody(char c);
         std::string DeleteCheck(std::string path) const;
 		void PrintBody() const;
+		void MakeIndexResponse(std::string full_path, std::string index_path);
 
 		void MakeStatusResponse(int status);
 };

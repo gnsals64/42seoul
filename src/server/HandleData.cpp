@@ -145,9 +145,10 @@ void    Webserv::CheckRequestError() {
 			location_idx_ = i;
 		}
 	}
+	Location loc = wit_->GetLocations()[location_idx_];
 
 	std::string method = event_data_->GetRequest().GetMethod();
-	std::map<int, bool> limit_excepts = wit_->GetLocations()[location_idx_].GetLimitExcepts();
+	std::map<int, bool> limit_excepts = loc.GetLimitExcepts();
 
 	std::string allowed = "";
 	if (limit_excepts[METHOD_GET])
@@ -171,17 +172,8 @@ void    Webserv::CheckRequestError() {
 	if (event_data_->GetRequest().GetScheme() != "HTTP/1.1")
 		return event_data_->GetResponse().SetStatusCode(HTTP_VERSION_NOT_SUPPORTED);
 
-	if (event_data_->GetRequest().GetContentLength() > wit_->GetLocations()[location_idx_].GetClientMaxBodySizeLocation())
+	if (event_data_->GetRequest().GetContentLength() > loc.GetClientMaxBodySizeLocation())
 		return event_data_->GetResponse().SetStatusCode(PAYLOAD_TOO_LARGE);
-	/*
-	 * 요청을 다 읽은 시점에서 예외처리 필요
-	 * ㅁ 경로가 올바른지?
-	 * ㅁ 파일 및 폴더 열 수 있는지?
-	 * V 지원하지 않는 요청 메서드인지?
-	 * V http 버전이 잘못되었는지?
-	 * V content length 관련 : client_max_body_size를 넘는지?
-	 * -> Request에 집어넣은 헤더 모두 검사한다고 생각하면 될 듯
-	 */
 }
 
 void	Webserv::SetCgiEvent() {
@@ -193,20 +185,12 @@ void	Webserv::SetCgiEvent() {
 	fcntl(this->event_data_->GetCgiHandler().GetWriteFd(), F_SETFL, O_NONBLOCK, FD_CLOEXEC);
 }
 
-/*
- * 응답 헤더의 흐름
- * - Response 객체를 만드는 시점에서 헤더 값 default로 두기
- * - request 파싱이 끝난 시점에서 예외처리 + 헤더값 일부 변경하기
- * - 또 처리하는 과정에서 헤더 값 수정이 필요한 경우 setter로 변경하기
- */
 void    Webserv::MakeResponse() {
 	std::string method = event_data_->GetRequest().GetMethod();
     if (method == "GET")
-        event_data_->GetResponse().HandleGet(event_data_->GetRequest(), wit_->GetLocations()[location_idx_].GetIndex());
+        event_data_->GetResponse().HandleGet(event_data_->GetRequest(), wit_->GetLocations()[location_idx_].GetIndex(), wit_->GetLocations()[location_idx_].GetAutoIndex());
     else if (method == "POST")
         event_data_->GetResponse().HandlePost(event_data_->GetRequest());
-    // else if (method == "PUT" && limit_excepts[METHOD_PUT])
-    //     this->event_data_->response.HandlePost(event_data_->request);
     else if (method == "DELETE" )
         event_data_->GetResponse().HandleDelete(event_data_->GetRequest());
 }

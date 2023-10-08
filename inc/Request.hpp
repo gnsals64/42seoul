@@ -10,6 +10,12 @@ enum ParseState {
 	READ_FINISH
 };
 
+enum PathInfo {
+	IS_DIRECTORY,
+	IS_FILE,
+	NOT_EXIST
+};
+
 class Request {
 	private:
 		ParseState	parse_state_;
@@ -17,6 +23,7 @@ class Request {
 		std::string http_method_;
         std::string path_;
         std::string full_path_;
+		PathInfo    path_info_;
         std::string	scheme_;
         std::vector <std::string> host_;
         std::string	connection_;
@@ -35,6 +42,7 @@ class Request {
 		void	SetMethod(std::string method);
 		void	SetPath(std::string path);
         void    SetFullPath(std::string full_path);
+		void    SetPathInfo();
 		void	SetScheme(std::string scheme);
 		void	PushBackHost(std::string host);
 		void	SetConnection(std::string connection);
@@ -56,6 +64,7 @@ class Request {
         std::string GetContentType() const;
 		std::string GetBodyStr() const;
 		std::string GetBodyCharToStr() const;
+		PathInfo    GetPathInfo() const;
 
 		void	AppendHeader(std::string data);
 		void	AppendBodyStr(std::string data);

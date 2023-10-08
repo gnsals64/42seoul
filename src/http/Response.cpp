@@ -61,10 +61,9 @@ void Response::ReadFileToBody(const std::string &path) {
 	this->body_.clear();
 	std::ifstream fin;
 	fin.open(path.c_str());
-	if (fin.fail()) {
-		// Set500Response();
+	if (fin.fail())
+		return Set404Response();
 		std::cerr << "file open error" << std::endl;
-	}
 	std::string line;
 	while (getline(fin, line)) {
 		line += "\r\n";
@@ -105,21 +104,6 @@ void Response::GenerateBodyAutoIndexing(const Request &request) {
 	this->body_ = v1;
 }
 
-int Response::CheckPath(const std::string path) {
-	struct stat buf;
-
-	if (stat(path.c_str(), &buf) == -1) // 해당 경로에 파일이 존재 안하면 404Page
-		return 0;
-	else if (S_ISDIR(buf.st_mode)) // 경로일 때
-	{
-		if (path.back() == '/')
-			return 1;
-		else
-			return 2;
-	}
-	return 3;
-}
-
 std::vector<std::string> Response::GetFilesInDirectory(const std::string &dirPath) {
 	DIR *dir_info;
 	struct dirent *dir_entry;
@@ -141,54 +125,23 @@ std::vector<std::string> Response::GetFilesInDirectory(const std::string &dirPat
 	return ret;
 }
 
-// void Response::handleBodySizeLimit()
-// {
-// 	this->status_code_ = CONTENT_TOO_LARGE;
-// 	this->connection = "close";
-// 	this->ReadFileToBody(ERROR_PAGE_413_PATH);
-// 	this->content_length_ = this->body_.size();
-// 	this->content_type_ = "text/html";
-// }
+void Response::HandleGet(const Request &request, const std::string index_path, const bool autoindex) {
+	std::string path = request.GetFullPath();
 
-// void Response::handleBadRequest()
-// {
-// 	this->http_version_ = "HTTP/1.1";
-// 	this->status_code_ = NOT_FOUND;
-// 	this->connection = "close";
-// 	this->ReadFileToBody(ERROR_PAGE_404_PATH);
-// 	this->content_length_ = this->body_.size();
-// 	this->content_type_ = "text/html";
-// }
-
-void Response::HandleGet(const Request &request, const std::string index) {
-	std::string final_path = request.GetFullPath();
-	int check_res = this->CheckPath(final_path);
-	if (check_res == 1) // autoindex 해야하는 상황
-	{
-		this->GenerateBodyAutoIndexing(request);
-		return;
-	}
-	else if (check_res == 2) // 파일이 없거나 디렉토리인데 구조 이상한 경우
-	{
-		final_path += "/";
-		int last_slash = final_path.find_last_of("/");
-		std::string last_dir = final_path.substr(0, last_slash + 1);
-		final_path = last_dir + index;
-		int second_check = this->CheckPath(final_path);
-		if (second_check == 0)
-		{
-			/* 바로 404 응답 보내는 함수 필요 */
-			this->status_code_ = NOT_FOUND;
-			final_path = ERROR_PAGE_404_PATH;
+	if (request.GetPathInfo() == NOT_EXIST)
+		return MakeIndexResponse(path, index_path);
+	else if (request.GetPathInfo() == IS_DIRECTORY) {
+		if (path.back() != '/')
+			return MakeIndexResponse(path, index_path);
+		else {
+			if (autoindex)
+				return GenerateBodyAutoIndexing(request);
+			else
+				return MakeIndexResponse(path, index_path);
 		}
 	}
-	else if (check_res == 0) // youpi.bad_extension 파일조차 없거나 원래부터 유효하지 않은 파일인 경우
-	{
-		/* 바로 404 응답 보내는 함수 필요 */
-		this->status_code_ = NOT_FOUND;
-		final_path = ERROR_PAGE_404_PATH;
-	}
-	this->ReadFileToBody(final_path);
+	else if (request.GetPathInfo() == IS_FILE)
+		return ReadFileToBody(path);
 }
 
 void Response::HandlePost(const Request &request) {
@@ -295,6 +248,12 @@ void    Response::PrintBody() const {
 	std::cerr << "-- finish --" << std::endl;
 }
 
+void Response::MakeIndexResponse(std::string full_path, std::string index_path) {
+	int last_slash = full_path.find_last_of("/");
+	std::string last_dir = full_path.substr(0, last_slash + 1);
+	this->ReadFileToBody(last_dir + index_path);
+}
+
 ResponseType Response::GetResponseType() const {
 	return (this->type_);
 }
@@ -316,7 +275,7 @@ void    Response::MakeStatusResponse(int status) {
 		case BAD_REQUEST:
 			return ;
 		case NOT_FOUND:
-			return ;
+			return Set404Response();
 		case METHOD_NOT_ALLOWED:
 			return Set405Response();
 		case LENGTH_REQUIRED:
@@ -334,6 +293,10 @@ void    Response::MakeStatusResponse(int status) {
 		default:
 			return ;
 	}
+}
+
+void    Response::Set404Response() {
+	this->ReadFileToBody("./templates/404error.html");
 }
 
 void    Response::Set405Response() {

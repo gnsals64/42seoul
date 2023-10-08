@@ -46,6 +46,7 @@ void	Request::SetPath(std::string path) {
 
 void    Request::SetFullPath(std::string full_path) {
     this->full_path_ = full_path;
+	this->SetPathInfo();
 }
 
 void	Request::SetScheme(std::string scheme) {
@@ -129,6 +130,10 @@ std::string Request::GetContentType() const {
     return this->content_type_;
 }
 
+PathInfo    Request::GetPathInfo() const {
+	return this->path_info_;
+}
+
 void	Request::AppendHeader(std::string data) {
 	this->headers_.append(data);
 }
@@ -185,4 +190,15 @@ void	Request::AddRNRNOneTime() {
 void	Request::RemoveRNRNOneTime() {
 	this->body_.erase(this->body_.begin());
 	this->body_.erase(this->body_.begin());
+}
+
+void    Request::SetPathInfo() {
+	struct stat buf;
+
+	if (stat(full_path_.c_str(), &buf) == -1)
+		this->path_info_ = NOT_EXIST;
+	else if (S_ISDIR(buf.st_mode))
+		this->path_info_ = IS_DIRECTORY;
+	else
+		this->path_info_ = IS_FILE;
 }

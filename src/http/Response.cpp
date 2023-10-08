@@ -296,7 +296,7 @@ void    Response::Set505Response() {
 	this->ReadFileToBody("./templates/505error.html");
 }
 
-void    Response::SetStatusResponse(int status) {
+void    Response::MakeStatusResponse(int status) {
 	switch (status) {
 		case OK:
 			return ;

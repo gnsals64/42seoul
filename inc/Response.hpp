@@ -84,7 +84,7 @@ class Response {
         std::string DeleteCheck(std::string path) const;
 		void PrintBody() const;
 
-		void SetStatusResponse(int status);
+		void MakeStatusResponse(int status);
 };
 
 #endif

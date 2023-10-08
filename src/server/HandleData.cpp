@@ -43,7 +43,7 @@ int	Webserv::SockReceiveData(void) {
 
 void	Webserv::SockSendData(void) {
 	if (event_data_->GetResponse().GetStatusCode() != OK)
-		event_data_->GetResponse().SetStatusResponse(event_data_->GetResponse().GetStatusCode());
+		event_data_->GetResponse().MakeStatusResponse(event_data_->GetResponse().GetStatusCode());
 	else if (this->event_data_->GetResponse().GetResponseType() == GENERAL)
 		MakeResponse(this->event_data_->GetRequest());
 	this->event_data_->GetResponse().SendResponse(curr_event_->ident);

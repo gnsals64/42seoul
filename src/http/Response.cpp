@@ -5,6 +5,7 @@ Response::Response() {
 	this->type_ = GENERAL;
 	this->status_code_ = OK;
 	this->http_version_ = "HTTP/1.1";
+	this->allow_ = "";
 	this->connection_ = "keep-alive";
 	this->location_ = "";
 	this->content_type_ = "text/html";
@@ -13,11 +14,13 @@ Response::Response() {
 Response::~Response() {}
 
 Response& Response::operator=(const Response& response) {
+	this->type_ = response.type_;
 	this->status_code_ = response.status_code_;
-	this->connection_ = response.connection_;
-	this->content_type_ = response.content_type_;
 	this->http_version_ = response.http_version_;
+	this->allow_ = response.allow_;
+	this->connection_ = response.connection_;
 	this->location_ = response.location_;
+	this->content_type_ = response.content_type_;
 	return *this;
 }
 
@@ -57,11 +60,12 @@ std::string Response::GetStatusMessage(int code) {
 void Response::ReadFileToBody(const std::string &path) {
 	std::ifstream fin;
 	fin.open(path.c_str());
-	if (fin.fail())
+	if (fin.fail()) {
+		// Set500Response();
 		std::cerr << "file open error" << std::endl;
+	}
 	std::string line;
-	while (getline(fin, line))
-	{
+	while (getline(fin, line)) {
 		line += "\r\n";
 		for (int i = 0; i < line.length(); i++)
 			this->body_.push_back(line[i]);
@@ -221,6 +225,10 @@ void Response::HandleDelete(const Request &request) {
 //	}
 }
 
+void Response::SetAllow(std::string allow) {
+	this->allow_ = allow;
+}
+
 HttpStatusCode Response::GetStatusCode() const {
 	return this->status_code_;
 }
@@ -238,6 +246,8 @@ void    Response::SendResponse(int fd) {
 	toSend += " " + this->GetStatusMessage(this->status_code_);
 	toSend += "\r\n";
 
+	if (this->status_code_ == METHOD_NOT_ALLOWED)
+		toSend += "Allow: " + this->allow_ + "\r\n";
 	if (!this->content_type_.empty())
 		toSend += "Content-Type: " + this->content_type_ + "\r\n";
 	if (!this->body_.empty())
@@ -292,10 +302,6 @@ void    Response::SetResponseType(ResponseType type) {
 	this->type_ = type;
 }
 
-void    Response::Set505Response() {
-	this->ReadFileToBody("./templates/505error.html");
-}
-
 void    Response::MakeStatusResponse(int status) {
 	switch (status) {
 		case OK:
@@ -311,7 +317,7 @@ void    Response::MakeStatusResponse(int status) {
 		case NOT_FOUND:
 			return ;
 		case METHOD_NOT_ALLOWED:
-			return ;
+			return Set405Response();
 		case LENGTH_REQUIRED:
 			return ;
 		case PAYLOAD_TOO_LARGE:
@@ -321,10 +327,22 @@ void    Response::MakeStatusResponse(int status) {
 		case UNSUPPORTED_MEDIA_TYPE:
 			return ;
 		case NOT_IMPLEMENTED:
-			return ;
+			return Set501Response();
 		case HTTP_VERSION_NOT_SUPPORTED:
 			return Set505Response();
 		default:
 			return ;
 	}
+}
+
+void    Response::Set405Response() {
+	this->ReadFileToBody("./templates/405error.html");
+}
+
+void    Response::Set501Response() {
+	this->ReadFileToBody("./templates/501error.html");
+}
+
+void    Response::Set505Response() {
+	this->ReadFileToBody("./templates/505error.html");
 }

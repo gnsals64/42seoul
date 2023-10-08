@@ -47,6 +47,7 @@ class Response {
 		ResponseType    type_;
         HttpStatusCode  status_code_;
         std::string     http_version_;
+		std::string     allow_;
    	 	std::string     connection_;
    		std::string     location_; // 300번대 응답에서 redirect 시 사용.
    		std::string     content_type_;
@@ -58,6 +59,8 @@ class Response {
         int CheckPath(const std::string path);
         std::vector<std::string> GetFilesInDirectory(const std::string &dirPath);
 
+		void Set405Response();
+		void Set501Response();
 		void Set505Response();
 
     public:
@@ -65,6 +68,7 @@ class Response {
         ~Response();
 		Response& operator=(const Response& response);
 
+		void SetAllow(std::string allow) ;
 		HttpStatusCode GetStatusCode() const;
         void SetStatusCode(HttpStatusCode status);
         void ParsingFromRequest(Worker &worker, const Request &request);

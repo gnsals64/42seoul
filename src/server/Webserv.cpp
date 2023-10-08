@@ -40,9 +40,6 @@ void	Webserv::Run() {
 //				std::cerr << "-- CGI WRITE event triggered --" << std::endl;
 				WriteCgiInput();
 			}
-			else {
-				std::cerr << "BAD : " << event_data_->GetEventType() << " " << curr_event_->filter << std::endl;
-			}
 		}
 	}
 }

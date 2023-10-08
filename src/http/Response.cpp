@@ -61,10 +61,12 @@ std::string Response::GetStatusMessage(int code) {
 
 void Response::ReadFileToBody(const std::string &path) {
 	this->body_.clear();
+	if (access(path.c_str(), F_OK) != 0)
+		return Set404Response();
 	std::ifstream fin;
 	fin.open(path.c_str());
 	if (fin.fail())
-		return Set404Response();
+		return Set500Response();
 	std::string line;
 	while (getline(fin, line)) {
 		line += "\r\n";
@@ -195,7 +197,6 @@ void Response::SetStatusCode(HttpStatusCode status) {
 void    Response::SendResponse(int fd) {
 	std::string toSend;
 
-	// 임시 하드코딩
 	toSend += this->http_version_;
 	toSend += " " + std::to_string(this->status_code_);
 	toSend += " " + this->GetStatusMessage(this->status_code_);
@@ -214,7 +215,6 @@ void    Response::SendResponse(int fd) {
 	std::string tmp(this->body_.begin(), this->body_.end());
 
 	toSend += tmp;
-	// write error 처리 필요
 	if (send(fd, toSend.c_str(), toSend.size(), 0) == -1)
 		std::cerr << "write error" << std::endl;
 }

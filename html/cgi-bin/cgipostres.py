@@ -3,10 +3,6 @@ import cgi
 import cgitb
 cgitb.enable()
 
-
-# 응답 헤더 설정
-print("Content-type: text/html\n")
-
 # POST 데이터 읽기
 form = cgi.FieldStorage()
 
@@ -15,7 +11,7 @@ if "name" in form:
     # 'name' 필드의 값을 가져오기
     name = form["name"].value
     print("<html>")
-    print("<head><title>CGI POST success</title></head>")
+    print("<head><title>POST Success</title></head>")
     print("<body>")
     print("<h1>Hello, {}!</h1>".format(name))
     print("</body>")
@@ -23,8 +19,8 @@ if "name" in form:
 else:
     # 'name' 필드가 없을 경우
     print("<html>")
-    print("<head><title>CGI POST failed</title></head>")
+    print("<head><title>POST Failed</title></head>")
     print("<body>")
-    print("<h1>No name submitted.</h1>")
+    print("<h1>No name submitted</h1>")
     print("</body>")
     print("</html>")

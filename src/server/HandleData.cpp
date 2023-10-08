@@ -146,13 +146,35 @@ void    Webserv::CheckRequestError(void) {
 		}
 	}
 
+	std::string method = event_data_->GetRequest().GetMethod();
+	std::map<int, bool> limit_excepts = wit_->GetLocations()[location_idx_].GetLimitExcepts();
+
+	std::string allowed = "";
+	if (limit_excepts[METHOD_GET])
+		allowed += "GET, ";
+	if (limit_excepts[METHOD_POST])
+		allowed += "POST, ";
+	if (limit_excepts[METHOD_DELETE])
+		allowed += "DELETE, ";
+	allowed.pop_back();
+	allowed.pop_back();
+
+	if (!(method == "GET" || method == "POST" || method == "DELETE"))
+		return event_data_->GetResponse().SetStatusCode(NOT_IMPLEMENTED);
+	else if (!(method == "GET" &&  limit_excepts[METHOD_GET]
+           || method == "POST" && limit_excepts[METHOD_POST]
+           || method == "DELETE" && limit_excepts[METHOD_DELETE])) {
+		event_data_->GetResponse().SetAllow(allowed);
+		return event_data_->GetResponse().SetStatusCode(METHOD_NOT_ALLOWED);
+	}
+
 	if (event_data_->GetRequest().GetScheme() != "HTTP/1.1")
 		return event_data_->GetResponse().SetStatusCode(HTTP_VERSION_NOT_SUPPORTED);
 	/*
 	 * 요청을 다 읽은 시점에서 예외처리 필요
 	 * ㅁ 경로가 올바른지?
 	 * ㅁ 파일 및 폴더 열 수 있는지?
-	 * ㅁ 지원하지 않는 요청 메서드인지?
+	 * V 지원하지 않는 요청 메서드인지?
 	 * V http 버전이 잘못되었는지?
 	 * ㅁ content length 관련 : client_max_body_size를 넘는지?
 	 * -> Request에 집어넣은 헤더 모두 검사한다고 생각하면 될 듯

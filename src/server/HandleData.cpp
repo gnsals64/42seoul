@@ -43,7 +43,7 @@ int	Webserv::SockReceiveData() {
 
 void	Webserv::SockSendData() {
 	event_data_->GetResponse().SetErrorPages(wit_->GetErrorPage());
-	if (event_data_->GetResponse().GetStatusCode() != OK)
+	if (event_data_->GetResponse().GetStatusCode() != OK && event_data_->GetResponse().GetStatusCode() != CREATED)
 		event_data_->GetResponse().MakeStatusResponse(event_data_->GetResponse().GetStatusCode());
 	else if (this->event_data_->GetResponse().GetResponseType() == GENERAL)
 		MakeResponse();

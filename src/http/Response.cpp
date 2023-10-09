@@ -59,8 +59,6 @@ std::string Response::GetStatusMessage(int code) {
 
 void Response::ReadFileToBody(const std::string &path) {
 	this->body_.clear();
-	if (access(path.c_str(), F_OK) != 0)
-		return MakeErrorResponse(NOT_FOUND);
 	std::ifstream fin;
 	fin.open(path.c_str());
 	if (fin.fail())
@@ -130,25 +128,34 @@ void Response::HandleGet(const Request &request, const std::string index_path, c
 	std::string path = request.GetFullPath();
 
 	if (request.GetPathInfo() == NOT_EXIST)
-		return MakeIndexResponse(path, index_path);
+		return MakeIndexResponse(request, index_path);
 	else if (request.GetPathInfo() == IS_DIRECTORY) {
 		if (path.back() != '/')
-			return MakeIndexResponse(path, index_path);
+			return MakeIndexResponse(request, index_path);
 		else {
 			if (autoindex)
 				return GenerateBodyAutoIndexing(request);
 			else
-				return MakeIndexResponse(path, index_path);
+				return MakeIndexResponse(request, index_path);
 		}
 	}
 	else if (request.GetPathInfo() == IS_FILE)
 		return ReadFileToBody(path);
 }
 
-void Response::HandlePost(const Request &request) {
-	this->body_ = request.GetBody();
-	this->content_type_ = request.GetContentType();
-	this->status_code_ = CREATED;
+void Response::HandlePost(const Request &request, const std::string index_path) {
+	std::string path = request.GetFullPath();
+
+	if (request.GetPathInfo() == NOT_EXIST)
+		return MakeIndexResponse(request, index_path);
+	else if (request.GetPathInfo() == IS_DIRECTORY) {
+		if (path.back() != '/')
+			return MakeIndexResponse(request, index_path);
+		else
+			return MakePostResponse(request);
+	}
+	else if (request.GetPathInfo() == IS_FILE)
+		return MakePostResponse(request);
 }
 
 void Response::HandleDelete(const Request &request) {
@@ -218,12 +225,6 @@ void    Response::PushBackBody(char c) {
 	this->body_.push_back(c);
 }
 
-void Response::MakeIndexResponse(std::string full_path, std::string index_path) {
-	int last_slash = full_path.find_last_of("/");
-	std::string last_dir = full_path.substr(0, last_slash + 1);
-	this->ReadFileToBody(last_dir + index_path);
-}
-
 ResponseType Response::GetResponseType() const {
 	return (this->type_);
 }
@@ -247,4 +248,22 @@ int     Response::FindStringInBody(std::string str) {
 		return 1;
 	else
 		return 0;
+}
+
+void Response::MakeIndexResponse(const Request &request, std::string index_path) {
+	int last_slash = request.GetFullPath().find_last_of("/");
+	std::string last_dir = request.GetFullPath().substr(0, last_slash + 1);
+	std::string new_path = last_dir + index_path;
+	if (access(new_path.c_str(), F_OK) != 0)
+		return MakeErrorResponse(NOT_FOUND);
+	if (request.GetMethod() == "GET")
+		ReadFileToBody(last_dir + index_path);
+	else if (request.GetMethod() == "POST")
+		MakePostResponse(request);
+}
+
+void Response::MakePostResponse(const Request &request) {
+	this->body_ = request.GetBody();
+	this->content_type_ = request.GetContentType();
+	this->status_code_ = CREATED;
 }

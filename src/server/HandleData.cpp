@@ -144,12 +144,6 @@ void    Webserv::AddCgiEvent() {
 }
 
 void    Webserv::CheckRequestError() {
-	std::string path = event_data_->GetRequest().GetPath();
-	for (int i = 0; i < path.length() - 1; i++) {
-		if (path[i] == '/' && path[i + 1] == '/')
-			event_data_->GetResponse().SetStatusCode(NOT_FOUND);
-	}
-
 	for (int i = 0; i < wit_->GetLocations().size(); i++)
 	{
 		if (event_data_->GetRequest().GetPath().find(wit_->GetLocations()[i].GetUri()) != std::string::npos) {
@@ -162,6 +156,12 @@ void    Webserv::CheckRequestError() {
 		}
 	}
 	Location loc = wit_->GetLocations()[location_idx_];
+
+	std::string path = event_data_->GetRequest().GetPath();
+	for (int i = 0; i < path.length() - 1; i++) {
+		if (path[i] == '/' && path[i + 1] == '/')
+			return event_data_->GetResponse().SetStatusCode(NOT_FOUND);
+	}
 
 	std::string method = event_data_->GetRequest().GetMethod();
 	std::map<int, bool> limit_excepts = loc.GetLimitExcepts();
@@ -198,10 +198,6 @@ void    Webserv::CheckRequestError() {
 
 	if (event_data_->GetRequest().GetPath().length() > 2048)
 		return event_data_->GetResponse().SetStatusCode(URI_TOO_LONG);
-
-	std::string full_path = event_data_->GetRequest().GetFullPath();
-	if (event_data_->GetRequest().GetMethod() != "GET" && access(full_path.c_str(), F_OK) != 0)
-		return event_data_->GetResponse().SetStatusCode(NOT_FOUND);
 }
 
 void    Webserv::CheckRedirection() {
@@ -223,7 +219,7 @@ void    Webserv::MakeResponse() {
     if (method == "GET")
         event_data_->GetResponse().HandleGet(event_data_->GetRequest(), wit_->GetLocations()[location_idx_].GetIndex(), wit_->GetLocations()[location_idx_].GetAutoIndex());
     else if (method == "POST")
-        event_data_->GetResponse().HandlePost(event_data_->GetRequest());
+        event_data_->GetResponse().HandlePost(event_data_->GetRequest(), wit_->GetLocations()[location_idx_].GetIndex());
     else if (method == "DELETE")
         event_data_->GetResponse().HandleDelete(event_data_->GetRequest());
 }

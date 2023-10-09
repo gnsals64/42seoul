@@ -68,19 +68,21 @@ class Response {
 		HttpStatusCode GetStatusCode() const;
         void SetStatusCode(HttpStatusCode status);
         void SendResponse(int fd);
-		ResponseType GetResponseType(void) const;
+		ResponseType GetResponseType() const;
 		void SetResponseType(ResponseType type);
 
         void HandleGet(const Request &request, const std::string index, const bool autoindex);
-        void HandlePost(const Request &request);
+        void HandlePost(const Request &request, const std::string index_path);
         void HandleDelete(const Request &request);
         void SetHttpVersion(std::string version);
 		void PushBackBody(char c);
-		void MakeIndexResponse(std::string full_path, std::string index_path);
 		int FindStringInBody(std::string str);
 
 		void MakeErrorResponse(int status);
 		void MakeRedirectionResponse(std::string redir_path);
+
+		void MakeIndexResponse(const Request &request, std::string index_path);
+		void MakePostResponse(const Request &request);
 };
 
 #endif

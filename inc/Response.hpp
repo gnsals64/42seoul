@@ -32,6 +32,7 @@ enum HttpStatusCode
 	BAD_REQUEST = 400,
 	NOT_FOUND = 404,
 	METHOD_NOT_ALLOWED = 405,
+	REQUEST_TIMEOUT = 408,
 	LENGTH_REQUIRED = 411,
 	PAYLOAD_TOO_LARGE = 413,
 	URI_TOO_LONG = 414,
@@ -53,6 +54,7 @@ class Response {
 		std::vector<char>           body_;
 		std::map<int, std::string>  error_pages_;
 
+		std::string ToString(int num);
         std::string GetStatusMessage(int code);
         void ReadFileToBody(const std::string &path);
         void GenerateBodyAutoIndexing(const Request &request);
@@ -64,12 +66,13 @@ class Response {
 		Response& operator=(const Response& response);
 
 		void SetErrorPages(std::map<int, std::string> error_pages);
-		void SetAllow(std::string allow) ;
+		void SetAllow(std::string allow);
 		HttpStatusCode GetStatusCode() const;
         void SetStatusCode(HttpStatusCode status);
         void SendResponse(int fd);
 		ResponseType GetResponseType() const;
 		void SetResponseType(ResponseType type);
+		void SetConnection(std::string connection);
 
         void HandleGet(const Request &request, const std::string index, const bool autoindex);
         void HandlePost(const Request &request, const std::string index_path);

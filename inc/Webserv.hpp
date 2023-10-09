@@ -2,12 +2,14 @@
 # define WEBSERV_HPP
 
 # include <unistd.h>
+# include <signal.h>
 # include "Worker.hpp"
 # include "WorkerData.hpp"
 # include "Request.hpp"
 # include "BlockParser.hpp"
 # include "CgiHandler.hpp"
 
+# define TIMEOUT 30
 # define BUFFER_SIZE 100000
 # define RED "\033[31m"
 # define RESET "\033[0m"

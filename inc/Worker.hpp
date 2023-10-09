@@ -53,7 +53,6 @@ public:
 	void	ParseHost(Request &req, std::vector<std::string> colon_parse);
 	void	ParseConnection(Request &req, std::vector<std::string> colon_parse);
 	void	ParseContentLength(Request &req, std::vector<std::string> colon_parse);
-	void    ParseContentType(Request &req, std::vector<std::string> colon_parse);
 	void	ParseOther(Request &req, std::vector <std::string> line_parse, int line_cnt);
 	// void	CheckPossibleMethod(Request &req);
 	void	RequestHeaderParse(Request &req);

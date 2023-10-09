@@ -2,8 +2,8 @@
 <head><title>CGI File Upload</title></head>
 <body>
     <h1>Upload file</h1>
-    <p>Only '.txt', '.jpg', '.html' file extensions allowed</p>
-    <form action="cgi-bin/cgiupload.py" method="post" enctype="multipart/form-data">
+    <p>Only '.txt', '.html' file extensions allowed</p>
+    <form action="/cgi-bin/cgiupload.py" method="post" enctype="multipart/form-data">
         <p><input type="file" name="filename"></p>
         <p><button type="submit">Submit</button></p>
     </form>

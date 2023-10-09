@@ -193,19 +193,6 @@ void	Worker::ParseContentLength(Request &req, std::vector<std::string> colon_par
 	req.SetContentLength(content_length);
 }
 
-void	Worker::ParseContentType(Request &req, std::vector<std::string> colon_parse) {
-	int	i = 1;
-	std::string	s;
-	while (colon_parse[1][i])
-	{
-		if (colon_parse[1][i] == ' ')
-			break ;
-		s += colon_parse[1][i];
-		i++;
-	}
-	req.SetContentType(s);
-}
-
 void	Worker::ParseOther(Request &req, std::vector<std::string> line_parse, int line_cnt) {
 	int tmp;
 	std::vector <std::string> colon_parse;
@@ -222,7 +209,7 @@ void	Worker::ParseOther(Request &req, std::vector<std::string> line_parse, int l
 		else if (colon_parse[0] == "Content-Length")
 			this->ParseContentLength(req, colon_parse);
 		else if (colon_parse[0] == "Content-Type")
-			this->ParseContentType(req, colon_parse);
+			req.SetContentType(colon_parse[1].erase(0, 1));
 	}
 }
 

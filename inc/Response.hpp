@@ -78,7 +78,7 @@ class Response {
 		void PushBackBody(char c);
 		int FindStringInBody(std::string str);
 
-		void MakeErrorResponse(int status);
+		void MakeErrorResponse(HttpStatusCode status);
 		void MakeRedirectionResponse(std::string redir_path);
 
 		void MakeIndexResponse(const Request &request, std::string index_path);

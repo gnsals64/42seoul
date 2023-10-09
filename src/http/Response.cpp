@@ -59,6 +59,8 @@ std::string Response::GetStatusMessage(int code) {
 
 void Response::ReadFileToBody(const std::string &path) {
 	this->body_.clear();
+	if (access(path.c_str(), F_OK) != 0)
+		return MakeErrorResponse(NOT_FOUND);
 	std::ifstream fin;
 	fin.open(path.c_str());
 	if (fin.fail())
@@ -233,7 +235,8 @@ void    Response::SetResponseType(ResponseType type) {
 	this->type_ = type;
 }
 
-void    Response::MakeErrorResponse(int status) {
+void    Response::MakeErrorResponse(HttpStatusCode status) {
+	this->status_code_ = status;
     ReadFileToBody(error_pages_[status]);
 }
 
@@ -263,6 +266,8 @@ void Response::MakeIndexResponse(const Request &request, std::string index_path)
 }
 
 void Response::MakePostResponse(const Request &request) {
+	if (access(request.GetFullPath().c_str(), F_OK) != 0)
+		return MakeErrorResponse(NOT_FOUND);
 	this->body_ = request.GetBody();
 	this->content_type_ = request.GetContentType();
 	this->status_code_ = CREATED;

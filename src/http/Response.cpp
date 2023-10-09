@@ -21,6 +21,8 @@ Response& Response::operator=(const Response& response) {
 	this->connection_ = response.connection_;
 	this->location_ = response.location_;
 	this->content_type_ = response.content_type_;
+	this->body_ = response.body_;
+	this->error_pages_ = response.error_pages_;
 	return *this;
 }
 
@@ -38,6 +40,8 @@ std::string Response::GetStatusMessage(int code) {
 			return "Not Found";
 		case METHOD_NOT_ALLOWED:
 			return "Method Not Allowed";
+		case REQUEST_TIMEOUT:
+			return "Request Timeout";
 		case LENGTH_REQUIRED:
 			return "Length Required";
 		case PAYLOAD_TOO_LARGE:
@@ -192,11 +196,27 @@ void Response::SetStatusCode(HttpStatusCode status) {
 	this->status_code_ = status;
 }
 
+std::string    Response::ToString(int num) {
+	if (num < 0)
+		return "";
+	std::string res = "";
+	int pow = 1;
+	while (num / pow != 0)
+		pow *= 10;
+	while (pow != 1) {
+		pow /= 10;
+		int div = num / pow;
+		num = num % pow;
+		res += '0' + div;
+	}
+	return res;
+}
+
 void    Response::SendResponse(int fd) {
 	std::string toSend;
 
 	toSend += this->http_version_;
-	toSend += " " + std::to_string(this->status_code_);
+	toSend += " " + ToString(this->status_code_);
 	toSend += " " + this->GetStatusMessage(this->status_code_);
 	toSend += "\r\n";
 
@@ -207,7 +227,7 @@ void    Response::SendResponse(int fd) {
 	if (!this->content_type_.empty())
 		toSend += "Content-Type: " + this->content_type_ + "\r\n";
 	if (!this->body_.empty())
-		toSend += "Content-Length: " + std::to_string(this->body_.size()) + "\r\n";
+		toSend += "Content-Length: " + ToString(this->body_.size()) + "\r\n";
 	if (!this->connection_.empty())
 		toSend += "Connection: " + this->connection_ + "\r\n";
 	toSend += "\r\n";
@@ -233,6 +253,10 @@ ResponseType Response::GetResponseType() const {
 
 void    Response::SetResponseType(ResponseType type) {
 	this->type_ = type;
+}
+
+void    Response::SetConnection(std::string connection) {
+	this->connection_ = connection;
 }
 
 void    Response::MakeErrorResponse(HttpStatusCode status) {

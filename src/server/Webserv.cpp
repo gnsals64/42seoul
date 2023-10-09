@@ -40,12 +40,32 @@ void	Webserv::Run() {
 //				std::cerr << "-- CGI WRITE event triggered --" << std::endl;
 				WriteCgiInput();
 			}
+			else if (event_data_->GetEventType() == CGIEVENT && curr_event_->filter == EVFILT_TIMER) {
+//				std::cerr << "-- CGI TIMER event triggered --" << std::endl;
+				event_data_->GetResponse().SetConnection("Close");
+				event_data_->GetResponse().SetStatusCode(REQUEST_TIMEOUT);
+
+				kill(event_data_->GetCgiHandler().GetPid(), SIGTERM);
+				event_data_->GetCgiHandler().ClosePipeAfterWrite();
+
+				uintptr_t write_ident = event_data_->GetCgiHandler().GetClientWriteIdent();
+				event_data_->SetEventType(CLIENTEVENT);
+				ChangeEvent(change_list_, write_ident, EVFILT_READ, EV_DISABLE, 0, 0, event_data_);
+				ChangeEvent(change_list_, write_ident, EVFILT_WRITE, EV_ENABLE, 0, 0, event_data_);
+
+				ChangeEvent(change_list_, event_data_->GetCgiHandler().GetReadFd(), EVFILT_READ, EV_DISABLE, 0, 0, NULL);
+				ChangeEvent(change_list_, curr_event_->ident, EVFILT_WRITE, EV_DISABLE, 0, 0, NULL);
+				ChangeEvent(change_list_, curr_event_->ident, EVFILT_TIMER, EV_DISABLE, 0, 0, NULL);
+				close (curr_event_->ident);
+			}
 		}
 	}
 }
 
 void Webserv::WriteCgiInput() {
 	event_data_->GetCgiHandler().ClosePipeBeforeWrite();
+
+	ChangeEvent(change_list_, curr_event_->ident, EVFILT_TIMER, EV_ADD | EV_ENABLE, NOTE_SECONDS, TIMEOUT, event_data_);
 
 	if (event_data_->GetRequest().GetMethod() == "POST")
 	{
@@ -68,11 +88,9 @@ void Webserv::ReadCgiResponse() {
 
 	while ((bytesRead = read(event_data_->GetCgiHandler().GetReadFd(), buff, sizeof(buff))) > 0)
 	{
-		for (int i = 0; i < bytesRead; i++) {
+		for (int i = 0; i < bytesRead; i++)
 			event_data_->GetResponse().PushBackBody(buff[i]);
-		}
 	}
-
 	event_data_->GetCgiHandler().ClosePipeAfterRead();
 	event_data_->GetCgiHandler().SetState(READ_PIPE);
 

@@ -9,11 +9,11 @@ form = cgi.FieldStorage()
 if "id" in form and "pw" in form:
     id = form["id"].value
     pw = form["pw"].value
-    id_list = ["subcho", "hunpark", "wonlgeon", "yeselee", "yham", "isunwoo"]
+    id_list = ["hunpark", "wonljeon", "yham"]
     if id in id_list and pw == "1234":
         print("<html>")
         print("<head>")
-        print("<title>login success</title>")
+        print("<title>Login Success</title>")
         print("<style>")
         print("body {")
         print("    font-family: 'Nanum Gothic', sans-serif;")
@@ -38,7 +38,7 @@ if "id" in form and "pw" in form:
         print("<meta charset=\"utf-8\">")
         print("<html>")
         print("<head>")
-        print("<title>login failed</title>")
+        print("<title>Login Failed</title>")
         print("<style>")
         print("body {")
         print("    font-family: 'Nanum Gothic', sans-serif;")
@@ -61,8 +61,9 @@ if "id" in form and "pw" in form:
         print("</html>")
 else:
     print("<html>")
-    print("<head><title>Fail response</title></head>")
+    print("<head><title>Login Failed</title></head>")
     print("<body>")
-    print("<h1>Null Field Error</h1>")
+    print("<h1>Login Failed</h1>")
+    print("<p>Please try with '/cgi-bin/cgilogin.py' file</p>")
     print("</body>")
     print("</html>")

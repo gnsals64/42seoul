@@ -1,6 +1,7 @@
 #ifndef WEBSERV_HPP
 # define WEBSERV_HPP
 
+# include <unistd.h>
 # include "Worker.hpp"
 # include "WorkerData.hpp"
 # include "Request.hpp"
@@ -23,6 +24,7 @@ class Webserv {
 		std::vector<int>				server_sockets_;
 		std::vector<int>::iterator		it;
 		std::vector<Worker>::iterator	wit_;
+		int                             location_idx_;
 		std::map<int, int>::iterator	mapter_;
 		std::map<int, std::string>		status_messages_;
 		WorkerData	        			*event_data_;
@@ -33,28 +35,28 @@ class Webserv {
 		void	ReadyToConnect(int i);
 		void	SendResponse(int client_socket, int status_code, const std::string &content);
 		void	HandleRequest(int client_socket);
-		int		ConnectNewClient(void);
+		int		ConnectNewClient();
 		int		StartReceiveData(int len);
-		int		SockReceiveData(void);
-		int		ReadHeader(void);
-		void	ReadBody(void);
-		void	ReadFinish(void);
-		void    AddCgiEvent(void);
-		void    CheckRequestError(void);
-		void	SockSendData(void);
-		void	MakeResponse(const Request &request);
+		int		SockReceiveData();
+		int		ReadHeader();
+		void	ReadBody();
+		void	ReadFinish();
+		void    AddCgiEvent();
+		void    CheckRequestError();
+		void    CheckRedirection();
+		void	SockSendData();
+		void	MakeResponse();
 		void	ChangeEvent(std::vector<struct kevent>& change_list_, uintptr_t ident, int16_t filter,	uint16_t flags, uint32_t fflags, intptr_t data, void *udata);
-		void	SetCgiEvent(void);
-		void    WriteCgiInput(void);
-		void    ReadCgiResponse(void);
+		void	SetCgiEvent();
+		void    WriteCgiInput();
+		void    ReadCgiResponse();
 
     public:
 		Webserv();
 		~Webserv();
 		void	ConfParse(char *conf_file);
-		void	Init(void);
-		void	Run(void);
-
+		void	Init();
+		void	Run();
 };
 
 #endif

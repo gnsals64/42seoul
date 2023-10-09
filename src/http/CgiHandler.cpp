@@ -7,8 +7,9 @@ CgiHandler::CgiHandler() {
 }
 
 CgiHandler::~CgiHandler() {
-    for (int i = 0; i < envp_.size(); i++)
-        free(envp_[i]);
+	std::vector<char*>::iterator it;
+	for(it = envp_.begin(); it != envp_.end(); it++)
+		delete *it;
 }
 
 CgiHandler& CgiHandler::operator=(const CgiHandler& cgi) {
@@ -36,7 +37,7 @@ int CgiHandler::GetReadFd() const {
     return (this->from_cgi_[0]);
 }
 
-void CgiHandler::ExecuteChildProcess(const Request &request) {
+void CgiHandler::ExecuteChildProcess(const Request &request, Response &response) {
     this->cgi_path_ = request.GetFullPath();
 
     if (request.GetMethod() == "GET") {
@@ -48,20 +49,13 @@ void CgiHandler::ExecuteChildProcess(const Request &request) {
         }
     }
 
-    /* should be handled right after reading request */
-    // if (access(this->cgi_path_.c_str(), F_OK) != 0)
-    //     throw std::runtime_error("404 not found");
-
-	/* should be handled with function */
-	// if (pipe(this->to_cgi_) < 0 || pipe(this->from_cgi_) < 0)
-	//      throw std::runtime_error("pipe failed");
-	pipe(this->to_cgi_);
-	pipe(this->from_cgi_);
+	 if (pipe(this->to_cgi_) < 0 || pipe(this->from_cgi_) < 0)
+	      return response.SetStatusCode(INTERNAL_SERVER_ERROR);
 	this->state_ = CREATE_PIPE;
 
     this->pid_ = fork();
     if (this->pid_ == -1)
-        std::cerr << "fork failed" << std::endl;
+	    return response.SetStatusCode(INTERNAL_SERVER_ERROR);
     else if (this->pid_ == 0)
     {
         close(this->to_cgi_[1]);

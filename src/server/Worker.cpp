@@ -126,12 +126,12 @@ std::vector <std::string> Worker::Split(std::string input, char dlim, int &resul
 	std::vector<std::string> result;
 
 	std::stringstream ss;
-	std::string stringBuffer;
+	std::string buf;
 	ss.str(input);
 
-	while (getline(ss, stringBuffer, dlim))
+	while (getline(ss, buf, dlim))
 	{
-		result.push_back(stringBuffer);
+		result.push_back(buf);
 		result_cnt++;
 	}
 	return result;
@@ -142,12 +142,6 @@ void	Worker::ReqFirstLineParse(Request &req, std::string first_line) {
 	std::vector <std::string> fir_line_parse;
 	fir_line_parse = this->Split(first_line, ' ', tmp);
 	req.SetMethod(fir_line_parse[0]);
-	// for (int i = 0; i < this->GetLocations().size(); i++)
-	// {
-	// 	if (req.GetPath() == GetLocations()[i].GetUri())
-	// 		break ;
-	// 	else
-	// }
 	req.SetPath(fir_line_parse[1]);
     req.SetFullPath(this->root_ + req.GetPath());
 	req.SetScheme(fir_line_parse[2]);
@@ -155,42 +149,48 @@ void	Worker::ReqFirstLineParse(Request &req, std::string first_line) {
 
 void	Worker::ParseHost(Request &req, std::vector<std::string> colon_parse) {
 	int	i = 1;
-	std::string	tmp;
+	std::string	s;
 	while (colon_parse[1][i])
 	{
 		if (colon_parse[1][i] == ' ')
 			break ;
-		tmp += colon_parse[1][i];
+		s += colon_parse[1][i];
 		i++;
 	}
-	req.PushBackHost(tmp);
+	req.PushBackHost(s);
 	req.PushBackHost(colon_parse[2]);
 }
 
 void	Worker::ParseConnection(Request &req, std::vector<std::string> colon_parse) {
 	int	i = 1;
-	std::string	tmp;
+	std::string	s;
 	while (colon_parse[1][i])
 	{
 		if (colon_parse[1][i] == ' ')
 			break ;
-		tmp += colon_parse[1][i];
+		s += colon_parse[1][i];
 		i++;
 	}
-	req.SetConnection(tmp);
+	req.SetConnection(s);
 }
 
 void	Worker::ParseContentLength(Request &req, std::vector<std::string> colon_parse) {
 	int	i = 1;
-	std::string tmp;
+	std::string s;
 	while (colon_parse[1][i])
 	{
 		if (colon_parse[1][i] == ' ')
 			break ;
-		tmp += colon_parse[1][i];
+		s += colon_parse[1][i];
 		i++;
 	}
-	req.SetContentLength(tmp);
+	int pow = 1;
+	int content_length = 0;
+	for (int i = s.length() - 1; i >= 0; i--) {
+		content_length += (s[i] - '0') * pow;
+		pow *= 10;
+	}
+	req.SetContentLength(content_length);
 }
 
 void	Worker::ParseOther(Request &req, std::vector<std::string> line_parse, int line_cnt) {
@@ -209,56 +209,24 @@ void	Worker::ParseOther(Request &req, std::vector<std::string> line_parse, int l
 		else if (colon_parse[0] == "Content-Length")
 			this->ParseContentLength(req, colon_parse);
 		else if (colon_parse[0] == "Content-Type")
-			req.SetContentType(colon_parse[1]);
+			req.SetContentType(colon_parse[1].erase(0, 1));
 	}
 }
 
 void	Worker::RequestHeaderParse(Request &req) {
 	int	line_cnt = 0;
 	std::vector <std::string> line_parse;
-	std::string header = req.GetHeaders();
 
-	line_parse = this->SplitArgs(header, "\r\n");
+	line_parse = this->SplitArgs(req.GetHeaders(), "\r\n");
 	this->ReqFirstLineParse(req, line_parse[0]);
 	line_cnt = line_parse.size();
 	this->ParseOther(req, line_parse, line_cnt);
-	//std::cout << "head = " << req.GetHeaders() << std::endl;
-	// std::cout << "method : " << req.GetMethod() << std::endl;
-	// std::cout << "path : " << req.GetPath() << std::endl;
-	// std::cout << "scheme : " << req.GetScheme() << std::endl;
-	// std::cout << "host[0] : " << req.GetHost()[0] << std::endl;
-	// std::cout << "host[1] : " << req.GetHost()[1] << std::endl;
-	// std::cout << "connection : " << req.GetConnection() << std::endl;
-	// std::cout << "content-length : " << req.GetContentLength() << std::endl;
-	// std::cout << "body : ";
-	// for(int i = 0; i < req.GetBody().size(); i++)
-	// 	std::cout << req.GetBody()[i];
-	// std::cout << std::endl;
-	//여기서 바디랑 길이 맞는지 확인하고 아니면 에러
 }
-
-// void	Worker::CheckPossibleMethod(Request &req)
-// {
-// 	int	method;
-
-// 	for(int i = 0; i < this->GetLocations().size(); i++)
-// 	{
-// 		if (this->GetLocations()[i].GetRoot() == req.GetPath())
-// 		break ;
-// 	}
-// 	if (req.GetMethod() == "GET")
-// 		method = 0;
-// 	else if (req.GetMethod() == "POST")
-// 		method = 1;
-// 	else if (req.GetMethod() == )
-// }
 
 void	Worker::ChunkBodyParse(Request &req, Response &res) {
 	size_t	byte;
 	std::vector <std::string> line_parse;
 	std::string tmp_body = req.GetBodyStr();
-	// std::vector <char> body = req.GetBody();
-	// std::string tmp_body(body.begin(), body.end());
 
 	line_parse = this->SplitArgs(tmp_body, "\r\n");
 	req.SetBodyClear();
@@ -269,7 +237,7 @@ void	Worker::ChunkBodyParse(Request &req, Response &res) {
 			byte = this->MyStoi(line_parse[i]);
 			if (byte == -1)
 			{
-				res.SetStatusCode(400);
+				res.SetStatusCode(NOT_FOUND);
 				break ;
 			}
 			if (byte == 0)
@@ -279,49 +247,9 @@ void	Worker::ChunkBodyParse(Request &req, Response &res) {
 		{
 			size_t	body_size = line_parse[i].size();
 			if (byte != body_size)
-				res.SetStatusCode(400);
+				res.SetStatusCode(BAD_REQUEST);
 			for (int j = 0; j < line_parse[i].size(); j++)
 				req.PushPostBody(line_parse[i][j]);
-			// req.PushPostBody('\r');
-			// req.PushPostBody('\n');
 		}
 	}
 }
-// std::string Worker::checkReturnVal()
-// {
-// 	std::string result = "";
-// 	size_t i;
-// 	std::vector<Location> locations = this->GetLocations();
-
-// 	for (i = 0; i < locations.size(); i++)
-// 	{
-// 		if (locations[i].GetUri() == this->GetRequest().GetPath())
-// 			Location	target = locations[i];
-// 			if (target.getRe)
-// 	}
-// }
-
-// void	Worker::urlSearch(int event_fd)
-// {
-// 	std::string str = "";
-// 	std::string file = "";
-// 	size_t	slen = 0;
-// 	size_t	i;
-// 	size_t	pos;
-
-// 	for (i = 0; i < this->GetLocations().size(); i++)
-// 	{
-// 		pos = this->GetRequest()[event_fd].GetPath().find(this->GetLocations()[i].GetUri());
-// 		if (pos != std::string::npos && this->GetLocations()[i].GetUri().size() > slen)
-// 		{
-// 			str = this->GetLocations()[i].GetUri();
-// 			slen = this->GetLocations()[i].GetUri().size();
-// 			file = this->GetRequest()[event_fd].GetPath().substr(pos + this->GetLocations()[i].GetUri().size());
-// 		}
-// 	}
-// 	std::cout << str << std::endl;
-// 	std::cout << file << std::endl;
-
-// 	this->GetRequest()[event_fd].SetPath(str);
-// 	this->GetRequest()[event_fd].setBody(file);
-// }

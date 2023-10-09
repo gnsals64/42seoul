@@ -1,7 +1,7 @@
 #include "../../inc/Webserv.hpp"
 #include "../../inc/CgiHandler.hpp"
 
-int	Webserv::SockReceiveData(void) {
+int	Webserv::SockReceiveData() {
 	if (find(server_sockets_.begin(), server_sockets_.end(), curr_event_->ident) != server_sockets_.end()) {
 		if (ConnectNewClient() == -1)
 			return -1;
@@ -27,6 +27,7 @@ int	Webserv::SockReceiveData(void) {
 		if (event_data_->GetRequest().GetState() == READ_FINISH) {
 			ReadFinish();
 			CheckRequestError();
+			CheckRedirection();
 			if (this->event_data_->GetRequest().GetPath().find(".py") != std::string::npos || (this->event_data_->GetRequest().GetMethod() == "POST" && this->event_data_->GetRequest().GetPath().find(".bla") != std::string::npos)) {
 				this->event_data_->GetResponse().SetResponseType(CGI);
 				this->event_data_->GetCgiHandler().SetClientWriteIdent(curr_event_->ident);
@@ -41,9 +42,14 @@ int	Webserv::SockReceiveData(void) {
 	return 0;
 }
 
-void	Webserv::SockSendData(void) {
-	if (this->event_data_->GetResponse().GetResponseType() == GENERAL)
-		MakeResponse(this->event_data_->GetRequest());
+void	Webserv::SockSendData() {
+	event_data_->GetResponse().SetErrorPages(wit_->GetErrorPage());
+	if (event_data_->GetResponse().GetStatusCode() == MOVED_PERMANENTLY)
+		event_data_->GetResponse().MakeRedirectionResponse(wit_->GetLocations()[location_idx_].GetRedirUri());
+	else if (event_data_->GetResponse().GetStatusCode() != OK && event_data_->GetResponse().GetStatusCode() != CREATED)
+		event_data_->GetResponse().MakeErrorResponse(event_data_->GetResponse().GetStatusCode());
+	else if (this->event_data_->GetResponse().GetResponseType() == GENERAL)
+		MakeResponse();
 	this->event_data_->GetResponse().SendResponse(curr_event_->ident);
 	std::map<int, int>::iterator tmp_fd_iter = find_fd_.find(curr_event_->ident);
 	find_fd_.erase(tmp_fd_iter);
@@ -66,7 +72,7 @@ int	Webserv::StartReceiveData(int len) {
 	return 0;
 }
 
-int	Webserv::ReadHeader(void) {
+int	Webserv::ReadHeader() {
 	std::string temp_data(buffer_.begin(), buffer_.end());
 	event_data_->GetRequest().AppendHeader(temp_data);
 	event_data_->GetRequest().BodyAppendVec(buffer_);
@@ -88,6 +94,7 @@ int	Webserv::ReadHeader(void) {
 		}
 		else if (event_data_->GetRequest().GetHeaders().find("Transfer-Encoding") != std::string::npos)
 		{
+			event_data_->GetRequest().SetTransferEncoding("chunked");
 			event_data_->GetRequest().AddRNRNOneTime();
 			std::string temp = event_data_->GetRequest().GetBodyCharToStr();
 			if (event_data_->GetRequest().Findrn0rn(temp) == 1)
@@ -101,7 +108,7 @@ int	Webserv::ReadHeader(void) {
 	return 0;
 }
 
-void	Webserv::ReadBody(void) {
+void	Webserv::ReadBody() {
 	event_data_->GetRequest().BodyAppendVec(buffer_);
 	std::string temp(buffer_.begin(), buffer_.end());
 	if (event_data_->GetRequest().GetHeaders().find("Content-Length") != std::string::npos)
@@ -117,7 +124,7 @@ void	Webserv::ReadBody(void) {
 	}
 }
 
-void	Webserv::ReadFinish(void) {
+void	Webserv::ReadFinish() {
 	wit_->RequestHeaderParse(event_data_->GetRequest());
 	if (event_data_->GetRequest().GetHeaders().find("Transfer-Encoding") != std::string::npos)
 	{
@@ -126,32 +133,80 @@ void	Webserv::ReadFinish(void) {
 	}
 }
 
-void    Webserv::AddCgiEvent(void) {
-	this->event_data_->GetCgiHandler().ExecuteChildProcess(this->event_data_->GetRequest());
-	this->SetCgiEvent();
+void    Webserv::AddCgiEvent() {
+	event_data_->GetCgiHandler().ExecuteChildProcess(event_data_->GetRequest(), event_data_->GetResponse());
+	if (event_data_->GetResponse().GetStatusCode() == OK)
+		SetCgiEvent();
+	else {
+		ChangeEvent(change_list_, curr_event_->ident, EVFILT_READ, EV_DISABLE, 0, 0, curr_event_->udata);
+		ChangeEvent(change_list_, curr_event_->ident, EVFILT_WRITE, EV_ENABLE, 0, 0, curr_event_->udata);
+	}
 }
 
-void    Webserv::CheckRequestError(void) {
-	/*
-	 * 요청을 다 읽은 시점에서 예외처리 필요
-	 * 1) 경로가 올바른지?
-	 * 2) 파일 및 폴더 열 수 있는지?
-	 * 3) 지원하지 않는 요청 메서드인지?
-	 * 4) http 버전이 잘못되었는지?
-	 * 5) content length 관련 : client_max_body_size를 넘는지?
-	 * -> Request에 집어넣은 헤더 모두 검사한다고 생각하면 될 듯
-	 *
-	 * 그리고 이 여러 에러를 처리하기 위해서 각 에러를 처리해주는 함수들을 만들면 좋을듯
-	 * 이 함수들은 generateResponse 같은 함수로 이미 들어가있는 헤더를 패킷의 형식으로 만들어서 보내면 될 듯
-	 * -> 찾아보니 우리의 sendResponse 함수를 사용하면 됨, 그러나 수정이 매우 필요해보임
-	 * 즉, 헤더의 값들은 각 함수 내에서 각자의 값으로 바꾼뒤 패킷 만들어서 전송
-	 * ex) Send404Response(), Send405Response()
-	 */
+void    Webserv::CheckRequestError() {
+	for (int i = 0; i < wit_->GetLocations().size(); i++)
+	{
+		if (event_data_->GetRequest().GetPath().find(wit_->GetLocations()[i].GetUri()) != std::string::npos) {
+			if (wit_->GetLocations()[i].GetUri().length() != 1)
+			{
+				location_idx_ = i;
+				break ;
+			}
+			location_idx_ = i;
+		}
+	}
+	Location loc = wit_->GetLocations()[location_idx_];
+
+	std::string path = event_data_->GetRequest().GetPath();
+	for (int i = 0; i < path.length() - 1; i++) {
+		if (path[i] == '/' && path[i + 1] == '/')
+			return event_data_->GetResponse().SetStatusCode(NOT_FOUND);
+	}
+
+	std::string method = event_data_->GetRequest().GetMethod();
+	std::map<int, bool> limit_excepts = loc.GetLimitExcepts();
+
+	std::string allowed = "";
+	if (limit_excepts[METHOD_GET])
+		allowed += "GET, ";
+	if (limit_excepts[METHOD_POST])
+		allowed += "POST, ";
+	if (limit_excepts[METHOD_DELETE])
+		allowed += "DELETE, ";
+	allowed.pop_back();
+	allowed.pop_back();
+
+	if (!(method == "GET" || method == "POST" || method == "DELETE"))
+		return event_data_->GetResponse().SetStatusCode(NOT_IMPLEMENTED);
+	else if (!(method == "GET" &&  limit_excepts[METHOD_GET]
+           || method == "POST" && limit_excepts[METHOD_POST]
+           || method == "DELETE" && limit_excepts[METHOD_DELETE])) {
+		event_data_->GetResponse().SetAllow(allowed);
+		return event_data_->GetResponse().SetStatusCode(METHOD_NOT_ALLOWED);
+	}
+
+	if (event_data_->GetRequest().GetScheme() != "HTTP/1.1")
+		return event_data_->GetResponse().SetStatusCode(HTTP_VERSION_NOT_SUPPORTED);
+
+	if (event_data_->GetRequest().GetContentLength() > loc.GetClientMaxBodySizeLocation())
+		return event_data_->GetResponse().SetStatusCode(PAYLOAD_TOO_LARGE);
+
+	if (event_data_->GetRequest().GetMethod() == "POST"
+		&& event_data_->GetRequest().GetContentLength() == 0
+		&& event_data_->GetRequest().GetTransferEncoding() != "chunked")
+		return event_data_->GetResponse().SetStatusCode(LENGTH_REQUIRED);
+
+	if (event_data_->GetRequest().GetPath().length() > 2048)
+		return event_data_->GetResponse().SetStatusCode(URI_TOO_LONG);
 }
 
-void	Webserv::SetCgiEvent(void) {
+void    Webserv::CheckRedirection() {
+	if (wit_->GetLocations()[location_idx_].GetRedirStatusCode() == MOVED_PERMANENTLY)
+		return event_data_->GetResponse().SetStatusCode(MOVED_PERMANENTLY);
+}
+
+void	Webserv::SetCgiEvent() {
 	event_data_->SetEventType(CGIEVENT);
-
 	ChangeEvent(change_list_, this->event_data_->GetCgiHandler().GetReadFd(), EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, event_data_);
 	ChangeEvent(change_list_, this->event_data_->GetCgiHandler().GetWriteFd(), EVFILT_WRITE, EV_ADD | EV_ENABLE, 0, 0, event_data_);
 
@@ -159,45 +214,12 @@ void	Webserv::SetCgiEvent(void) {
 	fcntl(this->event_data_->GetCgiHandler().GetWriteFd(), F_SETFL, O_NONBLOCK, FD_CLOEXEC);
 }
 
-/*
- * 응답 헤더의 흐름
- * - Response 객체를 만드는 시점에서 헤더 값 default로 두기
- * - request 파싱이 끝난 시점에서 예외처리 + 헤더값 일부 변경하기
- * - 또 처리하는 과정에서 헤더 값 수정이 필요한 경우 setter로 변경하기
- */
-void    Webserv::MakeResponse(const Request &request) {
-	int location_idx = 0;
-	for(int i = 0; i < wit_->GetLocations().size(); i++)
-	{
-		if (request.GetPath().find(wit_->GetLocations()[i].GetUri()) != std::string::npos) {
-			if (wit_->GetLocations()[i].GetUri().length() != 1)
-			{
-				location_idx = i;
-				break ;
-			}
-			location_idx = i;
-		}
-	}
-	/* should be handled right after reading request */
-	// if (request.GetScheme().find("1.1") == std::string::npos)
-	// {
-	// 	this->event_data_->response.SetStatusCode(Response::BAD_REQUEST);
-	// 	throw std::runtime_error("wrong http version");
-	// }
-
-	std::map<int, bool> limit_excepts = wit_->GetLocations()[location_idx].GetLimitExcepts();
-    if (request.GetMethod() == "GET" &&  limit_excepts[METHOD_GET])
-        this->event_data_->GetResponse().HandleGet(event_data_->GetRequest(), wit_->GetLocations()[location_idx].GetIndex());
-    else if (request.GetMethod() == "POST" && limit_excepts[METHOD_POST])
-        this->event_data_->GetResponse().HandlePost(event_data_->GetRequest());
-    // else if (method == "PUT" && limit_excepts[METHOD_PUT])
-    //     this->event_data_->response.HandlePost(event_data_->request);
-    else if (request.GetMethod() == "DELETE" && limit_excepts[METHOD_DELETE])
-        this->event_data_->GetResponse().HandleDelete(event_data_->GetRequest());
-    else {
-		/* 이런것도 함수로 빼자 (send405Response) */
-		this->event_data_->GetResponse().SetStatusCode(Response::METHOD_NOT_ALLOWED);
-		this->event_data_->GetResponse().Sethttpversion("HTTP/1.1");
-	    std::cerr << "wrong http method : " + request.GetMethod() << std::endl;
-	}
+void    Webserv::MakeResponse() {
+	std::string method = event_data_->GetRequest().GetMethod();
+    if (method == "GET")
+        event_data_->GetResponse().HandleGet(event_data_->GetRequest(), wit_->GetLocations()[location_idx_].GetIndex(), wit_->GetLocations()[location_idx_].GetAutoIndex());
+    else if (method == "POST")
+        event_data_->GetResponse().HandlePost(event_data_->GetRequest(), wit_->GetLocations()[location_idx_].GetIndex());
+    else if (method == "DELETE")
+        event_data_->GetResponse().HandleDelete(event_data_->GetRequest());
 }

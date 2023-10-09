@@ -8,8 +8,10 @@
 #include <unistd.h>
 
 #include "Request.hpp"
+#include "Response.hpp"
 
 class Request;
+class Response;
 class Webserv;
 
 enum CgiState {
@@ -43,7 +45,7 @@ public:
 	void ClosePipeBeforeWrite();
 	void ClosePipeAfterRead();
 	void ClosePipeAfterWrite();
-    void ExecuteChildProcess(const Request &request);
+    void ExecuteChildProcess(const Request &request, Response &response);
     void FillEnv(const Request &request);
     void ConvertEnv();
 	CgiState GetState() const;

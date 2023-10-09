@@ -1,7 +1,7 @@
 #include "../../inc/Webserv.hpp"
 #include <iostream>
 
-void	Webserv::Run(void) {
+void	Webserv::Run() {
 	for (int i = 0; i < workers_.size(); i++)
 		server_sockets_.push_back(workers_[i].GetServerSocket());
 	while (true) {
@@ -40,14 +40,11 @@ void	Webserv::Run(void) {
 //				std::cerr << "-- CGI WRITE event triggered --" << std::endl;
 				WriteCgiInput();
 			}
-			else {
-				std::cerr << "BAD : " << event_data_->GetEventType() << " " << curr_event_->filter << std::endl;
-			}
 		}
 	}
 }
 
-void Webserv::WriteCgiInput(void) {
+void Webserv::WriteCgiInput() {
 	event_data_->GetCgiHandler().ClosePipeBeforeWrite();
 
 	if (event_data_->GetRequest().GetMethod() == "POST")
@@ -62,7 +59,7 @@ void Webserv::WriteCgiInput(void) {
 	close(curr_event_->ident);
 }
 
-void Webserv::ReadCgiResponse(void) {
+void Webserv::ReadCgiResponse() {
 	event_data_->GetCgiHandler().ClosePipeBeforeRead();
 
 	char buff[4096];
@@ -79,6 +76,15 @@ void Webserv::ReadCgiResponse(void) {
 	event_data_->GetCgiHandler().ClosePipeAfterRead();
 	event_data_->GetCgiHandler().SetState(READ_PIPE);
 
+	if (event_data_->GetRequest().GetMethod() == "POST") {
+		if (event_data_->GetResponse().FindStringInBody("Invalid file extension"))
+			event_data_->GetResponse().SetStatusCode(UNSUPPORTED_MEDIA_TYPE);
+		else if (event_data_->GetResponse().FindStringInBody("A problem occurred in a Python script."))
+			event_data_->GetResponse().SetStatusCode(BAD_REQUEST);
+		else
+			event_data_->GetResponse().SetStatusCode(CREATED);
+	}
+
 	uintptr_t write_ident = event_data_->GetCgiHandler().GetClientWriteIdent();
 	event_data_->SetEventType(CLIENTEVENT);
 	ChangeEvent(change_list_, write_ident, EVFILT_READ, EV_DISABLE, 0, 0, event_data_);
@@ -88,6 +94,8 @@ void Webserv::ReadCgiResponse(void) {
 	close (curr_event_->ident);
 }
 
-Webserv::Webserv() {}
+Webserv::Webserv() {
+	this->location_idx_ = 0;
+}
 
 Webserv::~Webserv() {}

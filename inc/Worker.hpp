@@ -57,6 +57,7 @@ public:
 	// void	CheckPossibleMethod(Request &req);
 	void	RequestHeaderParse(Request &req);
 	void	ChunkBodyParse(Request &req, Response &res);
+	void	CheckBlockContents(std::map<std::string, bool> &server_tokens);
 	// void	urlSearch(int event_fd);
 	// std::string checkReturnVal();
 	class	BindError: public std::exception

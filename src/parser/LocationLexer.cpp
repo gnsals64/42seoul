@@ -4,7 +4,6 @@
 std::vector<std::string>::iterator SetLocation(Worker& worker, std::vector<std::string> lines, std::vector<std::string>::iterator& lineIt) {
 	Location location;
 
-	location.SetRoot(worker.GetRoot());
 	location.SetIndex(worker.GetIndex());
 	location.SetUri(*(lineIt++));
 	if (worker.GetClientMaxBodySize() != -1)
@@ -72,8 +71,6 @@ std::vector<std::string>::iterator SetLocationToken(Location& location, std::vec
 
 	if (line == "limit_except")
 		ParseLimitExcept(location, lines, ++lineIt);
-	else if (line == "root")
-		location.SetRoot(*(++lineIt));
 	else if (line == "index")
 		location.SetIndex(*(++lineIt));
 	else if (line == "autoindex")
@@ -94,7 +91,6 @@ void	CheckLocationToken(Location& location, std::vector<std::string> lines, std:
 	std::map<std::string, bool> location_tokens;
 
 	location_tokens["limit_except"] = false;
-	location_tokens["root"] = false;
 	location_tokens["index"] = false;
 	location_tokens["autoindex"] = false;
 	location_tokens["client_max_body_size"] = false;

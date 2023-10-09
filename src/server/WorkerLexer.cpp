@@ -46,6 +46,9 @@ Worker SetWorkerInfo(std::vector<std::string>& lines) {
 		else
 			WorkerThrowError("Error: Invalid server token : " + line);
 	}
+	if (worker.GetLocations().size() == 0)
+		throw::ConfigParser::ConfFileError();
+	worker.CheckBlockContents(server_tokens);
 	return worker;
 }
 
@@ -118,4 +121,19 @@ std::vector<std::string>::iterator SetWorker(Worker& worker, std::vector<std::st
 	if ((*lineIt) != ";")
 		WorkerThrowError("Error : semicolon not exist");
 	return lineIt;
+}
+
+void	Worker::CheckBlockContents(std::map<std::string, bool> &server_tokens) {
+	if (server_tokens["listen"] == false)
+		throw::ConfigParser::ConfFileError();
+	if (server_tokens["server_name"] == false)
+		throw::ConfigParser::ConfFileError();
+	if (server_tokens["error_page"] == false)
+		throw::ConfigParser::ConfFileError();	
+	if (server_tokens["client_max_body_size"] == false)
+		throw::ConfigParser::ConfFileError();
+	if (server_tokens["root"] == false)
+		throw::ConfigParser::ConfFileError();
+	if (server_tokens["index"] == false)
+		throw::ConfigParser::ConfFileError();
 }

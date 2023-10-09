@@ -1,4 +1,5 @@
 #include "../../inc/Worker.hpp"
+#include "../../inc/Location.hpp"
 
 Worker::Worker() : server_socket_(0), port_(80), root_("default"), index_("index.html"), server_names_(0), client_max_body_size_worker_(-1) {
 	server_socket_ = socket(AF_INET, SOCK_STREAM, 0);

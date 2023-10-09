@@ -26,7 +26,7 @@ class Worker;
 class Location {
 private:
 	std::string			uri_;
-    std::string			root_;
+    //std::string			root_;
     std::string			index_;
     bool				auto_index_;
 	int					redir_status_code_;
@@ -38,7 +38,7 @@ public:
     Location();
     ~Location();
 	void SetUri(const std::string& uri);
-	void SetRoot(const std::string& root);
+	//void SetRoot(const std::string& root);
 	void SetIndex(const std::string& index);
 	void SetRedirStatusCode(int status);
 	void SetRedirUri(const std::string& uri);
@@ -46,7 +46,7 @@ public:
 	void SetAutoIndex(bool access);
 	void SetClientMaxBodySizeLocation(int size);
 	const std::string& GetUri() const;
-	const std::string& GetRoot() const;
+	//const std::string& GetRoot() const;
 	const std::string& GetIndex() const;
 	int GetRedirStatusCode() const;
 	const std::string& GetRedirUri() const;

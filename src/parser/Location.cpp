@@ -1,6 +1,6 @@
 #include "../../inc/Location.hpp"
 
-Location::Location() : uri_("default"), root_("default"), index_("index.html"), auto_index_(false), redir_status_code_(200), client_max_body_size_location_(-1), redir_uri("/") {
+Location::Location() : uri_("default"), index_("index.html"), auto_index_(false), redir_status_code_(200), client_max_body_size_location_(1000000), redir_uri("/") {
 	//access ok : true
 	this->limit_excepts_[METHOD_GET] = true;
 	this->limit_excepts_[METHOD_POST] = true;
@@ -12,10 +12,6 @@ Location::~Location() {}
 
 void Location::SetUri(const std::string& uri) {
 	this->uri_ = uri;
-}
-
-void Location::SetRoot(const std::string& root) {
-	this->root_ = root;
 }
 
 void Location::SetIndex(const std::string& index) {
@@ -44,10 +40,6 @@ void Location::SetAutoIndex(bool access) {
 
 const std::string& Location::GetUri() const {
 	return this->uri_;
-}
-
-const std::string& Location::GetRoot() const {
-	return this->root_;
 }
 
 const std::string& Location::GetIndex() const {

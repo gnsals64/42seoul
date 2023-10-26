@@ -13,8 +13,8 @@ class Bureaucrat {
 		Bureaucrat();
 		~Bureaucrat();
 		Bureaucrat(const std::string name, int grade);
-		std::string	getName(void);
-		int			getGrade(void);
+		std::string	getName(void) const;
+		int			getGrade(void) const;
 		void		CheckArgument(void);
 		void		IncreasingGrade(void);
 		void		DecreasingGrade(void);
@@ -29,6 +29,7 @@ class Bureaucrat {
 		};
 };
 
+std::ostream& operator<<(std::ostream &os, const Bureaucrat &ref);
 
 
 #endif

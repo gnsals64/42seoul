@@ -9,11 +9,11 @@ Bureaucrat::Bureaucrat(const std::string name, int grade): name_(name), grade_(g
 		throw Bureaucrat::GradeTooLowException();
 }
 
-std::string Bureaucrat::getName() {
+std::string Bureaucrat::getName() const{
 	return this->name_;
 }
 
-int Bureaucrat::getGrade() {
+int Bureaucrat::getGrade() const{
 	return this->grade_;
 }
 
@@ -38,4 +38,9 @@ const char *Bureaucrat::GradeTooHighException::what() const throw() {
 
 const char *Bureaucrat::GradeTooLowException::what() const throw() {
 	return "Grade too row";
+}
+
+std::ostream& operator<<(std::ostream &out, const Bureaucrat &ref) {
+	out << ref.getName() << ", bureaucrat grade " << ref.getGrade() << std::endl;
+	return out;
 }

@@ -1,12 +1,32 @@
 #include "Bureaucrat.hpp" 
 
-int main(int ac, char **av) {
+void	Run(Bureaucrat &a) {
+	std::cout << a.getName() << "'s grade is " << a.getGrade() << std::endl;
+	std::cout << "You can use '+' or '-'" << std::endl;
+	while (true) {
+		char c;
+
+		std::cin >> c;
+		if(c == '+')
+			a.IncreasingGrade();
+		else if (c == '-')
+			a.DecreasingGrade();
+		else {
+			std::cout << "You can use '+' or '-'" << std::endl;
+			continue ;
+		}
+		a.CheckArgument();
+		std::cout << a.getName() << "'s grade is " << a.getGrade() << std::endl;
+	}
+}
+
+int	CheckArgv(int ac, char **av){
 	if (ac != 3) {
 		std::cerr << "error" << std::endl;
 		return 1;
 	}
 
-	for (int i = 0; i < strlen(av[2]); i++) {
+	for (unsigned long i = 0; i < strlen(av[2]); i++) {
 		if (i == 0 && (av[2][i] == '-' || av[2][i] == '+'))
 			continue ;
 		if (isdigit(av[2][i]) == 0 || i > 8) {
@@ -14,33 +34,21 @@ int main(int ac, char **av) {
 			return 1;
 		}
 	}
-	
+	return 0;
+}
+
+int main(int ac, char **av) {
+	if (CheckArgv(ac, av) == 1)
+		return 1;
+
 	int	grade = atoi(av[2]);
-	Bureaucrat a(av[1], grade);
+
 	try {
-		a.CheckArgument();
-	} catch (std::string& s) {
-		if (s == "high")
-			a.GradeTooHighException();
-		else if (s == "low")
-			a.GradeTooLowException();
+		Bureaucrat a(av[1], grade);
+		Run(a);
 	}
-	while (true) {
-		std::string	cmd;
-		std::cout << "Name : " << a.getName() << std::endl;
-		std::cout << "Grade : " << a.getGrade() << "\n" << std::endl;
-		std::cin >> cmd;
-		if (cmd == "+")
-			a.IncreasingGrade();
-		else if (cmd == "-")
-			a.DecreasingGrade();
-		try {
-			a.CheckArgument();
-		} catch (std::string& s) {
-			if (s == "high")
-				a.GradeTooHighException();
-			else if (s == "low")
-				a.GradeTooLowException();
-		}
+	catch (std::exception &e) {
+		std::cerr << e.what() << std::endl;
 	}
+	return 0;
 }

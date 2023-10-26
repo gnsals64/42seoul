@@ -16,10 +16,17 @@ class Bureaucrat {
 		std::string	getName(void);
 		int			getGrade(void);
 		void		CheckArgument(void);
-		void		GradeTooHighException(void);
-		void		GradeTooLowException(void);
 		void		IncreasingGrade(void);
 		void		DecreasingGrade(void);
+
+		class GradeTooHighException : public std::exception {
+			public:
+			    const char * what() const throw();
+		};
+		class GradeTooLowException : public std::exception {
+			public:
+			    const char * what() const throw();
+		};
 };
 
 

@@ -2,7 +2,12 @@
 
 Bureaucrat::Bureaucrat(): name_("default"), grade_(0) {}
 Bureaucrat::~Bureaucrat() {}
-Bureaucrat::Bureaucrat(const std::string name, int grade): name_(name), grade_(grade) {}
+Bureaucrat::Bureaucrat(const std::string name, int grade): name_(name), grade_(grade) {
+	if (this->grade_ < 1)
+		throw Bureaucrat::GradeTooHighException();
+	else if (this->grade_ > 150)
+		throw Bureaucrat::GradeTooLowException();
+}
 
 std::string Bureaucrat::getName() {
 	return this->name_;
@@ -14,19 +19,9 @@ int Bureaucrat::getGrade() {
 
 void	Bureaucrat::CheckArgument() {
 	if (this->grade_ < 1)
-		throw std::string("high");
+		throw Bureaucrat::GradeTooHighException();
 	else if (this->grade_ > 150)
-		throw std::string("low");
-}
-
-void	Bureaucrat::GradeTooHighException() {
-	std::cerr << "Grade too high" << std::endl;
-	exit(1);
-}
-
-void	Bureaucrat::GradeTooLowException() {
-	std::cerr << "Grade too low" << std::endl;
-	exit(1);
+		throw Bureaucrat::GradeTooLowException();
 }
 
 void	Bureaucrat::IncreasingGrade() {
@@ -35,4 +30,12 @@ void	Bureaucrat::IncreasingGrade() {
 
 void	Bureaucrat::DecreasingGrade() {
 	this->grade_++;
+}
+
+const char *Bureaucrat::GradeTooHighException::what() const throw() {
+	return "Grade too high";
+}
+
+const char *Bureaucrat::GradeTooLowException::what() const throw() {
+	return "Grade too row";
 }

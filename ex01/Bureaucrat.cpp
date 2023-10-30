@@ -9,12 +9,12 @@ Bureaucrat::Bureaucrat(const std::string name, int grade): name_(name), grade_(g
 		throw Bureaucrat::GradeTooLowException();
 }
 
-Bureaucrat::Bureaucrat(const Bureaucrat &cpy) : name_(cpy.getName) {
+Bureaucrat::Bureaucrat(const Bureaucrat &cpy) : name_(cpy.getName()) {
 	grade_ = cpy.getGrade();
 }
 
-Bureaucrat& Bureaucrat::operator=(const Bureaucrat &cpy) : name_(cpy.getName) {
-	if (this == cpy)
+Bureaucrat& Bureaucrat::operator=(const Bureaucrat &cpy) {
+	if (this == &cpy)
 		return *this;
 	grade_ = cpy.getGrade();
 	return *this;

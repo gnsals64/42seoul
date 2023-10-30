@@ -1,14 +1,14 @@
-NAME = Animal
+NAME = bureaucrat
 CC = c++
 FLAG = -Wall -Werror -Wextra -std=c++98
-SRC_FILE = $(addprefix , main Animal WrongAnimal)
+SRC_FILE = $(addprefix , main Bureaucrat)
 SRCS = ${SRC_FILE:=.cpp}
 OBJS = ${SRC_FILE:=.o}
 
 all : ${NAME}
 
 ${NAME} : ${OBJS}
-	@${CC} ${FLAG} ${OBJS} -o ${NAME}
+	${CC} ${FLAG}  ${OBJS} -o ${NAME}
 
 clean :
 	@rm -f ${OBJS}

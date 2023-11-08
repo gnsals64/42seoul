@@ -1,10 +1,10 @@
 #include "Form.hpp"
 
-Form::Form() : name_("default"), grade_to_execute_(0), grade_to_sign_(0), is_signed_(false) {}
+Form::Form() : name_("default"), grade_to_sign_(0), grade_to_execute_(0), is_signed_(false) {}
 
 Form::~Form() {}
 
-Form::Form(std::string name, int grade_to_sign, int grade_to_execute) : name_(name), grade_to_execute_(grade_to_execute), grade_to_sign_(grade_to_sign), is_signed_(false) {
+Form::Form(std::string name, int grade_to_sign, int grade_to_execute) : name_(name), grade_to_sign_(grade_to_sign), grade_to_execute_(grade_to_execute), is_signed_(false) {
 	if (this->grade_to_sign_ < 1)
 		throw Bureaucrat::GradeTooHighException();
 	else if (this->grade_to_sign_ > 150)
@@ -15,7 +15,7 @@ Form::Form(std::string name, int grade_to_sign, int grade_to_execute) : name_(na
 		throw Bureaucrat::GradeTooLowException();
 }
 
-Form::Form(const Form &cpy) : name_(cpy.getName()), grade_to_execute_(cpy.getGradeToExecute()), grade_to_sign_(cpy.getGradeToSign()), is_signed_(cpy.getIsSigned()){}
+Form::Form(const Form &cpy) : name_(cpy.getName()),  grade_to_sign_(cpy.getGradeToSign()), grade_to_execute_(cpy.getGradeToExecute()), is_signed_(cpy.getIsSigned()){}
 
 Form& Form::operator=(const Form &cpy) {
 	if (this == &cpy)
@@ -43,12 +43,4 @@ std::string Form::getName() const {
 void	Form::beSigned(Bureaucrat &bureaucrat) {
 	if (bureaucrat.getGrade() <= this->getGradeToSign())
 		this->is_signed_ = true;
-}
-
-const char *Bureaucrat::GradeTooHighException::what() const throw() {
-	return "Grade too high";
-}
-
-const char *Bureaucrat::GradeTooLowException::what() const throw() {
-	return "Grade too row";
 }

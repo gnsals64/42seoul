@@ -2,16 +2,16 @@
 # define FORM_HPP
 
 # include <iostream>
-# include <Bureaucrat.hpp>
+# include "Bureaucrat.hpp"
 
 class Bureaucrat;
 
 class Form {
 	private:
 		const std::string	name_;
-		bool				is_signed_;
 		const int			grade_to_sign_;
 		const int			grade_to_execute_;
+		bool				is_signed_;
 	
 	public:
 		Form();
@@ -25,17 +25,6 @@ class Form {
 		int			getGradeToSign() const;
 		int			getGradeToExecute() const;		
 		void		beSigned(Bureaucrat& bureaucrat);
-		
-		class GradeTooHighException : public std::exception {
-			public:
-			    const char * what() const throw();
-		};
-		class GradeTooLowException : public std::exception {
-			public:
-			    const char * what() const throw();
-		};
-
-
 };
 
 #endif

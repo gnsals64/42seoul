@@ -3,7 +3,8 @@
 
 # include <iostream>
 # include <cstring>
-# include "Form.hpp"
+# include "AForm.hpp"
+# include <fstream>
 
 class Form;
 
@@ -24,6 +25,7 @@ class Bureaucrat {
 		void		IncreasingGrade(void);
 		void		DecreasingGrade(void);
 		void		signForm(Form &form);
+		void		executeForm(Form const &form);
 
 		class GradeTooHighException : public std::exception {
 			public:
@@ -36,6 +38,5 @@ class Bureaucrat {
 };
 
 std::ostream& operator<<(std::ostream &os, const Bureaucrat &ref);
-
 
 #endif

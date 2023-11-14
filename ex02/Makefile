@@ -1,14 +1,14 @@
 NAME = bureaucrat
 CC = c++
 FLAG = -Wall -Werror -Wextra -std=c++98
-SRC_FILE = $(addprefix , main Bureaucrat Form)
+SRC_FILE = $(addprefix , main Bureaucrat AForm ShrubberyCreationForm RobotomyRequestForm PresidentialPardonForm)
 SRCS = ${SRC_FILE:=.cpp}
 OBJS = ${SRC_FILE:=.o}
 
 all : ${NAME}
 
 ${NAME} : ${OBJS}
-	${CC} ${FLAG} ${SRCS} -o ${NAME}
+	${CC} ${FLAG} ${OBJS} -o ${NAME}
 
 clean :
 	@rm -f ${OBJS}

@@ -1,4 +1,4 @@
-#include "Form.hpp"
+#include "AForm.hpp"
 
 Form::Form() : name_("default"), grade_to_sign_(0), grade_to_execute_(0), is_signed_(false) {}
 
@@ -40,7 +40,21 @@ std::string Form::getName() const {
 	return this->name_;
 }
 
+void	Form::setIsSigned(bool is_signed) {
+	this->is_signed_ = is_signed;
+}
+
 void	Form::beSigned(Bureaucrat &bureaucrat) {
 	if (bureaucrat.getGrade() <= this->getGradeToSign())
 		this->is_signed_ = true;
+	else
+		this->is_signed_ = false;
+}
+
+const char *Form::NotSigned::what() const throw() {
+	return "Form is not signed";
+}
+
+const char *Form::NotEnoughGrade::what() const throw() {
+	return "Not enough grade";
 }

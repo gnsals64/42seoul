@@ -3,8 +3,8 @@
 
 int main() {
 	try {
-		Bureaucrat 	a("a", 9);
-		Form		form("form", 1, 12);
+		Bureaucrat 	a("a", 5);
+		Form		form("form", 10, 5);
 		
 		form.beSigned(a);
 		a.signForm(form);

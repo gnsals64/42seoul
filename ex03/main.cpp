@@ -11,8 +11,9 @@ int main() {
 		Intern		i;
 		Form		*f;
 
-		f = i.makeForm("robotomy request", "Bender");
-		a.executeForm(f);
+		f = i.makeForm("robotomy requet", "Bender");
+		f->beSigned(a);
+		a.executeForm(*f);
 		// Shrubberycreationform form_shr("form_shr", 10, 10);
 		// RobotomyRequestForm form_rob("form_ro", 10, 10);
 		// PresidentialPardonForm form_pre("form_pre", 10, 5);

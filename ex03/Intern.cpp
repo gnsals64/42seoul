@@ -12,7 +12,7 @@ Intern& Intern::operator=(const Intern &cpy) {
 }
 
 Form* Intern::makeForm(std::string name, std::string target) {
-	std::string[] name_list = {"robotomy request", "presidential pardon", "shrubbery creation"};
+	std::string name_list[3] = {"robotomy request", "presidential pardon", "shrubbery creation"};
 	int i = 0;
 
 	std::cout << "Intern creates " << target << std::endl;
@@ -22,13 +22,18 @@ Form* Intern::makeForm(std::string name, std::string target) {
 		i++;
 	}
 	switch (i) {
-	case 0 
-		return (new RobotomyRequestForm a(name, 10, 10))
-	case 1
-		return (new PresidentialPardonForm a(name, 10, 10))
-	case 2
-		return (new Shrubberycreationform a(name, 10, 10))
-	default:
-		std::cout << "name is incorrect" << std::endl;
+		case 0:
+			return (new RobotomyRequestForm(name, 10, 10));
+		case 1:
+			return (new PresidentialPardonForm(name, 10, 10));
+		case 2:
+			return (new Shrubberycreationform(name, 10, 10));
+		default:
+			throw::Intern::NoNamelist();
 	}
+	return NULL;
+}
+
+const char *Intern::NoNamelist::what() const throw() {
+	return "Name is not correct";
 }

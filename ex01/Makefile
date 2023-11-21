@@ -8,7 +8,7 @@ OBJS = ${SRC_FILE:=.o}
 all : $(NAME)
 
 %.o : %.cpp
-	${CC}  -c $< -o $@
+	${CC} ${FLAG} -c $< -o $@
 
 $(NAME) : $(OBJS)
 	${CC} ${FLAG} $(OBJS) -o $(NAME)

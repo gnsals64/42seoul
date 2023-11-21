@@ -62,7 +62,7 @@ void	ScalarConverter::printChar() {
 	if ((num_ >= 0 && num_ <= 32) && flag_ == "None")
 		std::cout << "Non displayable" << std::endl;
 	else if (num_ >= 32 && num_ <= 126)
-		std::cout << "\'" << (char)num_ << "\'" << std::endl;
+		std::cout << "\'" << static_cast<char>(num_) << "\'" << std::endl;
 	else
 		std::cout << "impossible" << std::endl;
 }
@@ -70,7 +70,7 @@ void	ScalarConverter::printChar() {
 void	ScalarConverter::printInt() {
 	std::cout << "int: ";
 	if ((num_ >= -2147483648 && num_ <= 2147483647) && flag_ == "None")
-		std::cout << (int)num_ << std::endl;
+		std::cout << static_cast<int>(num_) << std::endl;
 	else
 		std::cout << "impossible" << std::endl;
 }
@@ -84,11 +84,11 @@ void	ScalarConverter::printFloat(std::string param) {
 	else if (flag_ == "-inf")
 		std::cout << "-inff" << std::endl;
 	else if (param.find('.') == std::string::npos && numcnt_ <= 6)
-		std::cout << (float)num_ << ".0f" << std::endl;
+		std::cout << static_cast<float>(num_) << ".0f" << std::endl;
 	else if (param.back() == '0' && param[param.length() - 2] == '.' && numcnt_ <= 6)
-		std::cout << (float)num_ << ".0f" << std::endl;
+		std::cout << static_cast<float>(num_) << ".0f" << std::endl;
 	else
-		std::cout << (float)num_ << "f" << std::endl;
+		std::cout << static_cast<float>(num_) << "f" << std::endl;
 }
 
 void	ScalarConverter::printDouble(std::string param) {
@@ -100,9 +100,9 @@ void	ScalarConverter::printDouble(std::string param) {
 	else if (flag_ == "-inf")
 		std::cout << "-inf" << std::endl;
 	else if (param.find('.') == std::string::npos && numcnt_ <= 6)
-		std::cout << (float)num_ << ".0" << std::endl;
+		std::cout << static_cast<double>(num_) << ".0" << std::endl;
 	else if (param.back() == '0' && param[param.length() - 2] == '.' && numcnt_ <= 6)
-		std::cout << (float)num_ << ".0" << std::endl;
+		std::cout << static_cast<double>(num_)<< ".0" << std::endl;
 	else
-		std::cout << (float)num_ << std::endl;
+		std::cout << static_cast<double>(num_) << std::endl;
 }

@@ -5,7 +5,7 @@ void	check_num(std::string param, ScalarConverter& converter) {
 	int minus = 0;
 	int	num_cnt = 0;
 
-	for (int i = 0; i < param.length(); i++) {
+	for (int i = 0; i < static_cast<int>(param.length()); i++) {
 		if (param[i] == '.')
 			dot++;
 		else if (param[i] == '-')

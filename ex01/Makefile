@@ -5,11 +5,14 @@ SRC_FILE = $(addprefix , main Bureaucrat Form)
 SRCS = ${SRC_FILE:=.cpp}
 OBJS = ${SRC_FILE:=.o}
 
-all : ${NAME}
+all : $(NAME)
 
-${NAME} : ${OBJS}
-	${CC} ${FLAG} ${SRCS} -o ${NAME}
+%.o : %.cpp
+	${CC} ${FLAG}  -c $< -o $@
 
+$(NAME) : $(OBJS)
+	${CC} ${FLAG} $(OBJS) -o $(NAME)
+	
 clean :
 	@rm -f ${OBJS}
 

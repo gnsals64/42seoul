@@ -1,6 +1,6 @@
 #include "Convert.hpp"
 
-ScalarConverter::ScalarConverter() : flag_("None"), num_(0), numcnt_(0) {};
+ScalarConverter::ScalarConverter() : flag_("None"), num_(0), numcnt_(0), ischar_(false) {};
 
 ScalarConverter::~ScalarConverter() {};
 
@@ -8,6 +8,7 @@ ScalarConverter::ScalarConverter(const ScalarConverter& cpy) {
 	this->flag_ = cpy.flag_;
 	this->num_ = cpy.num_;
 	this->numcnt_ = cpy.numcnt_;
+	this->ischar_ = cpy.ischar_;
 }
 
 ScalarConverter& ScalarConverter::operator=(const ScalarConverter& cpy) {
@@ -16,13 +17,17 @@ ScalarConverter& ScalarConverter::operator=(const ScalarConverter& cpy) {
 	this->flag_ = cpy.flag_;
 	this->num_ = cpy.num_;
 	this->numcnt_ = cpy.numcnt_;
+	this->ischar_ = cpy.ischar_;
 	return (*this);
 }
 
 void ScalarConverter::convert(std::string param) {
 	std::stringstream	ss(param);
 	double				num;
-	ss >> num;
+	if (ischar_ == true)
+		num = static_cast<double>(param[1]);
+	else
+		ss >> num;
 
 	this->setNum(num);
 	printChar();
@@ -43,6 +48,9 @@ int	ScalarConverter::getNumcnt() {
 	return this->numcnt_;
 }
 
+bool	ScalarConverter::getIschar() {
+	return this->ischar_;
+}
 
 void	ScalarConverter::setFlag(std::string flag) {
 	this->flag_ = flag;
@@ -56,6 +64,9 @@ void	ScalarConverter::setNumcnt(int num_cnt) {
 	this->numcnt_ = num_cnt;
 }
 
+void	ScalarConverter::setIschar() {
+	this->ischar_ = true;
+}
 
 void	ScalarConverter::printChar() {
 	std::cout << "char: ";
@@ -106,3 +117,4 @@ void	ScalarConverter::printDouble(std::string param) {
 	else
 		std::cout << static_cast<double>(num_) << std::endl;
 }
+

@@ -5,6 +5,11 @@ void	check_num(std::string param, ScalarConverter& converter) {
 	int minus = 0;
 	int	num_cnt = 0;
 
+	if (param.length() == 3 && param.at(0) == '\'' && param.at(2) == '\'') {
+		converter.setIschar();
+		return ;
+	}
+
 	for (int i = 0; i < static_cast<int>(param.length()); i++) {
 		if (param[i] == '.')
 			dot++;

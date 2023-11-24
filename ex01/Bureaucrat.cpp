@@ -46,16 +46,18 @@ void	Bureaucrat::DecreasingGrade() {
 void	Bureaucrat::signForm(Form &form) {
 	if (form.getIsSigned() == true)
 		std::cout << this->getName() << " signed " << form.getName() << std::endl;
-	else
+	else if (this->getGrade() <= form.getGradeToSign())
 		std::cout << this->getName() << " couldn't sign " << form.getName() << " because grade too row" << std::endl;
+	else
+		std::cout << this->getName() << " couldn't sign " << form.getName() << " because The besigned function was not executed." << std::endl;
 } 
 
 const char *Bureaucrat::GradeTooHighException::what() const throw() {
-	return "Grade too high";
+	return "Bureaucrat's grade too high";
 }
 
 const char *Bureaucrat::GradeTooLowException::what() const throw() {
-	return "Grade too row";
+	return "Bureaucrat's grade too row";
 }
 
 std::ostream& operator<<(std::ostream &out, const Bureaucrat &ref) {

@@ -1,10 +1,10 @@
 #include "RobotomyRequestForm.hpp"
 
-RobotomyRequestForm::RobotomyRequestForm() : Form() {}
+RobotomyRequestForm::RobotomyRequestForm() : Form("robotomy", 72, 45) {}
 
 RobotomyRequestForm::~RobotomyRequestForm() {}
 
-RobotomyRequestForm::RobotomyRequestForm(std::string name, int grade_to_sign, int grade_to_execute) : Form(name, grade_to_sign, grade_to_execute) {}
+RobotomyRequestForm::RobotomyRequestForm(std::string name) : Form(name, 72, 45) {}
 
 RobotomyRequestForm::RobotomyRequestForm(const RobotomyRequestForm& cpy) : Form(cpy.getName(), cpy.getGradeToSign(), cpy.getGradeToExecute()) {}
 
@@ -16,9 +16,11 @@ RobotomyRequestForm& RobotomyRequestForm::operator=(const RobotomyRequestForm& c
 }
 
 void RobotomyRequestForm::execute(Bureaucrat const &executor) const {
-	if (this->getIsSigned() == false)
+	if (this->getIsSigned() == false) {
+		std::cout << this->getName();
 		throw RobotomyRequestForm::NotSigned();
-	if (this->getGradeToExecute() <= 45 && this->getGradeToSign() <= 72) {
+	}
+	if (executor.getGrade() <= this->getGradeToExecute()) {
 		std::srand(time(NULL));
 		int num = rand() % 10;
 		
@@ -27,6 +29,8 @@ void RobotomyRequestForm::execute(Bureaucrat const &executor) const {
 		else
 			std::cout << "robotomy failed." << std::endl;
 	}
-	else
+	else {
+		std::cout << this->getName();
 		throw RobotomyRequestForm::NotEnoughGrade();
+	}
 }

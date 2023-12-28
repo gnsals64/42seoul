@@ -8,7 +8,7 @@ class RobotomyRequestForm : public Form {
 	public:
 		RobotomyRequestForm();
 		~RobotomyRequestForm();
-		RobotomyRequestForm(std::string name, int grade_to_sign, int grade_to_execute);
+		RobotomyRequestForm(std::string name);
 		RobotomyRequestForm(const RobotomyRequestForm& cpy);
 		RobotomyRequestForm& operator=(const RobotomyRequestForm& cpy);
 		void execute(Bureaucrat const &executor) const;

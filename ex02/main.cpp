@@ -6,14 +6,15 @@
 
 int main() {
 	try {
-		Bureaucrat 	a("john", 9);
-		Shrubberycreationform form_shr("form_shr", 10, 10);
-		RobotomyRequestForm form_rob("form_ro", 10, 10);
-		PresidentialPardonForm form_pre("form_pre", 10, 5);
+		Bureaucrat 	a("john", 5);
+		Shrubberycreationform form_shr("shruberry");
+		RobotomyRequestForm form_rob("robotomy");
+		PresidentialPardonForm form_pre("presidential");
 
 		form_shr.beSigned(a);
 		form_rob.beSigned(a);
 		form_pre.beSigned(a);
+
 		a.executeForm(form_shr);
 		a.executeForm(form_rob);
 		a.executeForm(form_pre);

@@ -52,9 +52,9 @@ void	Form::beSigned(Bureaucrat &bureaucrat) {
 }
 
 const char *Form::NotSigned::what() const throw() {
-	return "Form is not signed";
+	return " is not signed";
 }
 
 const char *Form::NotEnoughGrade::what() const throw() {
-	return "Not enough grade";
+	return " is not enough grade";
 }

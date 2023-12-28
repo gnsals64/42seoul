@@ -26,11 +26,11 @@ Form* Intern::makeForm(std::string name, std::string target) {
 	}
 	switch (i) {
 		case 0:
-			return (new RobotomyRequestForm(name, 10, 10));
+			return (new RobotomyRequestForm(target));
 		case 1:
-			return (new PresidentialPardonForm(name, 10, 10));
+			return (new PresidentialPardonForm(target));
 		case 2:
-			return (new Shrubberycreationform(name, 10, 10));
+			return (new Shrubberycreationform(target));
 		default:
 			throw::Intern::NoNamelist();
 	}

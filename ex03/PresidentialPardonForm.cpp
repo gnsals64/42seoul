@@ -1,10 +1,10 @@
 #include "PresidentialPardonForm.hpp"
 
-PresidentialPardonForm::PresidentialPardonForm() : Form() {}
+PresidentialPardonForm::PresidentialPardonForm() : Form("presidential", 25, 5) {}
 
 PresidentialPardonForm::~PresidentialPardonForm() {}
 
-PresidentialPardonForm::PresidentialPardonForm(std::string name, int grade_to_sign, int grade_to_execute) : Form(name, grade_to_sign, grade_to_execute) {}
+PresidentialPardonForm::PresidentialPardonForm(std::string name) : Form(name, 25, 5) {}
 
 PresidentialPardonForm::PresidentialPardonForm(const PresidentialPardonForm& cpy) : Form(cpy.getName(), cpy.getGradeToSign(), cpy.getGradeToExecute()) {}
 
@@ -16,11 +16,15 @@ PresidentialPardonForm& PresidentialPardonForm::operator=(const PresidentialPard
 }
 
 void PresidentialPardonForm::execute(Bureaucrat const &executor) const {
-	if (this->getIsSigned() == false)
+	if (this->getIsSigned() == false) {
+		std::cout << this->getName();
 		throw PresidentialPardonForm::NotSigned();
-	if (this->getGradeToExecute() <= 5 && this->getGradeToSign() <= 25) {
+	}
+	if (executor.getGrade() <= this->getGradeToExecute()) {
 		std::cout << executor.getName() << " has been pardoned" << std::endl;
 	}
-	else 
+	else {
+		std::cout << this->getName();
 		throw PresidentialPardonForm::NotEnoughGrade();
+	}
 }

@@ -1,11 +1,11 @@
 #include "ShrubberyCreationForm.hpp"
 #include "Bureaucrat.hpp"
 
-Shrubberycreationform::Shrubberycreationform() : Form() {}
+Shrubberycreationform::Shrubberycreationform() : Form("Shrubbery", 145, 137) {}
 
 Shrubberycreationform::~Shrubberycreationform() {}
 
-Shrubberycreationform::Shrubberycreationform(std::string name, int grade_to_sign, int grade_to_execute) : Form(name, grade_to_sign, grade_to_execute) {}
+Shrubberycreationform::Shrubberycreationform(std::string name) : Form(name, 145, 137) {}
 
 Shrubberycreationform::Shrubberycreationform(const Shrubberycreationform &cpy) : Form(cpy.getName(), cpy.getGradeToSign(), cpy.getGradeToExecute()) {}
 
@@ -17,9 +17,11 @@ Shrubberycreationform& Shrubberycreationform::operator=(const Shrubberycreationf
 }
 
 void	Shrubberycreationform::execute(Bureaucrat const &executor) const {
-	if (this->getIsSigned() == false)
+	if (this->getIsSigned() == false) {
+		std::cout << this->getName();
 		throw Shrubberycreationform::NotSigned();
-	if (this->getGradeToExecute() <= 137 && this->getGradeToSign() <= 145) {
+	}
+	if (executor.getGrade() <= this->getGradeToExecute()) {
 		std::string filename = executor.getName() + "_shrubbery";
 		std::ofstream file(filename);
 		if (file.is_open()) {
@@ -35,6 +37,8 @@ void	Shrubberycreationform::execute(Bureaucrat const &executor) const {
 			file.close();
 		}
 	}
-	else
+	else {
+		std::cout << this->getName();
 		throw Shrubberycreationform::NotEnoughGrade();
+	}
 }

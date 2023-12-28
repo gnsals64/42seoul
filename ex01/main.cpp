@@ -3,10 +3,10 @@
 
 int main() {
 	try {
-		Bureaucrat 	a("a", 5);
-		Form		form("form", 4, 5);
+		Bureaucrat 	a("a", 8);
+		Form		form("form", 6, 4);
 		
-		//form.beSigned(a);
+		form.beSigned(a);
 		a.signForm(form);
 	}
 	catch (std::exception &e) {

@@ -2,8 +2,12 @@
 
 int main() {
 	Base *a = generate();
-	B b;
+	C d;
+	Base g;
+	
 	
 	identify(a);
-	identify(b);
+	identify(NULL);
+	identify(d);
+	identify(g);
 }

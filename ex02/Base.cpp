@@ -16,6 +16,7 @@ Base	*generate(void) {
 }
 
 void	identify(Base* p) {
+	std::cout << "pointer" << std::endl;
 	if (dynamic_cast<A *>(p))
 		std::cout << "this is A class" << std::endl;
 	else if (dynamic_cast<B *>(p))
@@ -25,6 +26,7 @@ void	identify(Base* p) {
 }
 
 void	identify(Base& p) {
+	std::cout << "reference" << std::endl;
 	try {
 		A &a = dynamic_cast<A&>(p);
 		(void)a;
@@ -42,5 +44,7 @@ void	identify(Base& p) {
 		(void)c;
 		std::cout << "this is C class" << std::endl;
 	}
-	catch (std::bad_cast) {}
+	catch (std::bad_cast) {
+		std::cout << "reference error" << std::endl;
+	}
 }

@@ -24,11 +24,11 @@ ScalarConverter& ScalarConverter::operator=(const ScalarConverter& cpy) {
 void ScalarConverter::convert(std::string param) {
 	std::stringstream	ss(param);
 	double				num;
+
 	if (ischar_ == true)
 		num = static_cast<double>(param[1]);
 	else
 		ss >> num;
-
 	this->setNum(num);
 	printChar();
 	printInt();
@@ -94,6 +94,8 @@ void	ScalarConverter::printFloat(std::string param) {
 		std::cout << "+inff" << std::endl;
 	else if (flag_ == "-inf")
 		std::cout << "-inff" << std::endl;
+	else if (static_cast<float>(num_) == INFINITY || static_cast<float>(num_) == -INFINITY)
+		std::cout << "impossible" << std::endl;
 	else if (param.find('.') == std::string::npos && numcnt_ <= 6)
 		std::cout << static_cast<float>(num_) << ".0f" << std::endl;
 	else if (param.back() == '0' && param[param.length() - 2] == '.' && numcnt_ <= 6)
@@ -110,6 +112,8 @@ void	ScalarConverter::printDouble(std::string param) {
 		std::cout << "+inf" << std::endl;
 	else if (flag_ == "-inf")
 		std::cout << "-inf" << std::endl;
+	else if (num_ == INFINITY || num_ == -INFINITY)
+		std::cout << "impossible" << std::endl;
 	else if (param.find('.') == std::string::npos && numcnt_ <= 6)
 		std::cout << static_cast<double>(num_) << ".0" << std::endl;
 	else if (param.back() == '0' && param[param.length() - 2] == '.' && numcnt_ <= 6)

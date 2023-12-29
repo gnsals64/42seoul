@@ -1,4 +1,4 @@
-NAME = array
+NAME = Easyfind
 CC = c++
 FLAG = -Wall -Werror -Wextra #-fsanitize=address
 SRC_FILE = $(addprefix ./, main)

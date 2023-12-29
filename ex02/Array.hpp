@@ -10,9 +10,9 @@ private:
 	size_t	arr_size;
 
 public:
-	Array() : arr_size(0) { arr = new T[0]; };
+	Array() : arr_size(0) { arr = new T[0](); };
 	~Array() { delete arr; };
-	Array(unsigned int n) : arr_size(n) { arr = new T[n](0); };
+	Array(unsigned int n) : arr_size(n) { arr = new T[n](); };
 	Array(const Array &cpy) {
 		arr = new T[cpy.size()];
 		for (int i = 0; i < cpy.size(); i++) {
@@ -28,17 +28,16 @@ public:
 		}
 		return *this;
 	}
-	size_t size() { return arr_size; } const;
-	T operator[] (size_t i) {
+	size_t size() const { return arr_size; } ;
+	T& operator[] (size_t i) {
 		if (i >= arr_size)
-			throw Array<T>::indexoutofrange();
+			throw std::runtime_error("out of range");
 		return arr[i];
 	};
-	class indexoutofrange : public std::exception {
-		public:
-		    const char * what() const throw() {
-				return "out of range";
-			};
+	const T& operator[] (size_t i) const{
+		if (i >= arr_size)
+			throw std::runtime_error("out of range");
+		return arr[i];
 	};
 };
 

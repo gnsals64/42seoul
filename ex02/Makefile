@@ -1,7 +1,7 @@
-NAME = convert
+NAME = array
 CC = c++
 FLAG = -Wall -Werror -Wextra #-fsanitize=address
-SRC_FILE = $(addprefix ./, main Convert)
+SRC_FILE = $(addprefix ./, main)
 SRCS = ${SRC_FILE:=.cpp}
 OBJS = ${SRC_FILE:=.o}
 

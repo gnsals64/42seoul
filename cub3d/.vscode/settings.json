@@ -1,0 +1,15 @@
+{
+  "files.associations": {
+    "cub3d.h": "c",
+    "libft.h": "c",
+    "string.h": "c",
+    "mlx.h": "c",
+    "get_next_line.h": "c",
+    "unistd.h": "c",
+    "iterator": "c",
+    "array": "c",
+    "string": "c",
+    "string_view": "c",
+    "vector": "c"
+  }
+}

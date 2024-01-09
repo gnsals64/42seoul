@@ -1,7 +1,7 @@
 NAME = Span
 CC = c++
 FLAG = -Wall -Werror -Wextra #-fsanitize=address
-SRC_FILE = $(addprefix ./, main)
+SRC_FILE = $(addprefix ./, main Span)
 SRCS = ${SRC_FILE:=.cpp}
 OBJS = ${SRC_FILE:=.o}
 

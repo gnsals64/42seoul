@@ -3,11 +3,12 @@
 
 # include <iostream>
 # include <vector>
+# include <algorithm>
 
 class Span {
 private:
-	int max_store;
-	std::vector<int> v;
+	unsigned int _max_store;
+	std::vector<int> _vec;
 public:
 	Span(unsigned int N);
 	~Span();
@@ -16,6 +17,28 @@ public:
 	void addNumber(int num);
 	unsigned int shortestSpan();
 	unsigned int longestSpan();
+
+	template<typename iter>
+	void addNumrange(iter begin, iter end) {
+		while (*begin != *end) {
+			this->addNumber(*begin);
+			begin++;
+		}
+	}
+
+	
+	class dup_num : public std::exception {
+		public:
+			const char *what() const throw();
+	};
+	class sizeover : public std::exception {
+		public:
+			const char *what() const throw();
+	};
+	class membererr : public std::exception {
+		public:
+			const char *what() const throw();
+	};
 };
 
 #endif

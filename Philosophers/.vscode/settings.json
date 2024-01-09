@@ -1,0 +1,6 @@
+{
+	"files.associations": {
+		"philosopher.h": "c",
+		"__mutex_base": "c"
+	}
+}

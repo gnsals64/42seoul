@@ -2,6 +2,8 @@
 
 int main()
 {
+	std::cout << "custom stack\n" << std::endl;
+
 	MutantStack<int> mstack;
 	mstack.push(5);
 	mstack.push(17);
@@ -17,7 +19,7 @@ int main()
 	std::cout << mstack.size() << std::endl;
 	MutantStack<int>::iterator it = mstack.begin();
 	MutantStack<int>::iterator ite = mstack.end();
-	++it	;
+	++it;
 	--it;
 	while (it != ite)
 	{
@@ -25,5 +27,32 @@ int main()
 		++it;
 	}
 	std::stack<int> s(mstack);
+
+	std::cout << "\n\nlist \n" << std::endl;
+	std::list<int> lst;
+	lst.push_back(5);
+	lst.push_back(17);
+	std::cout << lst.back() << std::endl;
+	lst.pop_back();
+	std::cout << lst.size() << std::endl;
+	lst.push_back(3);
+	lst.push_back(5);
+	lst.push_back(737);
+
+	lst.push_back(0);
+	std::cout << lst.front() << std::endl;
+	std::cout << lst.size() << std::endl;
+	std::list<int>::iterator it2 = lst.begin();
+	std::list<int>::iterator ite2 = lst.end();
+	++it2;
+	--it2;
+	while (it2 != ite2)
+	{
+		std::cout << *it2 << std::endl;
+		++it2;
+	}
+	std::list<int> s2(lst);
+
+
 	return 0;
 }

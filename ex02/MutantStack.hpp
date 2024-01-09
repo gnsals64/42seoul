@@ -4,34 +4,31 @@
 # include <iostream>
 # include <vector>
 # include <stack>
+# include <list>
 
-template<typename T, typename Container = std::deque<T> >
-class MutantStack : public std::stack<T, Container> {
-private:
-	size_t _size;
-	Container c;
-
+template<typename T>
+class MutantStack : public std::stack<T> {
 public:
-	MutantStack() : _size(0) {};
+	MutantStack() {};
 	~MutantStack() {};
 	MutantStack(const MutantStack<T> &cpy) {
 		this->_size = cpy._size;
-		this->c = cpy.c;
+		this->std::stack<T>::c = cpy.std::stack<T>::c;
 	}
 	MutantStack& operator=(const MutantStack &cpy) {
 		if (this == &cpy)
 			return *this;
 		this->_size = cpy._size;
-		this->c = cpy.c;
+		this->std::stack<T>::c = cpy.std::stack<T>::c;
 		return *this;
 	}
-	typedef typename Container::iterator iterator;
-	void	push(T a) {c.push_back(a); _size++;};
-	void	pop() {c.pop_back(); _size--;};
-	size_t	size() {return _size;};
-	T		top() {return *(c.end() - 1);};
-	iterator begin() {return c.begin();}
-	iterator end() {return c.end();}
+	typedef typename std::stack<T>::container_type::iterator iterator;
+	void	push(T a) {std::stack<T>::c.push_back(a);};
+	void	pop() {std::stack<T>::c.pop_back();};
+	size_t	size() {return std::stack<T>::c.size();};
+	T		top() {return *(std::stack<T>::c.end() - 1);};
+	iterator begin() {return std::stack<T>::c.begin();}
+	iterator end() {return std::stack<T>::c.end();}
 };
 
 #endif

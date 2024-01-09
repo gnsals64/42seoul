@@ -1,0 +1,10 @@
+{
+	"files.associations": {
+		"ft_printf.h": "c",
+		"stdarg.h": "c",
+		"functional": "c",
+		"sstream": "c",
+		"ft_printf_bonus.h": "c",
+		"libft.h": "c"
+	}
+}

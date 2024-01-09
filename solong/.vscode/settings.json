@@ -1,0 +1,10 @@
+{
+	"files.associations": {
+		"mlx.h": "c",
+		"so_long.h": "c",
+		"array": "c",
+		"string": "c",
+		"string_view": "c",
+		"vector": "c"
+	}
+}

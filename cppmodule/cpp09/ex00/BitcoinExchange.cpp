@@ -16,7 +16,7 @@ void	btc::db_init() {
 		while (!db.eof()) {
 			std::string str;
 			getline(db, str);
-
+			
 		}
 	}
 	else

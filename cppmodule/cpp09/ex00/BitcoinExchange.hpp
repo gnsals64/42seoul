@@ -15,7 +15,6 @@ public:
 	btc(const btc &cpy);
 	btc& operator=(const btc &cpy);
 	void	db_init();
-
 };
 
 #endif

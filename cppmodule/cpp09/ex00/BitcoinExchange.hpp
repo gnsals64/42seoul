@@ -7,7 +7,7 @@
 
 class btc {
 private:
-	std::map<std::string, float> db;
+	std::map<std::string, float> _db;
 	
 public:
 	btc();
@@ -16,5 +16,7 @@ public:
 	btc& operator=(const btc &cpy);
 	void	db_init();
 };
+
+void	dataCheck(std::string date, std::string price);
 
 #endif

@@ -5,11 +5,13 @@ btc::btc() {}
 btc::~btc() {}
 
 btc::btc(const btc &cpy) {
-	(void)cpy;
+	this->_db = cpy._db;
 }
 
 btc& btc::operator=(const btc &cpy) {
-	(void)cpy;
+	if (this == &cpy)
+		return *this;
+	this->_db = cpy._db;
 	return *this;
 }
 

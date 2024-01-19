@@ -1,6 +1,6 @@
 NAME = btc
 CC = c++
-FLAG = -Wall -Werror -Wextra #-fsanitize=address
+FLAG = -Wall -Werror -Wextra -std=c++98 #-fsanitize=address
 SRC_FILE = $(addprefix ./, main BitcoinExchange)
 SRCS = ${SRC_FILE:=.cpp}
 OBJS = ${SRC_FILE:=.o}
@@ -8,7 +8,7 @@ OBJS = ${SRC_FILE:=.o}
 all : $(NAME)
 
 %.o : %.cpp
-	${CC} -g ${FLAG} -c $< -o $@
+	${CC} ${FLAG} -c $< -o $@
 
 $(NAME) : $(OBJS)
 	${CC} ${FLAG} $(OBJS) -o $(NAME)

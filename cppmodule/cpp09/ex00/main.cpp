@@ -20,6 +20,6 @@ int main(int ac, char **av) {
 		wallet.input_check(std::string(av[1]));
 	}
 	catch (std::exception &e) {
-		std::cout << e.what() << std::endl;
+		std::cerr << e.what() << std::endl;
 	}
 }

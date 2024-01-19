@@ -4,6 +4,15 @@
 # include <iostream>
 # include <map>
 # include <fstream>
+# include <sstream>
+
+enum state{
+	NORMAL,
+	NOT_POSITIVE,
+	BAD_INPUT,
+	LARGE_NUM,
+	FORMAT_ERROR,
+};
 
 class btc {
 private:
@@ -15,8 +24,11 @@ public:
 	btc(const btc &cpy);
 	btc& operator=(const btc &cpy);
 	void	db_init();
+	void	input_check(std::string input);
+	void	output(std::string date, std::string num);
 };
 
 void	dataCheck(std::string date, std::string price);
+state	inputDataCheck(std::string date, std::string price);
 
 #endif

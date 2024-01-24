@@ -5,9 +5,12 @@ int main(int ac, char **av) {
 		std::cerr << "argv error" << std::endl;
 		return 0;
 	}
+
 	RPN cal;
+
 	try {
 		cal.init(std::string(av[1]));
+		cal.start();
 	}
 	catch (std::exception &e) {
 		std::cerr << e.what() << std::endl;

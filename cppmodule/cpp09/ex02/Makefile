@@ -1,4 +1,4 @@
-NAME = mutatedabomination
+NAME = PmergeMe
 CC = c++
 FLAG = -Wall -Werror -Wextra -std=c++98 #-fsanitize=address
 SRC_FILE = $(addprefix ./, main)

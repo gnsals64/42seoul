@@ -1,14 +1,14 @@
 NAME = PmergeMe
 CC = c++
 FLAG = -Wall -Werror -Wextra -std=c++98 #-fsanitize=address
-SRC_FILE = $(addprefix ./, main)
+SRC_FILE = $(addprefix ./, main Pmergeme)
 SRCS = ${SRC_FILE:=.cpp}
 OBJS = ${SRC_FILE:=.o}
 
 all : $(NAME)
 
 %.o : %.cpp
-	${CC} ${FLAG} -c $< -o $@
+	${CC} -g ${FLAG} -c $< -o $@
 
 $(NAME) : $(OBJS)
 	${CC} ${FLAG} $(OBJS) -o $(NAME)

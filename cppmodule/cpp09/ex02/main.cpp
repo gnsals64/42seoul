@@ -12,12 +12,12 @@ int main(int ac, char **av) {
 	try {
 		clock_t vec_start = clock();
 		vec.init(ac, av);
-		//vec.sort();
+		vec.sort();
 		vec_start = clock() - vec_start;
 
 		clock_t list_start = clock();
 		deq.init(ac, av);
-		//list.sort();
+		deq.sort();
 		list_start = clock() - list_start;
 	}
 	catch (std::exception &e) {

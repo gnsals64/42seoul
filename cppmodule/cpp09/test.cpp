@@ -1,14 +1,9 @@
 #include <iostream>
 #include <fstream>
+#include <vector>
 
 int main() {
-	std::ifstream file;
-	file.open("data.csv");
-	if (file.is_open()) {
-		while (!file.eof()) {
-			std::string str;
-			getline(file, str);
-			std::cout << str << std::
-		}
-	}
+	std::vector<std::pair<int, int> > _v(10);
+
+	_v[0] = std::make_pair(1, 2);
 }

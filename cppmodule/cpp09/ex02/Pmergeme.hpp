@@ -3,29 +3,53 @@
 
 # include <iostream>
 # include <vector>
-# include <list>
+# include <deque>
+# include <ctime>
+# include <sys/time.h>
 
-class Pmergeme {
+class PmergemeV {
 private:
-	std::vector<std::pair<int, int> >	_v;
-	std::list<std::pair<int, int> >		_li;
+	std::vector<std::pair<int, int> > _v1;
+	std::vector<std::pair<int, int> > _v2;
+
 	bool	_odd;
 	int		_lastnum;
 
 public:
-	Pmergeme();
-	~Pmergeme();
-	Pmergeme(const Pmergeme &cpy);
-	Pmergeme& operator=(const Pmergeme &cpy);
-	void	init_v(int ac, char **av);
-	void	init_li(int ac, char **av);
+	PmergemeV();
+	PmergemeV(int ac);
+	~PmergemeV();
+	PmergemeV(const PmergemeV &cpy);
+	PmergemeV& operator=(const PmergemeV &cpy);
+	void	init(int ac, char **av);
 	void	oddCheck(int *ac, char **av);
 	void	fillVector(int ac, char **av);
-	void	fillList(int ac, char **av);
-	void	swapPairV();
-	void	swapPairLi();
-	void	sortPairV();
-	void	sortPairLi();
+	void	swapPair();
+	void	mergesortPair();
+	void	partition(int left, int right);
+	void	merge(int left, int right);
+};
+
+class PmergemeDe {
+private:
+	std::deque<std::pair<int, int> >	 _de1;
+	std::deque<std::pair<int, int> >	 _de2;
+	bool	_odd;
+	int		_lastnum;
+
+public:
+	PmergemeDe();
+	PmergemeDe(int ac);
+	~PmergemeDe();
+	PmergemeDe(const PmergemeDe &cpy);
+	PmergemeDe& operator=(const PmergemeDe &cpy);
+	void	init(int ac, char **av);
+	void	oddCheck(int *ac, char **av);
+	void	fillDeque(int ac, char **av);
+	void	swapPair();
+	void	mergesortPair();
+	void	partition(int left, int right);
+	void	merge(int left, int right);
 };
 
 void	swap(int &a, int &b);

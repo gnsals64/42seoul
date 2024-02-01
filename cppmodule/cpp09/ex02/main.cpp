@@ -3,16 +3,25 @@
 int main(int ac, char **av) {
 	if (ac == 1) {
 		std::cerr << "Error" << std::endl;
-		return 0;
+		return 1;
 	}
 
-	Pmergeme db;
+	PmergemeV vec((ac - 1) / 2);
+	PmergemeDe deq((ac - 1) / 2);
 
 	try {
-		db.init_v(ac, av);
-		db.init_li(ac, av);
+		clock_t vec_start = clock();
+		vec.init(ac, av);
+		//vec.sort();
+		vec_start = clock() - vec_start;
+
+		clock_t list_start = clock();
+		deq.init(ac, av);
+		//list.sort();
+		list_start = clock() - list_start;
 	}
 	catch (std::exception &e) {
 		std::cerr << e.what() << std::endl;
 	}
+	return 0;
 }

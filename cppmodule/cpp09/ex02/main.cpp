@@ -15,10 +15,16 @@ int main(int ac, char **av) {
 		vec.sort();
 		vec_start = clock() - vec_start;
 
-		clock_t list_start = clock();
+		clock_t deque_start = clock();
 		deq.init(ac, av);
 		deq.sort();
-		list_start = clock() - list_start;
+		deque_start = clock() - deque_start;
+
+		vec.printBefore();
+		vec.printAfter();
+
+		std::cout << "Time to process a range of " << ac - 1 << " elements with std::[vector] : " << (double)vec_start / 1000 << " us" << std::endl;
+		std::cout << "Time to process a range of " << ac - 1 << " elements with std::[deque] : " << (double) deque_start / 1000 << " us" << std::endl;
 	}
 	catch (std::exception &e) {
 		std::cerr << e.what() << std::endl;

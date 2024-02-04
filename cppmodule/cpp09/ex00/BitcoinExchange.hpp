@@ -1,4 +1,4 @@
-#ifndef BITCOINEXCHANGE_HPP
+#ifndef BITCOINEXCHANGE_HPPBtc
 # define BITCOINEXCHANGE_HPP
 
 # include <iostream>
@@ -17,15 +17,15 @@ enum state{
 	FORMAT_ERROR,
 };
 
-class btc {
+class Btc {
 private:
 	std::map<std::string, float> _db;
 
 public:
-	btc();
-	~btc();
-	btc(const btc &cpy);
-	btc& operator=(const btc &cpy);
+	Btc();
+	~Btc();
+	Btc(const Btc &cpy);
+	Btc& operator=(const Btc &cpy);
 	void	db_init();
 	void	input_check(std::string input);
 	void	output(std::string date, std::string num);

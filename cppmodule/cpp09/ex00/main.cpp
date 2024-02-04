@@ -1,7 +1,7 @@
 #include "BitcoinExchange.hpp"
 
 int main(int ac, char **av) {
-	btc wallet;
+	Btc wallet;
 
 	if (ac != 2) {
 		std::cerr << "Error: could not open file." << std::endl;

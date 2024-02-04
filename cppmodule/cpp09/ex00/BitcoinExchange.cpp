@@ -1,21 +1,21 @@
 #include "BitcoinExchange.hpp"
 
-btc::btc() {}
+Btc::Btc() {}
 
-btc::~btc() {}
+Btc::~Btc() {}
 
-btc::btc(const btc &cpy) {
+Btc::Btc(const Btc &cpy) {
 	this->_db = cpy._db;
 }
 
-btc& btc::operator=(const btc &cpy) {
+Btc& Btc::operator=(const Btc &cpy) {
 	if (this == &cpy)
 		return *this;
 	this->_db = cpy._db;
 	return *this;
 }
 
-void	btc::db_init() {
+void	Btc::db_init() {
 	std::ifstream db;
 
 	db.open("data.csv");
@@ -23,13 +23,13 @@ void	btc::db_init() {
 	if (db.is_open()) {
 		if (!db.eof()) {
 			std::string str;
-			getline(db, str);
+			std::getline(db, str);
 			if (str != "date,exchange_rate")
 				throw std::runtime_error("The format of the database was not followed");
 		}
 		while (!db.eof()) {
 			std::string str;
-			getline(db, str);
+			std::getline(db, str);
 			if (str == "")
 				continue ;
 			if (str.find(',') == std::string::npos) {
@@ -56,7 +56,7 @@ void	dataCheck(std::string date, std::string price) {
 		throw std::runtime_error("The format of the database was not followed");
 	for (size_t i = 0; i < date.size(); i++){
 		if (i <= 3 || (i >= 5 && i <= 6) || (i >= 8 && i <= 9)) {
-			if (isdigit(date[i]) == false)
+			if (std::isdigit(date[i]) == false)
 				throw std::runtime_error("The format of the database was not followed");
 			continue ;
 		}
@@ -66,9 +66,9 @@ void	dataCheck(std::string date, std::string price) {
 			continue ;
 		}
 	}
-	tm.tm_year = atoi(date.substr(0, 4).c_str()) - 1900;
-	tm.tm_mon = atoi(date.substr(5, 2).c_str()) - 1;
-	tm.tm_mday = atoi(date.substr(8, 2).c_str());
+	tm.tm_year = std::atoi(date.substr(0, 4).c_str()) - 1900;
+	tm.tm_mon = std::atoi(date.substr(5, 2).c_str()) - 1;
+	tm.tm_mday = std::atoi(date.substr(8, 2).c_str());
 
 	int year_tmp = tm.tm_year;
 	int mon_tmp = tm.tm_mon;
@@ -85,12 +85,12 @@ void	dataCheck(std::string date, std::string price) {
 			dot++;
 			continue ;
 		}
-		if (dot > 1 || isdigit(price[i]) == false)
+		if (dot > 1 || std::isdigit(price[i]) == false)
 			throw std::runtime_error("The format of the database was not followed");
 	}
 }
 
-void btc::input_check(std::string input) {
+void Btc::input_check(std::string input) {
 	std::ifstream output;
 
 	output.open(input.c_str());
@@ -98,16 +98,16 @@ void btc::input_check(std::string input) {
 	if (output.is_open()) {
 		if (!output.eof()) {
 			std::string str;
-			getline(output, str);
+			std::getline(output, str);
 			if (str != "date | value")
 				throw std::runtime_error("The format of the database was not followed");
 		}
 		while (!output.eof()) {
 			std::string str;
-			getline(output, str);
+			std::getline(output, str);
 			if (str == "")
 				continue ;
-			if (str.find('|') == std::string::npos) {
+			if (str.find('|') == std::string::npos || str.find('|') == str.size() - 1 || str.find('|') + 1 == str.size()) {
 				std::cerr << "Error: bad input => " << str << std::endl;
 					continue ;
 			}
@@ -128,7 +128,7 @@ void btc::input_check(std::string input) {
 					std::cerr << "Error: invalid format." << std::endl;
 					break ;
 				default:
-					btc::output(date, num);
+					Btc::output(date, num);
 					break ;
 			}
 		}
@@ -138,11 +138,14 @@ void btc::input_check(std::string input) {
 }
 
 state	inputDataCheck(std::string date, std::string price) {
+	std::tm tm;
+
+	std::memset(&tm, 0, sizeof(std::tm));
 	if (date.size() != 10)
 		return BAD_INPUT;
-	for (size_t i = 0; i < date.size(); i++){
-		if (i <= 3) {
-			if (isdigit(date[i]) == false)
+	for (size_t i = 0; i < date.size(); i++) {
+		if (i <= 3 || (i >= 5 && i <= 6) || (i >= 8 && i <= 9)) {
+			if (std::isdigit(date[i]) == false)
 				return BAD_INPUT;
 			continue ;
 		}
@@ -151,29 +154,20 @@ state	inputDataCheck(std::string date, std::string price) {
 				return BAD_INPUT;
 			continue ;
 		}
-		if (i == 5) {
-			if (isdigit(date[5]) == false || isdigit(date[6]) == false)
-				return BAD_INPUT;
-			std::string tmp = date.substr(5, 2);
-			if (atoi(tmp.c_str()) > 12 && atoi(tmp.c_str()) < 1)
-				return BAD_INPUT;
-			i++;
-			continue ;
-		}
-		if (i == 8) {
-			if (isdigit(date[8]) == false || isdigit(date[9]) == false)
-				return BAD_INPUT;
-			std::string tmp = date.substr(8, 2);
-			std::string mon = date.substr(5, 2);
-			if (atoi(mon.c_str()) == 2) {
-				if (atoi(tmp.c_str()) > 28 || atoi(tmp.c_str()) < 1)
-					return BAD_INPUT;
-			}
-			else if (atoi(tmp.c_str()) > 31 || atoi(tmp.c_str()) < 1)
-				return BAD_INPUT;
-			continue ;
-		}
 	}
+
+	tm.tm_year = std::atoi(date.substr(0, 4).c_str()) - 1900;
+	tm.tm_mon = std::atoi(date.substr(5, 2).c_str()) - 1;
+	tm.tm_mday = std::atoi(date.substr(8, 2).c_str());
+
+	int year_tmp = tm.tm_year;
+	int mon_tmp = tm.tm_mon;
+	int day_tmp = tm.tm_mday;
+
+	std::mktime(&tm);
+	if (tm.tm_year != year_tmp || tm.tm_mon != mon_tmp || tm.tm_mday != day_tmp)
+		return BAD_INPUT;
+
 	int dot = 0;
 	for (size_t i = 0; i < price.size(); i++) {
 		if (price[0] == '-')
@@ -182,7 +176,7 @@ state	inputDataCheck(std::string date, std::string price) {
 			dot++;
 			continue ;
 		}
-		if (dot > 1 || isdigit(price[i]) == false)
+		if (dot > 1 || std::isdigit(price[i]) == false)
 			return FORMAT_ERROR;
 	}
 	std::stringstream ss(price);
@@ -193,7 +187,7 @@ state	inputDataCheck(std::string date, std::string price) {
 	return NORMAL;
 }
 
-void	btc::output(std::string date, std::string num) {
+void	Btc::output(std::string date, std::string num) {
 	std::map<std::string, float>::iterator it = _db.find(date);
 
 	if (it == _db.end()) {

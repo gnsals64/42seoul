@@ -5,6 +5,9 @@
 # include <map>
 # include <fstream>
 # include <sstream>
+# include <algorithm>
+# include <ctime>
+# include <cstring>
 
 enum state{
 	NORMAL,
@@ -17,7 +20,7 @@ enum state{
 class btc {
 private:
 	std::map<std::string, float> _db;
-	
+
 public:
 	btc();
 	~btc();

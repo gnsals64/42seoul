@@ -41,7 +41,7 @@ void	btc::db_init() {
 			std::stringstream ss(price);
 			float tmp;
 			ss >> tmp;
-			this->_db.insert(std::pair<std::string, float>(date, tmp));
+			this->_db[date] = tmp;
 		}
 	}
 	else
@@ -49,10 +49,13 @@ void	btc::db_init() {
 }
 
 void	dataCheck(std::string date, std::string price) {
+	std::tm tm;
+
+	std::memset(&tm, 0, sizeof(std::tm));
 	if (date.size() != 10)
 		throw std::runtime_error("The format of the database was not followed");
 	for (size_t i = 0; i < date.size(); i++){
-		if (i >= 0 && i <= 3) {
+		if (i <= 3 || (i >= 5 && i <= 6) || (i >= 8 && i <= 9)) {
 			if (isdigit(date[i]) == false)
 				throw std::runtime_error("The format of the database was not followed");
 			continue ;
@@ -62,29 +65,20 @@ void	dataCheck(std::string date, std::string price) {
 				throw std::runtime_error("The format of the database was not followed");
 			continue ;
 		}
-		if (i == 5) {
-			if (isdigit(date[5]) == false || isdigit(date[6]) == false)
-				throw std::runtime_error("The format of the database was not followed");
-			std::string tmp = date.substr(5, 2);
-			if (atoi(tmp.c_str()) > 12 && atoi(tmp.c_str()) < 1)
-				throw std::runtime_error("The format of the database was not followed");
-			i++;
-			continue ;
-		}
-		if (i == 8) {
-			if (isdigit(date[8]) == false || isdigit(date[9]) == false)
-				throw std::runtime_error("The format of the database was not followed");
-			std::string tmp = date.substr(8, 2);
-			std::string mon = date.substr(5, 2);
-			if (atoi(mon.c_str()) == 2) {
-				if (atoi(tmp.c_str()) > 28 || atoi(tmp.c_str()) < 1)
-					throw std::runtime_error("The format of the database was not followed");
-			}
-			else if (atoi(tmp.c_str()) > 31 || atoi(tmp.c_str()) < 1)
-				throw std::runtime_error("The format of the database was not followed");
-			continue ;
-		}
 	}
+	tm.tm_year = atoi(date.substr(0, 4).c_str()) - 1900;
+	tm.tm_mon = atoi(date.substr(5, 2).c_str()) - 1;
+	tm.tm_mday = atoi(date.substr(8, 2).c_str());
+
+	int year_tmp = tm.tm_year;
+	int mon_tmp = tm.tm_mon;
+	int day_tmp = tm.tm_mday;
+
+	std::mktime(&tm);
+
+	if (tm.tm_year != year_tmp || tm.tm_mon != mon_tmp || tm.tm_mday != day_tmp)
+		throw std::runtime_error("The format of the database was not followed");
+
 	int dot = 0;
 	for (size_t i = 0; i < price.size(); i++) {
 		if (price[i] == '.') {
@@ -94,12 +88,12 @@ void	dataCheck(std::string date, std::string price) {
 		if (dot > 1 || isdigit(price[i]) == false)
 			throw std::runtime_error("The format of the database was not followed");
 	}
-} 
+}
 
 void btc::input_check(std::string input) {
 	std::ifstream output;
 
-	output.open(input);
+	output.open(input.c_str());
 
 	if (output.is_open()) {
 		if (!output.eof()) {
@@ -132,6 +126,7 @@ void btc::input_check(std::string input) {
 					break ;
 				case FORMAT_ERROR:
 					std::cerr << "Error: invalid format." << std::endl;
+					break ;
 				default:
 					btc::output(date, num);
 					break ;
@@ -146,7 +141,7 @@ state	inputDataCheck(std::string date, std::string price) {
 	if (date.size() != 10)
 		return BAD_INPUT;
 	for (size_t i = 0; i < date.size(); i++){
-		if (i >= 0 && i <= 3) {
+		if (i <= 3) {
 			if (isdigit(date[i]) == false)
 				return BAD_INPUT;
 			continue ;
@@ -193,35 +188,25 @@ state	inputDataCheck(std::string date, std::string price) {
 	std::stringstream ss(price);
 	double ld;
 	ss >> ld;
-	if (ld > 2147483647)
+	if (ld > 1000)
 		return LARGE_NUM;
 	return NORMAL;
 }
 
 void	btc::output(std::string date, std::string num) {
 	std::map<std::string, float>::iterator it = _db.find(date);
-	bool finish = true;
+
 	if (it == _db.end()) {
-		while (finish) {
-			while (date[9] >= '0') {
-				date[9] = date[9] - 1;
-				it = _db.find(date);
-				if (it != _db.end()) {
-					std::stringstream ss(num);
-					float f;
-					ss >> f;
-					std::cout << date << " => " << num << " = " << _db[date] * f << std::endl;
-					finish = false;
-					break ;
-				}
-			}
-			if (date[8] >= '0') {
-				date[8] = date[8] - 1;
-				date[9] = '9';
-			}
-			if (date[8] == '0' && date[9] == '0' && finish == true)
-				finish = false;
+		it = _db.lower_bound(date);
+		if (it == _db.begin()) {
+			std::cout << "Error : invalid date." << std::endl;
+			return;
 		}
+		--it;
+		std::stringstream ss(num);
+		float f;
+		ss >> f;
+		std::cout << date << " => " << num << " = " << it->second * f << std::endl;
 	}
 	else {
 		std::stringstream ss(num);

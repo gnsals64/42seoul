@@ -5,15 +5,15 @@
 # include <queue>
 # include <stack>
 
-class RPN {
+class Rpn {
 private:
 	std::queue<char> _db;
 
 public:
-	RPN();
-	~RPN();
-	RPN(const RPN &cpy);
-	RPN& operator=(const RPN &cpy);
+	Rpn();
+	~Rpn();
+	Rpn(const Rpn &cpy);
+	Rpn& operator=(const Rpn &cpy);
 
 	void	init(std::string input);
 	void	start();

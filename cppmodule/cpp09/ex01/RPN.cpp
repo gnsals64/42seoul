@@ -1,21 +1,21 @@
 #include "RPN.hpp"
 
-RPN::RPN() {}
+Rpn::Rpn() {}
 
-RPN::~RPN() {}
+Rpn::~Rpn() {}
 
-RPN::RPN(const RPN &cpy) {
+Rpn::Rpn(const Rpn &cpy) {
 	this->_db = cpy._db;
 }
 
-RPN& RPN::operator=(const RPN &cpy) {
+Rpn& Rpn::operator=(const Rpn &cpy) {
 	if (this == &cpy)
 		return *this;
 	this->_db = cpy._db;
 	return *this;
 }
 
-void RPN::init(std::string input) {
+void Rpn::init(std::string input) {
 	if (input == "")
 		throw std::runtime_error("input is empty");
 	for (size_t i = 0; i < input.size(); i++) {
@@ -28,7 +28,7 @@ void RPN::init(std::string input) {
 	}
 }
 
-void RPN::start() {
+void Rpn::start() {
 	std::stack<int> tmp;
 
 	while (true) {
@@ -64,23 +64,23 @@ void RPN::start() {
 	}
 }
 
-bool	RPN::isopration(char c) {
+bool	Rpn::isopration(char c) {
 	return (c == '+' || c == '-' || c == '*' || c == '/');
 }
 
-int		RPN::sum(int a, int b) {
+int		Rpn::sum(int a, int b) {
 	return a + b;
 }
 
-int		RPN::sub(int a, int b) {
+int		Rpn::sub(int a, int b) {
 	return a - b;
 }
 
-int		RPN::mul(int a, int b) {
+int		Rpn::mul(int a, int b) {
 	return a * b;
 }
 
-int		RPN::div(int a, int b) {
+int		Rpn::div(int a, int b) {
 	if (b == 0)
 		throw std::runtime_error("cannot be divided by 0");
 	return a / b;

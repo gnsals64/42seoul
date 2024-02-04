@@ -6,7 +6,7 @@ int main(int ac, char **av) {
 		return 0;
 	}
 
-	RPN cal;
+	Rpn cal;
 
 	try {
 		cal.init(std::string(av[1]));
